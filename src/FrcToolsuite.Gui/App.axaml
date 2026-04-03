@@ -8,5 +8,6 @@
   </Application.Styles>
   <Application.Resources>
     <conv:StringEqualConverter x:Key="StringEqualConverter" />
+    <conv:StringToBrushConverter x:Key="StringToBrushConverter" />
   </Application.Resources>
 </Application>

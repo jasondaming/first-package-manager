@@ -21,12 +21,10 @@
                     Grid.RowSpan="2"
                     Width="42" Height="42"
                     CornerRadius="21"
+                    Background="{Binding IconColor, Converter={StaticResource StringToBrushConverter}}"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
                     Margin="0,0,12,0">
-                <Border.Background>
-                    <SolidColorBrush Color="{Binding IconColor}" />
-                </Border.Background>
                 <TextBlock Text="{Binding IconLetter}"
                            FontSize="18"
                            FontWeight="Bold"
@@ -49,17 +47,12 @@
                             CornerRadius="8"
                             Padding="8,2"
                             Margin="6,0,0,0"
-                            VerticalAlignment="Center">
-                        <Border.Background>
-                            <SolidColorBrush Color="{Binding CategoryBadgeBackground}" />
-                        </Border.Background>
+                            VerticalAlignment="Center"
+                            Background="{Binding CategoryBadgeBackground, Converter={StaticResource StringToBrushConverter}}">
                         <TextBlock Text="{Binding Category}"
                                    FontSize="10"
-                                   FontWeight="SemiBold">
-                            <TextBlock.Foreground>
-                                <SolidColorBrush Color="{Binding CategoryBadgeForeground}" />
-                            </TextBlock.Foreground>
-                        </TextBlock>
+                                   FontWeight="SemiBold"
+                                   Foreground="{Binding CategoryBadgeForeground, Converter={StaticResource StringToBrushConverter}}" />
                     </Border>
                 </Grid>
                 <TextBlock Text="{Binding Publisher}"
