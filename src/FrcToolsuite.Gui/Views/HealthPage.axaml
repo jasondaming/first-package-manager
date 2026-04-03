@@ -1,0 +1,89 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:FrcToolsuite.Gui.ViewModels"
+             mc:Ignorable="d"
+             d:DesignWidth="900" d:DesignHeight="600"
+             x:Class="FrcToolsuite.Gui.Views.HealthPage"
+             x:DataType="vm:HealthPageViewModel">
+
+    <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+        <StackPanel Spacing="16" MaxWidth="420" HorizontalAlignment="Center">
+            <!-- Icon circle -->
+            <Border Width="80" Height="80"
+                    CornerRadius="40"
+                    Background="#EEF1F8"
+                    HorizontalAlignment="Center">
+                <TextBlock Text="&#x2764;"
+                           FontSize="36"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center" />
+            </Border>
+
+            <!-- Title -->
+            <TextBlock Text="{Binding Title}"
+                       FontSize="22"
+                       FontWeight="Bold"
+                       Foreground="#1A1A2E"
+                       HorizontalAlignment="Center" />
+
+            <!-- Description -->
+            <TextBlock Text="{Binding Description}"
+                       FontSize="14"
+                       Foreground="#556677"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center"
+                       LineHeight="22"
+                       HorizontalAlignment="Center" />
+
+            <!-- Coming Soon badge -->
+            <Border Background="#FFF3E0"
+                    CornerRadius="16"
+                    Padding="20,8"
+                    HorizontalAlignment="Center"
+                    Margin="0,8,0,0">
+                <TextBlock Text="{Binding Status}"
+                           FontSize="13"
+                           FontWeight="SemiBold"
+                           Foreground="#E8A838" />
+            </Border>
+
+            <!-- Decorative feature hints -->
+            <Border Background="#FFFFFF"
+                    CornerRadius="8"
+                    Padding="20,16"
+                    Margin="0,12,0,0"
+                    BoxShadow="0 1 3 0 #15000000"
+                    BorderBrush="#E0E4EA"
+                    BorderThickness="1">
+                <StackPanel Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Border Width="28" Height="28" CornerRadius="14" Background="#FFF3E0">
+                            <TextBlock Text="&#x2713;" FontSize="14" Foreground="#E8A838"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <TextBlock Text="Check Java, C++, and Python toolchains"
+                                   FontSize="12" Foreground="#556677" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Border Width="28" Height="28" CornerRadius="14" Background="#FFF3E0">
+                            <TextBlock Text="&#x2713;" FontSize="14" Foreground="#E8A838"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <TextBlock Text="Verify network and firewall settings"
+                                   FontSize="12" Foreground="#556677" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Border Width="28" Height="28" CornerRadius="14" Background="#FFF3E0">
+                            <TextBlock Text="&#x2713;" FontSize="14" Foreground="#E8A838"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <TextBlock Text="Detect version conflicts and missing dependencies"
+                                   FontSize="12" Foreground="#556677" VerticalAlignment="Center" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </Grid>
+</UserControl>

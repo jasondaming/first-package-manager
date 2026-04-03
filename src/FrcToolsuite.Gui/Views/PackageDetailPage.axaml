@@ -1,0 +1,182 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:FrcToolsuite.Gui.ViewModels"
+             mc:Ignorable="d"
+             d:DesignWidth="900" d:DesignHeight="700"
+             x:Class="FrcToolsuite.Gui.Views.PackageDetailPage"
+             x:DataType="vm:PackageDetailPageViewModel">
+
+    <ScrollViewer Padding="32,24">
+        <StackPanel Spacing="20" MaxWidth="760">
+
+            <!-- Back button -->
+            <Button Content="&#x2190; Back to Browse"
+                    FontSize="12"
+                    Foreground="#5B8DEF"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Padding="0"
+                    Cursor="Hand"
+                    Command="{Binding GoBackCommand}" />
+
+            <!-- Package header -->
+            <Border Background="#FFFFFF"
+                    CornerRadius="10"
+                    Padding="24"
+                    BoxShadow="0 1 4 0 #18000000"
+                    BorderBrush="#E0E4EA"
+                    BorderThickness="1">
+                <Grid ColumnDefinitions="64,*,Auto">
+                    <!-- Icon -->
+                    <Border Grid.Column="0"
+                            Width="52" Height="52"
+                            CornerRadius="26"
+                            VerticalAlignment="Top"
+                            Margin="0,0,16,0">
+                        <Border.Background>
+                            <SolidColorBrush Color="{Binding IconColor}" />
+                        </Border.Background>
+                        <TextBlock Text="{Binding IconLetter}"
+                                   FontSize="24"
+                                   FontWeight="Bold"
+                                   Foreground="#FFFFFF"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Border>
+
+                    <!-- Title area -->
+                    <StackPanel Grid.Column="1" Spacing="6">
+                        <TextBlock Text="{Binding Name}"
+                                   FontSize="22"
+                                   FontWeight="Bold"
+                                   Foreground="#1A1A2E" />
+                        <StackPanel Orientation="Horizontal" Spacing="16">
+                            <TextBlock Text="{Binding Publisher}"
+                                       FontSize="13"
+                                       Foreground="#888899" />
+                            <TextBlock Text="{Binding Version}"
+                                       FontSize="13"
+                                       Foreground="#99AABB" />
+                        </StackPanel>
+                        <!-- Badges -->
+                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
+                            <Border Background="#EEF1F8" CornerRadius="10" Padding="10,4">
+                                <TextBlock Text="{Binding Category}" FontSize="11" Foreground="#5B8DEF" FontWeight="SemiBold" />
+                            </Border>
+                            <Border Background="#F5F0FF" CornerRadius="10" Padding="10,4">
+                                <TextBlock Text="{Binding License}" FontSize="11" Foreground="#7C5CBF" FontWeight="SemiBold" />
+                            </Border>
+                            <Border Background="#E8F5E9" CornerRadius="10" Padding="10,4">
+                                <TextBlock Text="{Binding Size}" FontSize="11" Foreground="#44BB88" FontWeight="SemiBold" />
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Install button -->
+                    <StackPanel Grid.Column="2" VerticalAlignment="Top" Spacing="6">
+                        <Button Content="{Binding Size, StringFormat='Install ({0})'}"
+                                FontSize="14"
+                                FontWeight="SemiBold"
+                                Padding="24,10"
+                                CornerRadius="6"
+                                Background="#5B8DEF"
+                                Foreground="#FFFFFF"
+                                BorderThickness="0"
+                                IsVisible="{Binding !IsInstalled}"
+                                Command="{Binding InstallCommand}" />
+                        <Button Content="&#x2714; Installed"
+                                FontSize="14"
+                                FontWeight="SemiBold"
+                                Padding="24,10"
+                                CornerRadius="6"
+                                Background="#E8F5E9"
+                                Foreground="#44BB88"
+                                BorderThickness="0"
+                                IsVisible="{Binding IsInstalled}"
+                                IsEnabled="False" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Description -->
+            <Border Background="#FFFFFF"
+                    CornerRadius="8"
+                    Padding="24"
+                    BoxShadow="0 1 2 0 #10000000"
+                    BorderBrush="#E0E4EA"
+                    BorderThickness="1">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Description"
+                               FontSize="15"
+                               FontWeight="SemiBold"
+                               Foreground="#1A1A2E" />
+                    <TextBlock Text="{Binding Description}"
+                               FontSize="13"
+                               Foreground="#556677"
+                               TextWrapping="Wrap"
+                               LineHeight="22" />
+                </StackPanel>
+            </Border>
+
+            <!-- Dependencies -->
+            <Border Background="#FFFFFF"
+                    CornerRadius="8"
+                    Padding="24"
+                    BoxShadow="0 1 2 0 #10000000"
+                    BorderBrush="#E0E4EA"
+                    BorderThickness="1">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Dependencies"
+                               FontSize="15"
+                               FontWeight="SemiBold"
+                               Foreground="#1A1A2E" />
+                    <ItemsControl ItemsSource="{Binding Dependencies}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,4">
+                                    <Border Width="6" Height="6"
+                                            CornerRadius="3"
+                                            Background="#5B8DEF"
+                                            VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding}"
+                                               FontSize="13"
+                                               Foreground="#556677" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Release Notes -->
+            <Border Background="#FFFFFF"
+                    CornerRadius="8"
+                    Padding="24"
+                    Margin="0,0,0,20"
+                    BoxShadow="0 1 2 0 #10000000"
+                    BorderBrush="#E0E4EA"
+                    BorderThickness="1">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Release Notes"
+                               FontSize="15"
+                               FontWeight="SemiBold"
+                               Foreground="#1A1A2E" />
+                    <Border Background="#FAFBFC"
+                            CornerRadius="6"
+                            Padding="16,12"
+                            BorderBrush="#E8ECF0"
+                            BorderThickness="1">
+                        <TextBlock Text="{Binding ReleaseNotes}"
+                                   FontSize="12"
+                                   Foreground="#556677"
+                                   TextWrapping="Wrap"
+                                   LineHeight="20"
+                                   FontFamily="Consolas, Courier New, monospace" />
+                    </Border>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

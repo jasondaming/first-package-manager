@@ -17,6 +17,50 @@ public class PackageViewModel
     public string Icon { get; set; } = "\U0001F4E6";
     public bool IsInstalled { get; set; }
     public bool HasUpdate { get; set; }
+
+    /// <summary>
+    /// First letter of package name for the colored circle icon.
+    /// </summary>
+    public string IconLetter => string.IsNullOrEmpty(Name) ? "?" : Name[..1].ToUpperInvariant();
+
+    /// <summary>
+    /// Deterministic color based on category for the icon circle.
+    /// </summary>
+    public string IconColor => Category switch
+    {
+        "Runtime" => "#5B8DEF",
+        "IDE" => "#7C5CBF",
+        "Tools" => "#E8A838",
+        "Libraries" => "#44BB88",
+        "Dashboards" => "#EF5B8D",
+        _ => "#5B8DEF"
+    };
+
+    /// <summary>
+    /// Background tint for category badge.
+    /// </summary>
+    public string CategoryBadgeBackground => Category switch
+    {
+        "Runtime" => "#EEF1F8",
+        "IDE" => "#F5F0FF",
+        "Tools" => "#FFF8E8",
+        "Libraries" => "#E8F5E9",
+        "Dashboards" => "#FDE8F0",
+        _ => "#EEF1F8"
+    };
+
+    /// <summary>
+    /// Text color for category badge.
+    /// </summary>
+    public string CategoryBadgeForeground => Category switch
+    {
+        "Runtime" => "#5B8DEF",
+        "IDE" => "#7C5CBF",
+        "Tools" => "#C88B20",
+        "Libraries" => "#2E8B57",
+        "Dashboards" => "#D14477",
+        _ => "#5B8DEF"
+    };
 }
 
 public partial class BrowsePageViewModel : ObservableObject, IStateExportable

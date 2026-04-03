@@ -227,6 +227,18 @@
                     <DataTemplate DataType="vm:SettingsPageViewModel">
                         <views:SettingsPage />
                     </DataTemplate>
+                    <DataTemplate DataType="vm:ProfilesPageViewModel">
+                        <views:ProfilesPage />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:UsbModePageViewModel">
+                        <views:UsbModePage />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:HealthPageViewModel">
+                        <views:HealthPage />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:PackageDetailPageViewModel">
+                        <views:PackageDetailPage />
+                    </DataTemplate>
                 </ContentControl.DataTemplates>
             </ContentControl>
         </Border>

@@ -4,39 +4,64 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:FrcToolsuite.Gui.ViewModels"
              mc:Ignorable="d"
-             d:DesignWidth="320" d:DesignHeight="160"
+             d:DesignWidth="320" d:DesignHeight="180"
              x:Class="FrcToolsuite.Gui.Controls.PackageCard"
              x:DataType="vm:PackageViewModel">
 
     <Border Background="#FFFFFF"
-            CornerRadius="8"
-            Padding="16"
+            CornerRadius="10"
+            Padding="18"
             Margin="0,0,0,0"
-            BoxShadow="0 1 3 0 #22000000"
+            BoxShadow="0 2 6 0 #18000000"
             BorderBrush="#E0E4EA"
             BorderThickness="1">
-        <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="48,*">
-            <!-- Icon -->
+        <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="52,*">
+            <!-- Colored circle icon with first letter -->
             <Border Grid.Row="0" Grid.Column="0"
                     Grid.RowSpan="2"
-                    Width="40" Height="40"
-                    CornerRadius="8"
-                    Background="#EEF1F8"
+                    Width="42" Height="42"
+                    CornerRadius="21"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
                     Margin="0,0,12,0">
-                <TextBlock Text="{Binding Icon}"
-                           FontSize="22"
+                <Border.Background>
+                    <SolidColorBrush Color="{Binding IconColor}" />
+                </Border.Background>
+                <TextBlock Text="{Binding IconLetter}"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           Foreground="#FFFFFF"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center" />
             </Border>
 
-            <!-- Name and publisher -->
-            <StackPanel Grid.Row="0" Grid.Column="1" Spacing="2">
-                <TextBlock Text="{Binding Name}"
-                           FontSize="14"
-                           FontWeight="SemiBold"
-                           Foreground="#1A1A2E" />
+            <!-- Name, publisher, and category badge -->
+            <StackPanel Grid.Row="0" Grid.Column="1" Spacing="3">
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Grid.Column="0"
+                               Text="{Binding Name}"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="#1A1A2E"
+                               TextTrimming="CharacterEllipsis" />
+                    <!-- Category badge -->
+                    <Border Grid.Column="1"
+                            CornerRadius="8"
+                            Padding="8,2"
+                            Margin="6,0,0,0"
+                            VerticalAlignment="Center">
+                        <Border.Background>
+                            <SolidColorBrush Color="{Binding CategoryBadgeBackground}" />
+                        </Border.Background>
+                        <TextBlock Text="{Binding Category}"
+                                   FontSize="10"
+                                   FontWeight="SemiBold">
+                            <TextBlock.Foreground>
+                                <SolidColorBrush Color="{Binding CategoryBadgeForeground}" />
+                            </TextBlock.Foreground>
+                        </TextBlock>
+                    </Border>
+                </Grid>
                 <TextBlock Text="{Binding Publisher}"
                            FontSize="11"
                            Foreground="#888899" />
@@ -79,8 +104,8 @@
                         FontSize="12"
                         Padding="16,6"
                         CornerRadius="4"
-                        Background="#E8EDF2"
-                        Foreground="#667788"
+                        Background="#E8F5E9"
+                        Foreground="#44BB88"
                         BorderThickness="0"
                         IsVisible="{Binding IsInstalled}"
                         IsEnabled="False" />

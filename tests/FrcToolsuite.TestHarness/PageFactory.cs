@@ -39,6 +39,30 @@ public static class PageFactory
             var view = new SettingsPage { DataContext = vm };
             return (view, vm);
         },
+        ["Profiles"] = () =>
+        {
+            var vm = new ProfilesPageViewModel();
+            var view = new ProfilesPage { DataContext = vm };
+            return (view, vm);
+        },
+        ["UsbMode"] = () =>
+        {
+            var vm = new UsbModePageViewModel();
+            var view = new UsbModePage { DataContext = vm };
+            return (view, vm);
+        },
+        ["Health"] = () =>
+        {
+            var vm = new HealthPageViewModel();
+            var view = new HealthPage { DataContext = vm };
+            return (view, vm);
+        },
+        ["PackageDetail"] = () =>
+        {
+            var vm = new PackageDetailPageViewModel();
+            var view = new PackageDetailPage { DataContext = vm };
+            return (view, vm);
+        },
         ["MainWindow"] = () =>
         {
             var vm = new MainWindowViewModel();

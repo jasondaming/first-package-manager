@@ -30,6 +30,10 @@ public partial class MainWindowViewModel : ObservableObject, IStateExportable
     public InstalledPageViewModel InstalledPage { get; } = new();
     public UpdatesPageViewModel UpdatesPage { get; } = new();
     public SettingsPageViewModel SettingsPage { get; } = new();
+    public ProfilesPageViewModel ProfilesPage { get; } = new();
+    public UsbModePageViewModel UsbModePage { get; } = new();
+    public HealthPageViewModel HealthPage { get; } = new();
+    public PackageDetailPageViewModel PackageDetailPage { get; } = new();
 
     public MainWindowViewModel()
     {
@@ -47,6 +51,10 @@ public partial class MainWindowViewModel : ObservableObject, IStateExportable
             "Installed" => InstalledPage,
             "Updates" => UpdatesPage,
             "Settings" => SettingsPage,
+            "Profiles" => ProfilesPage,
+            "USBMode" => UsbModePage,
+            "Health" => HealthPage,
+            "PackageDetail" => PackageDetailPage,
             _ => HomePage
         };
     }

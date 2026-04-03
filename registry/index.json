@@ -1,0 +1,186 @@
+{
+  "schemaVersion": "1.0",
+  "lastUpdated": "2026-01-04T00:00:00Z",
+  "seasons": [
+    {
+      "year": 2026,
+      "status": "active",
+      "kickoffDate": "2026-01-03T12:00:00Z"
+    }
+  ],
+  "publishers": [
+    {
+      "id": "wpilib",
+      "name": "WPILib",
+      "trusted": true
+    },
+    {
+      "id": "ctre",
+      "name": "Cross The Road Electronics",
+      "trusted": true
+    },
+    {
+      "id": "rev",
+      "name": "REV Robotics",
+      "trusted": true
+    },
+    {
+      "id": "pathplanner",
+      "name": "PathPlanner",
+      "trusted": true
+    }
+  ],
+  "packages": [
+    {
+      "id": "wpilib.jdk",
+      "name": "JDK 17",
+      "season": 2026,
+      "version": "17.0.16",
+      "category": "runtime",
+      "competition": "Frc",
+      "publisherId": "wpilib",
+      "tags": ["java", "jdk", "runtime"],
+      "description": "Eclipse Adoptium JDK 17 for FRC Java development.",
+      "totalSize": {
+        "win-x64": 189000000,
+        "linux-x64": 185000000,
+        "linux-arm64": 178000000,
+        "osx-x64": 185000000,
+        "osx-arm64": 180000000
+      },
+      "manifestUrl": "https://raw.githubusercontent.com/first-toolsuite/registry/main/packages/wpilib/jdk-2026-17.0.16.json",
+      "manifestSha256": "placeholder-sha256"
+    },
+    {
+      "id": "wpilib.vscode",
+      "name": "VS Code",
+      "season": 2026,
+      "version": "1.96.0",
+      "category": "ide",
+      "competition": "Frc",
+      "publisherId": "wpilib",
+      "tags": ["ide", "vscode", "editor"],
+      "description": "Visual Studio Code editor for FRC and FTC development.",
+      "totalSize": {
+        "win-x64": 105000000,
+        "linux-x64": 100000000,
+        "osx-x64": 105000000,
+        "osx-arm64": 100000000
+      },
+      "manifestUrl": "https://raw.githubusercontent.com/first-toolsuite/registry/main/packages/wpilib/vscode-2026-1.96.0.json",
+      "manifestSha256": "placeholder-sha256"
+    },
+    {
+      "id": "wpilib.vscode-wpilib",
+      "name": "WPILib Extension",
+      "season": 2026,
+      "version": "2026.1.0",
+      "category": "ide-extension",
+      "competition": "Frc",
+      "publisherId": "wpilib",
+      "tags": ["vscode", "extension", "wpilib"],
+      "description": "WPILib VS Code extension for FRC robot development.",
+      "totalSize": {
+        "win-x64": 25000000
+      },
+      "manifestUrl": "https://raw.githubusercontent.com/first-toolsuite/registry/main/packages/wpilib/vscode-wpilib-2026-2026.1.0.json",
+      "manifestSha256": "placeholder-sha256"
+    },
+    {
+      "id": "wpilib.gradle-wrapper",
+      "name": "Gradle",
+      "season": 2026,
+      "version": "8.11.1",
+      "category": "build-system",
+      "competition": "Frc",
+      "publisherId": "wpilib",
+      "tags": ["gradle", "build", "java"],
+      "description": "Gradle build system wrapper for FRC and FTC projects.",
+      "totalSize": {
+        "win-x64": 140000000
+      },
+      "manifestUrl": "https://raw.githubusercontent.com/first-toolsuite/registry/main/packages/wpilib/gradle-wrapper-2026-8.11.1.json",
+      "manifestSha256": "placeholder-sha256"
+    },
+    {
+      "id": "wpilib.tools",
+      "name": "WPILib Tools",
+      "season": 2026,
+      "version": "2026.1.0",
+      "category": "tool",
+      "competition": "Frc",
+      "publisherId": "wpilib",
+      "tags": ["tools", "shuffleboard", "smartdashboard", "robotbuilder", "pathweaver"],
+      "description": "WPILib Tools bundle including Shuffleboard, SmartDashboard, RobotBuilder, and more.",
+      "totalSize": {
+        "win-x64": 250000000
+      },
+      "manifestUrl": "https://raw.githubusercontent.com/first-toolsuite/registry/main/packages/wpilib/tools-2026-2026.1.0.json",
+      "manifestSha256": "placeholder-sha256"
+    },
+    {
+      "id": "wpilib.advantagescope",
+      "name": "AdvantageScope",
+      "season": 2026,
+      "version": "2026.0.0",
+      "category": "dashboard",
+      "competition": "Frc",
+      "publisherId": "wpilib",
+      "tags": ["dashboard", "logging", "telemetry"],
+      "description": "AdvantageScope robot telemetry viewer and dashboard.",
+      "totalSize": {
+        "win-x64": 120000000
+      },
+      "manifestUrl": "https://raw.githubusercontent.com/first-toolsuite/registry/main/packages/wpilib/advantagescope-2026-2026.0.0.json",
+      "manifestSha256": "placeholder-sha256"
+    },
+    {
+      "id": "ctre.phoenix-framework",
+      "name": "CTRE Phoenix",
+      "season": 2026,
+      "version": "25.1.0",
+      "category": "library",
+      "competition": "Frc",
+      "publisherId": "ctre",
+      "tags": ["vendor", "ctre", "phoenix", "motor-controller"],
+      "description": "CTRE Phoenix Framework vendor library for FRC.",
+      "totalSize": {
+        "win-x64": 85000000
+      },
+      "manifestUrl": "https://raw.githubusercontent.com/first-toolsuite/registry/main/packages/ctre/phoenix-framework-2026-25.1.0.json",
+      "manifestSha256": "placeholder-sha256"
+    },
+    {
+      "id": "rev.revlib",
+      "name": "REVLib",
+      "season": 2026,
+      "version": "2026.0.0",
+      "category": "library",
+      "competition": "Frc",
+      "publisherId": "rev",
+      "tags": ["vendor", "rev", "spark", "motor-controller"],
+      "description": "REVLib vendor library for REV Robotics hardware in FRC.",
+      "totalSize": {
+        "win-x64": 45000000
+      },
+      "manifestUrl": "https://raw.githubusercontent.com/first-toolsuite/registry/main/packages/rev/revlib-2026-2026.0.0.json",
+      "manifestSha256": "placeholder-sha256"
+    },
+    {
+      "id": "pathplanner.pathplannerlib",
+      "name": "PathPlannerLib",
+      "season": 2026,
+      "version": "2026.1.0",
+      "category": "library",
+      "competition": "Frc",
+      "publisherId": "pathplanner",
+      "tags": ["vendor", "pathplanning", "autonomous"],
+      "description": "PathPlannerLib for autonomous path planning in FRC.",
+      "totalSize": {
+        "win-x64": 12000000
+      },
+      "manifestUrl": "https://raw.githubusercontent.com/first-toolsuite/registry/main/packages/pathplanner/pathplannerlib-2026-2026.1.0.json",
+      "manifestSha256": "placeholder-sha256"
+    }
+  ]
+}
