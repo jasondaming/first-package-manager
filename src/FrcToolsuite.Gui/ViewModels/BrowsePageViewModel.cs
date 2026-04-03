@@ -117,11 +117,14 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
                 foreach (var summary in results)
                 {
                     long sizeBytes = 0;
-                    foreach (var kvp in summary.TotalSize)
+                    if (summary.TotalSize != null)
                     {
-                        if (kvp.Value > sizeBytes)
+                        foreach (var kvp in summary.TotalSize)
                         {
-                            sizeBytes = kvp.Value;
+                            if (kvp.Value > sizeBytes)
+                            {
+                                sizeBytes = kvp.Value;
+                            }
                         }
                     }
 
@@ -131,7 +134,7 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
                         Publisher = summary.PublisherId,
                         Version = summary.Version,
                         Description = summary.Description,
-                        Category = summary.Category,
+                        Category = NormalizeCategory(summary.Category),
                         Size = FormatBytes(sizeBytes)
                     });
                 }
@@ -271,6 +274,22 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
                 FilteredPackages.Add(pkg);
             }
         }
+    }
+
+    private static string NormalizeCategory(string category)
+    {
+        return category?.ToLowerInvariant() switch
+        {
+            "runtime" => "Runtime",
+            "ide" => "IDE",
+            "ide-extension" => "IDE",
+            "tool" => "Tools",
+            "library" => "Libraries",
+            "framework" => "Libraries",
+            "dashboard" => "Dashboards",
+            "build-system" => "Tools",
+            _ => "Tools"
+        };
     }
 
     private static string FormatBytes(long bytes)

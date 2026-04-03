@@ -63,8 +63,8 @@ public partial class MainWindowViewModel : ObservableObject, IStateExportable
         try
         {
             var settingsPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "FrcToolsuite",
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                ".frctoolsuite",
                 "settings.json");
             return File.Exists(settingsPath);
         }
