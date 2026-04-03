@@ -3,6 +3,7 @@ using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FrcToolsuite.Core;
+using FrcToolsuite.Core.Packages;
 
 namespace FrcToolsuite.Gui.ViewModels;
 
@@ -19,9 +20,32 @@ public class UpdateablePackageViewModel
 
 public partial class UpdatesPageViewModel : ObservableObject, IStateExportable
 {
-    public ObservableCollection<UpdateablePackageViewModel> AvailableUpdates { get; } = new()
+    private readonly IPackageManager? _packageManager;
+
+    public ObservableCollection<UpdateablePackageViewModel> AvailableUpdates { get; } = new();
+
+    [ObservableProperty]
+    private bool _isUpdating;
+
+    public UpdatesPageViewModel()
+        : this(null)
     {
-        new UpdateablePackageViewModel
+    }
+
+    public UpdatesPageViewModel(IPackageManager? packageManager)
+    {
+        _packageManager = packageManager;
+        LoadMockData();
+
+        if (_packageManager != null)
+        {
+            _ = LoadUpdatesAsync();
+        }
+    }
+
+    private void LoadMockData()
+    {
+        AvailableUpdates.Add(new UpdateablePackageViewModel
         {
             Name = "AdvantageScope",
             Publisher = "Mechanical Advantage",
@@ -30,8 +54,8 @@ public partial class UpdatesPageViewModel : ObservableObject, IStateExportable
             Size = "32 MB",
             Icon = "\U0001F4CA",
             ChangelogSummary = "New 3D field view, improved log parsing performance."
-        },
-        new UpdateablePackageViewModel
+        });
+        AvailableUpdates.Add(new UpdateablePackageViewModel
         {
             Name = "REVLib",
             Publisher = "REV Robotics",
@@ -40,11 +64,43 @@ public partial class UpdatesPageViewModel : ObservableObject, IStateExportable
             Size = "12 MB",
             Icon = "\u2699\uFE0F",
             ChangelogSummary = "Bug fix for SPARK MAX encoder reset."
-        }
-    };
+        });
+    }
 
-    [ObservableProperty]
-    private bool _isUpdating;
+    private async Task LoadUpdatesAsync()
+    {
+        if (_packageManager == null)
+        {
+            return;
+        }
+
+        try
+        {
+            var updates = await _packageManager.CheckForUpdatesAsync();
+            if (updates.Count > 0)
+            {
+                AvailableUpdates.Clear();
+                foreach (var update in updates)
+                {
+                    AvailableUpdates.Add(new UpdateablePackageViewModel
+                    {
+                        Name = update.PackageId,
+                        CurrentVersion = update.InstalledVersion,
+                        NewVersion = update.AvailableVersion
+                    });
+                }
+            }
+            else if (updates.Count == 0)
+            {
+                // No updates available; clear mock data
+                AvailableUpdates.Clear();
+            }
+        }
+        catch
+        {
+            // Keep mock data as fallback
+        }
+    }
 
     [RelayCommand]
     private void UpdateAll()

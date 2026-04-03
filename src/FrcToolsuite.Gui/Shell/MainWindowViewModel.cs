@@ -3,6 +3,8 @@ using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FrcToolsuite.Core;
+using FrcToolsuite.Core.Packages;
+using FrcToolsuite.Core.Registry;
 using FrcToolsuite.Gui.ViewModels;
 
 namespace FrcToolsuite.Gui.Shell;
@@ -25,10 +27,10 @@ public partial class MainWindowViewModel : ObservableObject, IStateExportable
 
     public ObservableCollection<string> Seasons { get; } = new() { "2026", "2025", "2024" };
 
-    public HomePageViewModel HomePage { get; } = new();
-    public BrowsePageViewModel BrowsePage { get; } = new();
-    public InstalledPageViewModel InstalledPage { get; } = new();
-    public UpdatesPageViewModel UpdatesPage { get; } = new();
+    public HomePageViewModel HomePage { get; }
+    public BrowsePageViewModel BrowsePage { get; }
+    public InstalledPageViewModel InstalledPage { get; }
+    public UpdatesPageViewModel UpdatesPage { get; }
     public SettingsPageViewModel SettingsPage { get; } = new();
     public ProfilesPageViewModel ProfilesPage { get; } = new();
     public UsbModePageViewModel UsbModePage { get; } = new();
@@ -36,7 +38,16 @@ public partial class MainWindowViewModel : ObservableObject, IStateExportable
     public PackageDetailPageViewModel PackageDetailPage { get; } = new();
 
     public MainWindowViewModel()
+        : this(null, null)
     {
+    }
+
+    public MainWindowViewModel(IPackageManager? packageManager, IRegistryClient? registry)
+    {
+        HomePage = new HomePageViewModel(packageManager, registry);
+        BrowsePage = new BrowsePageViewModel(registry);
+        InstalledPage = new InstalledPageViewModel(packageManager);
+        UpdatesPage = new UpdatesPageViewModel(packageManager);
         CurrentPageViewModel = HomePage;
     }
 

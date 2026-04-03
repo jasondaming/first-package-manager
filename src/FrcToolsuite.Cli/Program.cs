@@ -1,4 +1,13 @@
 using System.CommandLine;
+using Microsoft.Extensions.DependencyInjection;
+using FrcToolsuite.Cli.Commands;
+using FrcToolsuite.Core.Configuration;
+using FrcToolsuite.Core.Download;
+using FrcToolsuite.Core.Health;
+using FrcToolsuite.Core.Install;
+using FrcToolsuite.Core.Packages;
+using FrcToolsuite.Core.Platform;
+using FrcToolsuite.Core.Registry;
 
 namespace FrcToolsuite.Cli;
 
@@ -6,6 +15,7 @@ public static class Program
 {
     public static async Task<int> Main(string[] args)
     {
+        var services = BuildServiceProvider();
         var rootCommand = new RootCommand("FIRST Robotics Package Manager");
 
         // Global options
@@ -43,14 +53,16 @@ public static class Program
         var installCommand = new Command("install", "Install a package or bundle");
         var installPackageArg = new Argument<string>("package-or-bundle", "Package ID or bundle name to install");
         var installBundleOption = new Option<bool>("--bundle", "Treat the argument as a bundle name");
-        var installYearOption = new Option<int?>("--year", "Override season year for this install");
+        var installYesOption = new Option<bool>("--yes", "Skip confirmation prompt");
+        installYesOption.AddAlias("-Y");
         installCommand.AddArgument(installPackageArg);
         installCommand.AddOption(installBundleOption);
-        installCommand.AddOption(installYearOption);
-        installCommand.SetHandler((packageOrBundle, isBundle, year) =>
+        installCommand.AddOption(installYesOption);
+        installCommand.SetHandler(async (packageOrBundle, isBundle, yes) =>
         {
-            Console.WriteLine("Not yet implemented");
-        }, installPackageArg, installBundleOption, installYearOption);
+            var pm = services.GetRequiredService<IPackageManager>();
+            Environment.ExitCode = await InstallCommand.ExecuteAsync(pm, packageOrBundle, isBundle, yes);
+        }, installPackageArg, installBundleOption, installYesOption);
 
         // update
         var updateCommand = new Command("update", "Update installed packages");
@@ -80,18 +92,21 @@ public static class Program
         listCommand.AddOption(listInstalledOption);
         listCommand.AddOption(listAvailableOption);
         listCommand.AddOption(listUpdatesOption);
-        listCommand.SetHandler((installed, available, updates) =>
+        listCommand.SetHandler(async (installed, available, updates) =>
         {
-            Console.WriteLine("Not yet implemented");
+            var pm = services.GetRequiredService<IPackageManager>();
+            var rc = services.GetRequiredService<IRegistryClient>();
+            Environment.ExitCode = await ListCommand.ExecuteAsync(pm, rc, installed, available, updates);
         }, listInstalledOption, listAvailableOption, listUpdatesOption);
 
         // search
         var searchCommand = new Command("search", "Search for packages in the registry");
         var searchQueryArg = new Argument<string>("query", "Search query");
         searchCommand.AddArgument(searchQueryArg);
-        searchCommand.SetHandler((query) =>
+        searchCommand.SetHandler(async (query) =>
         {
-            Console.WriteLine("Not yet implemented");
+            var rc = services.GetRequiredService<IRegistryClient>();
+            Environment.ExitCode = await SearchCommand.ExecuteAsync(rc, query);
         }, searchQueryArg);
 
         // health
@@ -100,9 +115,10 @@ public static class Program
         var healthPackageOption = new Option<string?>("--package", "Check only a specific package");
         healthCommand.AddOption(healthFixOption);
         healthCommand.AddOption(healthPackageOption);
-        healthCommand.SetHandler((fix, package_) =>
+        healthCommand.SetHandler(async (fix, package_) =>
         {
-            Console.WriteLine("Not yet implemented");
+            var hc = services.GetRequiredService<IHealthChecker>();
+            Environment.ExitCode = await HealthCommand.ExecuteAsync(hc, fix, package_);
         }, healthFixOption, healthPackageOption);
 
         // sync-usb
@@ -151,23 +167,26 @@ public static class Program
         var configSetValueArg = new Argument<string>("value", "Configuration value");
         configSetCommand.AddArgument(configSetKeyArg);
         configSetCommand.AddArgument(configSetValueArg);
-        configSetCommand.SetHandler((key, value) =>
+        configSetCommand.SetHandler(async (key, value) =>
         {
-            Console.WriteLine("Not yet implemented");
+            var sp = services.GetRequiredService<ISettingsProvider>();
+            Environment.ExitCode = await ConfigCommand.ExecuteSetAsync(sp, key, value);
         }, configSetKeyArg, configSetValueArg);
 
         var configGetCommand = new Command("get", "Get a configuration value");
         var configGetKeyArg = new Argument<string>("key", "Configuration key");
         configGetCommand.AddArgument(configGetKeyArg);
-        configGetCommand.SetHandler((key) =>
+        configGetCommand.SetHandler(async (key) =>
         {
-            Console.WriteLine("Not yet implemented");
+            var sp = services.GetRequiredService<ISettingsProvider>();
+            Environment.ExitCode = await ConfigCommand.ExecuteGetAsync(sp, key);
         }, configGetKeyArg);
 
         var configListCommand = new Command("list", "List all configuration values");
-        configListCommand.SetHandler(() =>
+        configListCommand.SetHandler(async () =>
         {
-            Console.WriteLine("Not yet implemented");
+            var sp = services.GetRequiredService<ISettingsProvider>();
+            Environment.ExitCode = await ConfigCommand.ExecuteListAsync(sp);
         });
 
         configCommand.AddCommand(configSetCommand);
@@ -176,9 +195,9 @@ public static class Program
 
         // self-update
         var selfUpdateCommand = new Command("self-update", "Update the FIRST Package Manager itself");
-        selfUpdateCommand.SetHandler(() =>
+        selfUpdateCommand.SetHandler(async () =>
         {
-            Console.WriteLine("Not yet implemented");
+            Environment.ExitCode = await SelfUpdateCommand.ExecuteAsync();
         });
 
         // Add all subcommands to root
@@ -194,5 +213,61 @@ public static class Program
         rootCommand.AddCommand(selfUpdateCommand);
 
         return await rootCommand.InvokeAsync(args);
+    }
+
+    private static ServiceProvider BuildServiceProvider()
+    {
+        var services = new ServiceCollection();
+
+        // HTTP client
+        services.AddSingleton<HttpClient>();
+
+        // Platform service (stub for now)
+        services.AddSingleton<IPlatformService, StubPlatformService>();
+
+        // Configuration
+        services.AddSingleton<ISettingsProvider, SettingsProvider>();
+
+        // Registry
+        services.AddSingleton<IRegistryClient>(sp =>
+        {
+            var httpClient = sp.GetRequiredService<HttpClient>();
+            return new RegistryClient(httpClient);
+        });
+
+        // Download
+        services.AddSingleton<IDownloadManager>(sp =>
+        {
+            var httpClient = sp.GetRequiredService<HttpClient>();
+            return new DownloadManager(httpClient);
+        });
+
+        // Install engine
+        services.AddSingleton<IInstallEngine>(sp =>
+        {
+            var platform = sp.GetRequiredService<IPlatformService>();
+            return new InstallEngine(platform);
+        });
+
+        // Package manager
+        services.AddSingleton<IPackageManager>(sp =>
+        {
+            var registry = sp.GetRequiredService<IRegistryClient>();
+            var download = sp.GetRequiredService<IDownloadManager>();
+            var install = sp.GetRequiredService<IInstallEngine>();
+            var platform = sp.GetRequiredService<IPlatformService>();
+            var settings = sp.GetRequiredService<ISettingsProvider>();
+            return new PackageManager(registry, download, install, platform, settings);
+        });
+
+        // Health checker
+        services.AddSingleton<IHealthChecker>(sp =>
+        {
+            var pm = sp.GetRequiredService<IPackageManager>();
+            var settings = sp.GetRequiredService<ISettingsProvider>();
+            return new HealthChecker(pm, settings);
+        });
+
+        return services.BuildServiceProvider();
     }
 }

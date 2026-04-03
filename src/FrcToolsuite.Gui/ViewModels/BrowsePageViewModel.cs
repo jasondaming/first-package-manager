@@ -3,6 +3,7 @@ using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FrcToolsuite.Core;
+using FrcToolsuite.Core.Registry;
 
 namespace FrcToolsuite.Gui.ViewModels;
 
@@ -65,6 +66,8 @@ public class PackageViewModel
 
 public partial class BrowsePageViewModel : ObservableObject, IStateExportable
 {
+    private readonly IRegistryClient? _registry;
+
     [ObservableProperty]
     private string _searchQuery = string.Empty;
 
@@ -76,9 +79,75 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
         "All", "Runtime", "IDE", "Tools", "Libraries", "Dashboards"
     };
 
-    public ObservableCollection<PackageViewModel> Packages { get; } = new()
+    public ObservableCollection<PackageViewModel> Packages { get; } = new();
+
+    [ObservableProperty]
+    private ObservableCollection<PackageViewModel> _filteredPackages = new();
+
+    public BrowsePageViewModel()
+        : this(null)
     {
-        new PackageViewModel
+    }
+
+    public BrowsePageViewModel(IRegistryClient? registry)
+    {
+        _registry = registry;
+        LoadMockData();
+        FilteredPackages = new ObservableCollection<PackageViewModel>(Packages);
+
+        if (_registry != null)
+        {
+            _ = LoadPackagesAsync();
+        }
+    }
+
+    public async Task LoadPackagesAsync()
+    {
+        if (_registry == null)
+        {
+            return;
+        }
+
+        try
+        {
+            var results = await _registry.SearchAsync();
+            if (results.Count > 0)
+            {
+                Packages.Clear();
+                foreach (var summary in results)
+                {
+                    long sizeBytes = 0;
+                    foreach (var kvp in summary.TotalSize)
+                    {
+                        if (kvp.Value > sizeBytes)
+                        {
+                            sizeBytes = kvp.Value;
+                        }
+                    }
+
+                    Packages.Add(new PackageViewModel
+                    {
+                        Name = summary.Name,
+                        Publisher = summary.PublisherId,
+                        Version = summary.Version,
+                        Description = summary.Description,
+                        Category = summary.Category,
+                        Size = FormatBytes(sizeBytes)
+                    });
+                }
+
+                ApplyFilters();
+            }
+        }
+        catch
+        {
+            // Keep mock data as fallback when registry is unavailable
+        }
+    }
+
+    private void LoadMockData()
+    {
+        Packages.Add(new PackageViewModel
         {
             Name = "WPILib",
             Publisher = "WPI",
@@ -87,8 +156,8 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
             Category = "Runtime",
             Size = "1.2 GB",
             Icon = "\U0001F916"
-        },
-        new PackageViewModel
+        });
+        Packages.Add(new PackageViewModel
         {
             Name = "FRC Driver Station",
             Publisher = "NI / FIRST",
@@ -97,8 +166,8 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
             Category = "Tools",
             Size = "320 MB",
             Icon = "\U0001F3AE"
-        },
-        new PackageViewModel
+        });
+        Packages.Add(new PackageViewModel
         {
             Name = "REVLib",
             Publisher = "REV Robotics",
@@ -107,8 +176,8 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
             Category = "Libraries",
             Size = "85 MB",
             Icon = "\u2699\uFE0F"
-        },
-        new PackageViewModel
+        });
+        Packages.Add(new PackageViewModel
         {
             Name = "PhotonVision",
             Publisher = "PhotonVision",
@@ -117,8 +186,8 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
             Category = "Tools",
             Size = "210 MB",
             Icon = "\U0001F4F7"
-        },
-        new PackageViewModel
+        });
+        Packages.Add(new PackageViewModel
         {
             Name = "CTRE Phoenix",
             Publisher = "CTR Electronics",
@@ -127,8 +196,8 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
             Category = "Libraries",
             Size = "150 MB",
             Icon = "\u26A1"
-        },
-        new PackageViewModel
+        });
+        Packages.Add(new PackageViewModel
         {
             Name = "AdvantageScope",
             Publisher = "Mechanical Advantage",
@@ -137,8 +206,8 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
             Category = "Dashboards",
             Size = "95 MB",
             Icon = "\U0001F4CA"
-        },
-        new PackageViewModel
+        });
+        Packages.Add(new PackageViewModel
         {
             Name = "Shuffleboard",
             Publisher = "WPI",
@@ -147,8 +216,8 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
             Category = "Dashboards",
             Size = "110 MB",
             Icon = "\U0001F4CB"
-        },
-        new PackageViewModel
+        });
+        Packages.Add(new PackageViewModel
         {
             Name = "PathPlanner",
             Publisher = "mjansen4857",
@@ -157,8 +226,8 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
             Category = "Tools",
             Size = "45 MB",
             Icon = "\U0001F5FA\uFE0F"
-        },
-        new PackageViewModel
+        });
+        Packages.Add(new PackageViewModel
         {
             Name = "VS Code + FRC Extension",
             Publisher = "WPI / Microsoft",
@@ -167,15 +236,7 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
             Category = "IDE",
             Size = "450 MB",
             Icon = "\U0001F4DD"
-        }
-    };
-
-    [ObservableProperty]
-    private ObservableCollection<PackageViewModel> _filteredPackages = new();
-
-    public BrowsePageViewModel()
-    {
-        FilteredPackages = new ObservableCollection<PackageViewModel>(Packages);
+        });
     }
 
     partial void OnSearchQueryChanged(string value)
@@ -210,6 +271,31 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
                 FilteredPackages.Add(pkg);
             }
         }
+    }
+
+    private static string FormatBytes(long bytes)
+    {
+        if (bytes >= 1_073_741_824)
+        {
+            return $"{bytes / 1_073_741_824.0:F1} GB";
+        }
+
+        if (bytes >= 1_048_576)
+        {
+            return $"{bytes / 1_048_576.0:F0} MB";
+        }
+
+        if (bytes >= 1024)
+        {
+            return $"{bytes / 1024.0:F0} KB";
+        }
+
+        if (bytes > 0)
+        {
+            return $"{bytes} B";
+        }
+
+        return string.Empty;
     }
 
     public string ExportStateJson()
