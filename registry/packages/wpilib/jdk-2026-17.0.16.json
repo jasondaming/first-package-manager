@@ -1,0 +1,120 @@
+{
+  "id": "wpilib.jdk",
+  "name": "JDK 17",
+  "version": "17.0.16",
+  "season": 2026,
+  "publisher": "wpilib",
+  "description": "Eclipse Adoptium JDK 17 for FRC Java development. Provides the Java runtime and compiler needed to build and run FRC Java robot programs.",
+  "category": "runtime",
+  "tags": ["java", "jdk", "runtime"],
+  "competition": "Frc",
+  "license": "GPL-2.0-with-classpath-exception",
+  "homepage": "https://adoptium.net/",
+  "repository": "https://github.com/adoptium/temurin-build",
+  "releaseNotes": "JDK 17.0.16 LTS release with latest security patches and bug fixes.",
+  "dependencies": [],
+  "conflicts": [],
+  "artifacts": {
+    "win-x64": {
+      "url": "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.13%2B11/OpenJDK17U-jdk_x64_windows_hotspot_17.0.13_11.zip",
+      "sha256": "placeholder-sha256-win-x64",
+      "size": 189000000,
+      "archiveType": "zip",
+      "extractPath": "jdk-17.0.13+11",
+      "filename": "OpenJDK17U-jdk_x64_windows_hotspot_17.0.13_11.zip",
+      "mirrors": [
+        "https://mirrors.adoptium.net/temurin17/releases/jdk-17.0.13%2B11/OpenJDK17U-jdk_x64_windows_hotspot_17.0.13_11.zip"
+      ]
+    },
+    "linux-x64": {
+      "url": "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.13%2B11/OpenJDK17U-jdk_x64_linux_hotspot_17.0.13_11.tar.gz",
+      "sha256": "placeholder-sha256-linux-x64",
+      "size": 185000000,
+      "archiveType": "tar.gz",
+      "extractPath": "jdk-17.0.13+11",
+      "filename": "OpenJDK17U-jdk_x64_linux_hotspot_17.0.13_11.tar.gz",
+      "mirrors": []
+    },
+    "linux-arm64": {
+      "url": "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.13%2B11/OpenJDK17U-jdk_aarch64_linux_hotspot_17.0.13_11.tar.gz",
+      "sha256": "placeholder-sha256-linux-arm64",
+      "size": 178000000,
+      "archiveType": "tar.gz",
+      "extractPath": "jdk-17.0.13+11",
+      "filename": "OpenJDK17U-jdk_aarch64_linux_hotspot_17.0.13_11.tar.gz",
+      "mirrors": []
+    },
+    "osx-x64": {
+      "url": "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.13%2B11/OpenJDK17U-jdk_x64_mac_hotspot_17.0.13_11.tar.gz",
+      "sha256": "placeholder-sha256-osx-x64",
+      "size": 185000000,
+      "archiveType": "tar.gz",
+      "extractPath": "jdk-17.0.13+11/Contents/Home",
+      "filename": "OpenJDK17U-jdk_x64_mac_hotspot_17.0.13_11.tar.gz",
+      "mirrors": []
+    },
+    "osx-arm64": {
+      "url": "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.13%2B11/OpenJDK17U-jdk_aarch64_mac_hotspot_17.0.13_11.tar.gz",
+      "sha256": "placeholder-sha256-osx-arm64",
+      "size": 180000000,
+      "archiveType": "tar.gz",
+      "extractPath": "jdk-17.0.13+11/Contents/Home",
+      "filename": "OpenJDK17U-jdk_aarch64_mac_hotspot_17.0.13_11.tar.gz",
+      "mirrors": []
+    }
+  },
+  "install": {
+    "installDir": "jdk",
+    "requiresAdmin": false,
+    "postInstall": [
+      {
+        "action": "set-env",
+        "platform": "windows",
+        "params": {
+          "name": "JAVA_HOME",
+          "value": "${installDir}\\jdk",
+          "scope": "user"
+        }
+      },
+      {
+        "action": "set-env",
+        "platform": "linux",
+        "params": {
+          "name": "JAVA_HOME",
+          "value": "${installDir}/jdk"
+        }
+      },
+      {
+        "action": "set-env",
+        "platform": "osx",
+        "params": {
+          "name": "JAVA_HOME",
+          "value": "${installDir}/jdk"
+        }
+      },
+      {
+        "action": "add-to-path",
+        "platform": "windows",
+        "params": {
+          "path": "${installDir}\\jdk\\bin",
+          "scope": "user"
+        }
+      },
+      {
+        "action": "add-to-path",
+        "platform": "linux",
+        "params": {
+          "path": "${installDir}/jdk/bin"
+        }
+      },
+      {
+        "action": "add-to-path",
+        "platform": "osx",
+        "params": {
+          "path": "${installDir}/jdk/bin"
+        }
+      }
+    ]
+  },
+  "deprecated": false
+}
