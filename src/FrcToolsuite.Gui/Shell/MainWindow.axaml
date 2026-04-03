@@ -66,7 +66,13 @@
         </Style>
     </Window.Styles>
 
-    <DockPanel>
+    <Panel>
+        <!-- First-Run Wizard overlay -->
+        <views:FirstRunWizard DataContext="{Binding FirstRunWizard}"
+                              IsVisible="{Binding $parent[Window].((shell:MainWindowViewModel)DataContext).ShowFirstRunWizard}" />
+
+        <!-- Normal shell (hidden during first run) -->
+        <DockPanel IsVisible="{Binding !ShowFirstRunWizard}">
         <!-- Top Bar -->
         <Border DockPanel.Dock="Top" Background="#1E1E3A" Height="48">
             <Grid ColumnDefinitions="200,*,Auto">
@@ -243,4 +249,5 @@
             </ContentControl>
         </Border>
     </DockPanel>
+    </Panel>
 </Window>

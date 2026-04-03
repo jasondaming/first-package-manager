@@ -1,0 +1,35 @@
+{
+  "id": "csa-usb-toolkit",
+  "name": "CSA USB Toolkit",
+  "season": 2026,
+  "description": "Portable toolkit for Control System Advisors (CSAs) at FRC events. Includes essential diagnostic and configuration tools that can be run from a USB drive.",
+  "competition": "Frc",
+  "audience": "advanced",
+  "packages": [
+    {
+      "id": "wpilib.jdk",
+      "inclusion": "Required",
+      "reason": "Java runtime needed for WPILib tools."
+    },
+    {
+      "id": "wpilib.tools",
+      "inclusion": "Required",
+      "reason": "Glass, OutlineViewer, and other diagnostic tools for field troubleshooting."
+    },
+    {
+      "id": "wpilib.advantagescope",
+      "inclusion": "Required",
+      "reason": "Log viewer for diagnosing robot issues at events."
+    },
+    {
+      "id": "ctre.phoenix-framework",
+      "inclusion": "Default",
+      "reason": "Phoenix Tuner needed for diagnosing CTRE device issues."
+    },
+    {
+      "id": "rev.revlib",
+      "inclusion": "Default",
+      "reason": "REV Hardware Client support for diagnosing REV device issues."
+    }
+  ]
+}

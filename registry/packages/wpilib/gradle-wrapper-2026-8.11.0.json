@@ -1,0 +1,111 @@
+{
+  "id": "wpilib.gradle-wrapper",
+  "name": "Gradle",
+  "version": "8.11.0",
+  "season": 2026,
+  "publisher": "wpilib",
+  "description": "Gradle build system wrapper for FRC and FTC projects. Provides offline-capable build tooling for compiling and deploying robot code.",
+  "category": "build-system",
+  "tags": ["gradle", "build", "java", "cpp"],
+  "competition": "Frc",
+  "license": "Apache-2.0",
+  "homepage": "https://gradle.org/",
+  "repository": "https://github.com/gradle/gradle",
+  "releaseNotes": "Gradle 8.11.0 with improved build cache performance and Java 17 optimizations.",
+  "dependencies": [
+    {
+      "id": "wpilib.jdk",
+      "versionRange": ">=17.0.0",
+      "type": "Required",
+      "reason": "Java runtime required to execute Gradle builds."
+    }
+  ],
+  "conflicts": [],
+  "artifacts": {
+    "win-x64": {
+      "url": "https://services.gradle.org/distributions/gradle-8.11-bin.zip",
+      "sha256": "placeholder-sha256-win-x64",
+      "size": 140000000,
+      "archiveType": "zip",
+      "extractPath": "gradle-8.11",
+      "filename": "gradle-8.11-bin.zip",
+      "mirrors": [
+        "https://frcmaven.wpi.edu/releases/gradle/gradle-8.11-bin.zip"
+      ]
+    },
+    "linux-x64": {
+      "url": "https://services.gradle.org/distributions/gradle-8.11-bin.zip",
+      "sha256": "placeholder-sha256-linux-x64",
+      "size": 140000000,
+      "archiveType": "zip",
+      "extractPath": "gradle-8.11",
+      "filename": "gradle-8.11-bin.zip",
+      "mirrors": []
+    },
+    "linux-arm64": {
+      "url": "https://services.gradle.org/distributions/gradle-8.11-bin.zip",
+      "sha256": "placeholder-sha256-linux-arm64",
+      "size": 140000000,
+      "archiveType": "zip",
+      "extractPath": "gradle-8.11",
+      "filename": "gradle-8.11-bin.zip",
+      "mirrors": []
+    },
+    "osx-x64": {
+      "url": "https://services.gradle.org/distributions/gradle-8.11-bin.zip",
+      "sha256": "placeholder-sha256-osx-x64",
+      "size": 140000000,
+      "archiveType": "zip",
+      "extractPath": "gradle-8.11",
+      "filename": "gradle-8.11-bin.zip",
+      "mirrors": []
+    },
+    "osx-arm64": {
+      "url": "https://services.gradle.org/distributions/gradle-8.11-bin.zip",
+      "sha256": "placeholder-sha256-osx-arm64",
+      "size": 140000000,
+      "archiveType": "zip",
+      "extractPath": "gradle-8.11",
+      "filename": "gradle-8.11-bin.zip",
+      "mirrors": []
+    }
+  },
+  "install": {
+    "installDir": "gradle",
+    "requiresAdmin": false,
+    "postInstall": [
+      {
+        "action": "set-env",
+        "platform": "windows",
+        "params": {
+          "name": "GRADLE_HOME",
+          "value": "${installDir}\\gradle",
+          "scope": "user"
+        }
+      },
+      {
+        "action": "add-to-path",
+        "platform": "windows",
+        "params": {
+          "path": "${installDir}\\gradle\\bin",
+          "scope": "user"
+        }
+      },
+      {
+        "action": "add-to-path",
+        "platform": "linux",
+        "params": {
+          "path": "${installDir}/gradle/bin"
+        }
+      },
+      {
+        "action": "add-to-path",
+        "platform": "osx",
+        "params": {
+          "path": "${installDir}/gradle/bin"
+        }
+      }
+    ]
+  },
+  "deprecated": false
+}

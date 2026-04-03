@@ -1,0 +1,123 @@
+{
+  "id": "ctre.phoenix-framework",
+  "name": "CTRE Phoenix",
+  "version": "25.2.1",
+  "season": 2026,
+  "publisher": "ctre",
+  "description": "CTRE Phoenix Framework vendor library for FRC. Provides support for TalonFX, TalonSRX, VictorSPX, CANcoder, Pigeon 2, and CANdle devices.",
+  "category": "library",
+  "tags": ["vendor", "ctre", "phoenix", "motor-controller", "talon", "canivore"],
+  "competition": "Frc",
+  "license": "CTRE-Phoenix-EULA",
+  "homepage": "https://store.ctr-electronics.com/software/",
+  "repository": "https://github.com/CrossTheRoadElec/Phoenix-Releases",
+  "releaseNotes": "Phoenix 25.2.1 with improved TalonFX Pro control loop tuning, CANivore performance enhancements, and new signal logging APIs.",
+  "dependencies": [
+    {
+      "id": "wpilib.jdk",
+      "versionRange": ">=17.0.0",
+      "type": "Required",
+      "reason": "Java runtime required for Phoenix Java API."
+    }
+  ],
+  "conflicts": [],
+  "artifacts": {
+    "win-x64": {
+      "url": "https://maven.ctr-electronics.com/release/com/ctre/phoenix/Phoenix-Framework/25.2.1/Phoenix-Framework-25.2.1-windows-x86-64.zip",
+      "sha256": "placeholder-sha256-win-x64",
+      "size": 85000000,
+      "archiveType": "zip",
+      "extractPath": "Phoenix-Framework-25.2.1",
+      "filename": "Phoenix-Framework-25.2.1-windows-x86-64.zip",
+      "mirrors": []
+    },
+    "linux-x64": {
+      "url": "https://maven.ctr-electronics.com/release/com/ctre/phoenix/Phoenix-Framework/25.2.1/Phoenix-Framework-25.2.1-linux-x86-64.zip",
+      "sha256": "placeholder-sha256-linux-x64",
+      "size": 80000000,
+      "archiveType": "zip",
+      "extractPath": "Phoenix-Framework-25.2.1",
+      "filename": "Phoenix-Framework-25.2.1-linux-x86-64.zip",
+      "mirrors": []
+    },
+    "linux-arm64": {
+      "url": "https://maven.ctr-electronics.com/release/com/ctre/phoenix/Phoenix-Framework/25.2.1/Phoenix-Framework-25.2.1-linux-aarch64.zip",
+      "sha256": "placeholder-sha256-linux-arm64",
+      "size": 78000000,
+      "archiveType": "zip",
+      "extractPath": "Phoenix-Framework-25.2.1",
+      "filename": "Phoenix-Framework-25.2.1-linux-aarch64.zip",
+      "mirrors": []
+    },
+    "osx-x64": {
+      "url": "https://maven.ctr-electronics.com/release/com/ctre/phoenix/Phoenix-Framework/25.2.1/Phoenix-Framework-25.2.1-macos-x86-64.zip",
+      "sha256": "placeholder-sha256-osx-x64",
+      "size": 82000000,
+      "archiveType": "zip",
+      "extractPath": "Phoenix-Framework-25.2.1",
+      "filename": "Phoenix-Framework-25.2.1-macos-x86-64.zip",
+      "mirrors": []
+    },
+    "osx-arm64": {
+      "url": "https://maven.ctr-electronics.com/release/com/ctre/phoenix/Phoenix-Framework/25.2.1/Phoenix-Framework-25.2.1-macos-aarch64.zip",
+      "sha256": "placeholder-sha256-osx-arm64",
+      "size": 80000000,
+      "archiveType": "zip",
+      "extractPath": "Phoenix-Framework-25.2.1",
+      "filename": "Phoenix-Framework-25.2.1-macos-aarch64.zip",
+      "mirrors": []
+    }
+  },
+  "mavenArtifacts": {
+    "vendordepJson": "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/latest/Phoenix6-frc2026-latest.json",
+    "repositories": [
+      "https://maven.ctr-electronics.com/release/"
+    ],
+    "coordinates": [
+      {
+        "groupId": "com.ctre.phoenix6",
+        "artifactId": "wpiapi-java",
+        "version": "25.2.1",
+        "classifiers": [],
+        "sha256": {}
+      },
+      {
+        "groupId": "com.ctre.phoenix6",
+        "artifactId": "tools",
+        "version": "25.2.1",
+        "classifiers": ["windowsx86-64", "linuxx86-64", "linuxathena"],
+        "sha256": {}
+      },
+      {
+        "groupId": "com.ctre.phoenix6.sim",
+        "artifactId": "simTalonSRX",
+        "version": "25.2.1",
+        "classifiers": ["windowsx86-64", "linuxx86-64", "osxuniversal"],
+        "sha256": {}
+      },
+      {
+        "groupId": "com.ctre.phoenix6.sim",
+        "artifactId": "simTalonFX",
+        "version": "25.2.1",
+        "classifiers": ["windowsx86-64", "linuxx86-64", "osxuniversal"],
+        "sha256": {}
+      }
+    ],
+    "runMetadataFixer": true
+  },
+  "install": {
+    "installDir": "vendordeps/ctre",
+    "requiresAdmin": false,
+    "postInstall": [
+      {
+        "action": "copy-vendordep",
+        "platform": "windows",
+        "params": {
+          "source": "${installDir}/vendordeps/ctre/Phoenix6-frc2026-latest.json",
+          "destination": "vendordeps/"
+        }
+      }
+    ]
+  },
+  "deprecated": false
+}

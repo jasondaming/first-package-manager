@@ -1,0 +1,93 @@
+{
+  "id": "pathplanner.pathplannerlib",
+  "name": "PathPlannerLib",
+  "version": "2026.0.5",
+  "season": 2026,
+  "publisher": "pathplanner",
+  "description": "PathPlannerLib for autonomous path planning in FRC. Provides path generation, trajectory following, and auto builder utilities.",
+  "category": "library",
+  "tags": ["vendor", "pathplanning", "autonomous", "trajectory"],
+  "competition": "Frc",
+  "license": "MIT",
+  "homepage": "https://pathplanner.dev/",
+  "repository": "https://github.com/mjansen4857/pathern",
+  "releaseNotes": "PathPlannerLib 2026.0.5 with improved choreo compatibility and new event marker system.",
+  "dependencies": [
+    {
+      "id": "wpilib.jdk",
+      "versionRange": ">=17.0.0",
+      "type": "Required",
+      "reason": "Java runtime required for PathPlannerLib."
+    }
+  ],
+  "conflicts": [],
+  "artifacts": {
+    "win-x64": {
+      "url": "https://3015rangerrobotics.github.io/pathplannerlib/PathplannerLib-2026.0.5.zip",
+      "sha256": "placeholder-sha256-win-x64",
+      "size": 12000000,
+      "archiveType": "zip",
+      "extractPath": "PathplannerLib-2026.0.5",
+      "filename": "PathplannerLib-2026.0.5.zip",
+      "mirrors": []
+    },
+    "linux-x64": {
+      "url": "https://3015rangerrobotics.github.io/pathplannerlib/PathplannerLib-2026.0.5.zip",
+      "sha256": "placeholder-sha256-linux-x64",
+      "size": 12000000,
+      "archiveType": "zip",
+      "extractPath": "PathplannerLib-2026.0.5",
+      "filename": "PathplannerLib-2026.0.5.zip",
+      "mirrors": []
+    },
+    "osx-x64": {
+      "url": "https://3015rangerrobotics.github.io/pathplannerlib/PathplannerLib-2026.0.5.zip",
+      "sha256": "placeholder-sha256-osx-x64",
+      "size": 12000000,
+      "archiveType": "zip",
+      "extractPath": "PathplannerLib-2026.0.5",
+      "filename": "PathplannerLib-2026.0.5.zip",
+      "mirrors": []
+    },
+    "osx-arm64": {
+      "url": "https://3015rangerrobotics.github.io/pathplannerlib/PathplannerLib-2026.0.5.zip",
+      "sha256": "placeholder-sha256-osx-arm64",
+      "size": 12000000,
+      "archiveType": "zip",
+      "extractPath": "PathplannerLib-2026.0.5",
+      "filename": "PathplannerLib-2026.0.5.zip",
+      "mirrors": []
+    }
+  },
+  "mavenArtifacts": {
+    "vendordepJson": "https://3015rangerrobotics.github.io/pathplannerlib/PathplannerLib.json",
+    "repositories": [
+      "https://3015rangerrobotics.github.io/pathplannerlib/repo"
+    ],
+    "coordinates": [
+      {
+        "groupId": "com.pathplanner.lib",
+        "artifactId": "PathplannerLib-java",
+        "version": "2026.0.5",
+        "classifiers": [],
+        "sha256": {}
+      }
+    ],
+    "runMetadataFixer": false
+  },
+  "install": {
+    "installDir": "vendordeps/pathplanner",
+    "requiresAdmin": false,
+    "postInstall": [
+      {
+        "action": "copy-vendordep",
+        "platform": "windows",
+        "params": {
+          "source": "${installDir}/vendordeps/pathplanner/PathplannerLib.json",
+          "destination": "vendordeps/"
+        }
+      }
+    ]
+  },
+  "deprecated": false
+}

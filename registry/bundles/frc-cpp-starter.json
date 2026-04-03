@@ -1,0 +1,50 @@
+{
+  "id": "frc-cpp-starter",
+  "name": "FRC C++ Starter Kit",
+  "season": 2026,
+  "description": "Everything you need to get started with FRC C++ robot development.",
+  "competition": "Frc",
+  "audience": "beginner",
+  "packages": [
+    {
+      "id": "wpilib.vscode",
+      "inclusion": "Required",
+      "reason": "Recommended IDE for FRC development."
+    },
+    {
+      "id": "wpilib.vscode-wpilib",
+      "inclusion": "Required",
+      "reason": "WPILib extension provides project creation and deployment."
+    },
+    {
+      "id": "wpilib.gradle-wrapper",
+      "inclusion": "Required",
+      "reason": "Build system for compiling and deploying robot code."
+    },
+    {
+      "id": "wpilib.tools",
+      "inclusion": "Default",
+      "reason": "Useful tools including Glass, Shuffleboard, and SmartDashboard."
+    },
+    {
+      "id": "wpilib.advantagescope",
+      "inclusion": "Default",
+      "reason": "Telemetry viewer for debugging and analysis."
+    },
+    {
+      "id": "ctre.phoenix-framework",
+      "inclusion": "Optional",
+      "reason": "Required if using CTRE motor controllers or sensors."
+    },
+    {
+      "id": "rev.revlib",
+      "inclusion": "Optional",
+      "reason": "Required if using REV Robotics SPARK motor controllers."
+    },
+    {
+      "id": "pathplanner.pathplannerlib",
+      "inclusion": "Optional",
+      "reason": "Popular library for autonomous path planning."
+    }
+  ]
+}

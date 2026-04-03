@@ -9,5 +9,7 @@
   <Application.Resources>
     <conv:StringEqualConverter x:Key="StringEqualConverter" />
     <conv:StringToBrushConverter x:Key="StringToBrushConverter" />
+    <conv:GreaterThanConverter x:Key="GreaterThanConverter" />
+    <conv:InclusionBrushConverter x:Key="InclusionBrushConverter" />
   </Application.Resources>
 </Application>

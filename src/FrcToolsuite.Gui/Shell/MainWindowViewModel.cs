@@ -23,6 +23,9 @@ public partial class MainWindowViewModel : ObservableObject, IStateExportable
     [ObservableProperty]
     private object? _currentPageViewModel;
 
+    [ObservableProperty]
+    private bool _showFirstRunWizard;
+
     public ObservableCollection<string> Programs { get; } = new() { "FRC", "FTC" };
 
     public ObservableCollection<string> Seasons { get; } = new() { "2026", "2025", "2024" };
@@ -36,6 +39,7 @@ public partial class MainWindowViewModel : ObservableObject, IStateExportable
     public UsbModePageViewModel UsbModePage { get; } = new();
     public HealthPageViewModel HealthPage { get; } = new();
     public PackageDetailPageViewModel PackageDetailPage { get; } = new();
+    public FirstRunWizardViewModel FirstRunWizard { get; } = new();
 
     public MainWindowViewModel()
         : this(null, null)
@@ -49,6 +53,31 @@ public partial class MainWindowViewModel : ObservableObject, IStateExportable
         InstalledPage = new InstalledPageViewModel(packageManager);
         UpdatesPage = new UpdatesPageViewModel(packageManager);
         CurrentPageViewModel = HomePage;
+
+        // Show first-run wizard if no previous install is detected
+        ShowFirstRunWizard = !HasPreviousInstall();
+    }
+
+    private static bool HasPreviousInstall()
+    {
+        try
+        {
+            var settingsPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "FrcToolsuite",
+                "settings.json");
+            return File.Exists(settingsPath);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    [RelayCommand]
+    private void DismissFirstRunWizard()
+    {
+        ShowFirstRunWizard = false;
     }
 
     [RelayCommand]
@@ -76,7 +105,8 @@ public partial class MainWindowViewModel : ObservableObject, IStateExportable
         {
             SelectedPage,
             SelectedProgram,
-            SelectedSeason
+            SelectedSeason,
+            ShowFirstRunWizard
         };
         return JsonSerializer.Serialize(state, new JsonSerializerOptions { WriteIndented = true });
     }

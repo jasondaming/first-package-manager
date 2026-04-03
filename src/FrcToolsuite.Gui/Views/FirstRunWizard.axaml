@@ -1,0 +1,357 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:FrcToolsuite.Gui.ViewModels"
+             mc:Ignorable="d"
+             d:DesignWidth="1024" d:DesignHeight="640"
+             x:Class="FrcToolsuite.Gui.Views.FirstRunWizard"
+             x:DataType="vm:FirstRunWizardViewModel">
+
+    <UserControl.Styles>
+        <!-- Step dot base -->
+        <Style Selector="Border.step-dot">
+            <Setter Property="Width" Value="32" />
+            <Setter Property="Height" Value="32" />
+            <Setter Property="CornerRadius" Value="16" />
+            <Setter Property="Background" Value="#E0E4EA" />
+        </Style>
+        <Style Selector="Border.step-dot TextBlock">
+            <Setter Property="Foreground" Value="#99AABB" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Border.step-active">
+            <Setter Property="Background" Value="#5B8DEF" />
+        </Style>
+        <Style Selector="Border.step-active TextBlock">
+            <Setter Property="Foreground" Value="#FFFFFF" />
+        </Style>
+        <Style Selector="Border.step-done">
+            <Setter Property="Background" Value="#4CAF50" />
+        </Style>
+        <Style Selector="Border.step-done TextBlock">
+            <Setter Property="Foreground" Value="#FFFFFF" />
+        </Style>
+
+        <!-- Card style -->
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="24" />
+            <Setter Property="BoxShadow" Value="0 1 3 0 #18000000" />
+            <Setter Property="BorderBrush" Value="#E0E4EA" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+
+        <!-- Primary button -->
+        <Style Selector="Button.primary">
+            <Setter Property="Background" Value="#5B8DEF" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="24,10" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style Selector="Button.primary:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#4A7CE0" />
+        </Style>
+
+        <!-- Secondary button -->
+        <Style Selector="Button.secondary">
+            <Setter Property="Background" Value="#E8EDF2" />
+            <Setter Property="Foreground" Value="#444444" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="24,10" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style Selector="Button.secondary:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#D8DDE4" />
+        </Style>
+    </UserControl.Styles>
+
+    <Border Background="#F5F6FA">
+        <DockPanel>
+            <!-- Step Indicator at Top -->
+            <Border DockPanel.Dock="Top" Background="#FFFFFF" Padding="0,16"
+                    BorderBrush="#E0E4EA" BorderThickness="0,0,0,1">
+                <StackPanel HorizontalAlignment="Center" Spacing="0">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
+                        <!-- Step 1 -->
+                        <Border Classes="step-dot"
+                                Classes.step-active="{Binding CurrentStep, Converter={StaticResource StringEqualConverter}, ConverterParameter=1}"
+                                Classes.step-done="{Binding CurrentStep, Converter={StaticResource GreaterThanConverter}, ConverterParameter=1}">
+                            <TextBlock Text="1" />
+                        </Border>
+                        <Border Width="40" Height="2" Background="#E0E4EA" VerticalAlignment="Center" />
+
+                        <!-- Step 2 -->
+                        <Border Classes="step-dot"
+                                Classes.step-active="{Binding CurrentStep, Converter={StaticResource StringEqualConverter}, ConverterParameter=2}"
+                                Classes.step-done="{Binding CurrentStep, Converter={StaticResource GreaterThanConverter}, ConverterParameter=2}">
+                            <TextBlock Text="2" />
+                        </Border>
+                        <Border Width="40" Height="2" Background="#E0E4EA" VerticalAlignment="Center" />
+
+                        <!-- Step 3 -->
+                        <Border Classes="step-dot"
+                                Classes.step-active="{Binding CurrentStep, Converter={StaticResource StringEqualConverter}, ConverterParameter=3}"
+                                Classes.step-done="{Binding CurrentStep, Converter={StaticResource GreaterThanConverter}, ConverterParameter=3}">
+                            <TextBlock Text="3" />
+                        </Border>
+                        <Border Width="40" Height="2" Background="#E0E4EA" VerticalAlignment="Center" />
+
+                        <!-- Step 4 -->
+                        <Border Classes="step-dot"
+                                Classes.step-active="{Binding CurrentStep, Converter={StaticResource StringEqualConverter}, ConverterParameter=4}"
+                                Classes.step-done="{Binding CurrentStep, Converter={StaticResource GreaterThanConverter}, ConverterParameter=4}">
+                            <TextBlock Text="4" />
+                        </Border>
+                        <Border Width="40" Height="2" Background="#E0E4EA" VerticalAlignment="Center" />
+
+                        <!-- Step 5 -->
+                        <Border Classes="step-dot"
+                                Classes.step-active="{Binding CurrentStep, Converter={StaticResource StringEqualConverter}, ConverterParameter=5}">
+                            <TextBlock Text="5" />
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding StepTitle}"
+                               FontSize="12" Foreground="#556677"
+                               HorizontalAlignment="Center"
+                               Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+
+            <!-- Bottom Button Bar -->
+            <Border DockPanel.Dock="Bottom" Background="#FFFFFF" Padding="32,12"
+                    BorderBrush="#E0E4EA" BorderThickness="0,1,0,0">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Button Grid.Column="0"
+                            Classes="secondary"
+                            Content="Back"
+                            Command="{Binding GoBackCommand}"
+                            IsVisible="{Binding CanGoBack}"
+                            HorizontalAlignment="Left" />
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+                        <Button Classes="primary"
+                                Content="Next"
+                                Command="{Binding GoNextCommand}"
+                                IsVisible="{Binding CanGoNext}" />
+                        <Button Classes="primary"
+                                Content="Install"
+                                Command="{Binding BeginInstallCommand}"
+                                IsVisible="{Binding ShowInstallButton}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Content Area -->
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <Panel Margin="48,32">
+                    <!-- Step 1: Welcome -->
+                    <StackPanel IsVisible="{Binding CurrentStep, Converter={StaticResource StringEqualConverter}, ConverterParameter=1}"
+                                Spacing="24" MaxWidth="560" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="&#x2B50;" FontSize="48" HorizontalAlignment="Center" />
+                        <TextBlock Text="Welcome to FIRST Package Manager"
+                                   FontSize="26" FontWeight="Bold" Foreground="#1A1A2E"
+                                   HorizontalAlignment="Center" TextAlignment="Center" />
+                        <TextBlock Text="Set up your development environment in just a few steps. Choose your competition program to get started."
+                                   FontSize="14" Foreground="#556677"
+                                   HorizontalAlignment="Center" TextAlignment="Center"
+                                   TextWrapping="Wrap" MaxWidth="440" />
+
+                        <Border Classes="card" HorizontalAlignment="Center" MinWidth="320">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Competition Program" FontSize="14" FontWeight="SemiBold" Foreground="#1A1A2E" />
+                                <ComboBox ItemsSource="{Binding Programs}"
+                                          SelectedItem="{Binding SelectedProgram}"
+                                          HorizontalAlignment="Stretch"
+                                          FontSize="14" />
+                                <TextBlock Text="Select FRC for FIRST Robotics Competition or FTC for FIRST Tech Challenge."
+                                           FontSize="12" Foreground="#889AAB" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Step 2: Bundle Selection -->
+                    <StackPanel IsVisible="{Binding CurrentStep, Converter={StaticResource StringEqualConverter}, ConverterParameter=2}"
+                                Spacing="20" MaxWidth="640" HorizontalAlignment="Center">
+                        <TextBlock Text="Choose a Starter Bundle"
+                                   FontSize="22" FontWeight="Bold" Foreground="#1A1A2E" />
+                        <TextBlock Text="Select a bundle to install a recommended set of tools. You can customize individual packages below."
+                                   FontSize="13" Foreground="#556677" TextWrapping="Wrap" />
+
+                        <Border Classes="card">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Bundle" FontSize="14" FontWeight="SemiBold" Foreground="#1A1A2E" />
+                                <ComboBox ItemsSource="{Binding Bundles}"
+                                          SelectedItem="{Binding SelectedBundle}"
+                                          HorizontalAlignment="Stretch"
+                                          FontSize="13" />
+                            </StackPanel>
+                        </Border>
+
+                        <TextBlock Text="Packages" FontSize="15" FontWeight="SemiBold" Foreground="#1A1A2E" Margin="0,4,0,0" />
+
+                        <ItemsControl ItemsSource="{Binding SelectedPackages}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:WizardPackageItem">
+                                    <Border Background="#FFFFFF" CornerRadius="6" Padding="16,12" Margin="0,0,0,6"
+                                            BorderBrush="#E0E4EA" BorderThickness="1">
+                                        <Grid ColumnDefinitions="Auto,*,Auto">
+                                            <CheckBox Grid.Column="0"
+                                                      IsChecked="{Binding IsSelected}"
+                                                      IsEnabled="{Binding !IsRequired}"
+                                                      VerticalAlignment="Center"
+                                                      Margin="0,0,12,0" />
+                                            <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" Foreground="#1A1A2E" />
+                                                    <Border CornerRadius="8" Padding="8,2"
+                                                            Background="{Binding Inclusion, Converter={StaticResource InclusionBrushConverter}}">
+                                                        <TextBlock Text="{Binding Inclusion}" FontSize="10" Foreground="#FFFFFF" />
+                                                    </Border>
+                                                </StackPanel>
+                                                <TextBlock Text="{Binding Description}" FontSize="11" Foreground="#889AAB" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2"
+                                                       Text="{Binding SizeDisplay}"
+                                                       FontSize="12" Foreground="#889AAB"
+                                                       VerticalAlignment="Center"
+                                                       Margin="12,0,0,0" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- Step 3: Install Location -->
+                    <StackPanel IsVisible="{Binding CurrentStep, Converter={StaticResource StringEqualConverter}, ConverterParameter=3}"
+                                Spacing="20" MaxWidth="560" HorizontalAlignment="Center">
+                        <TextBlock Text="Install Location"
+                                   FontSize="22" FontWeight="Bold" Foreground="#1A1A2E" />
+                        <TextBlock Text="Choose where to install your FRC development tools."
+                                   FontSize="13" Foreground="#556677" TextWrapping="Wrap" />
+
+                        <Border Classes="card">
+                            <StackPanel Spacing="16">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Install Directory" FontSize="13" FontWeight="SemiBold" Foreground="#1A1A2E" />
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBox Grid.Column="0"
+                                                 Text="{Binding InstallPath}"
+                                                 FontSize="13" />
+                                        <Button Grid.Column="1"
+                                                Content="Browse..."
+                                                FontSize="12"
+                                                Padding="14,8"
+                                                Margin="8,0,0,0"
+                                                CornerRadius="4"
+                                                Command="{Binding BrowseInstallPathCommand}" />
+                                    </Grid>
+                                    <TextBlock Text="Recommended: Use a short path without spaces."
+                                               FontSize="11" Foreground="#889AAB" Margin="0,4,0,0" />
+                                </StackPanel>
+
+                                <Border Height="1" Background="#E0E4EA" />
+
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <StackPanel Grid.Column="0" Spacing="2">
+                                        <TextBlock Text="Required Disk Space" FontSize="13" FontWeight="SemiBold" Foreground="#1A1A2E" />
+                                        <TextBlock Text="{Binding SelectedPackageCount, StringFormat='{}{0} packages selected'}"
+                                                   FontSize="11" Foreground="#889AAB" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding TotalDownloadSize}"
+                                               FontSize="18" FontWeight="Bold" Foreground="#5B8DEF"
+                                               VerticalAlignment="Center" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Step 4: Review -->
+                    <StackPanel IsVisible="{Binding CurrentStep, Converter={StaticResource StringEqualConverter}, ConverterParameter=4}"
+                                Spacing="20" MaxWidth="560" HorizontalAlignment="Center">
+                        <TextBlock Text="Review"
+                                   FontSize="22" FontWeight="Bold" Foreground="#1A1A2E" />
+                        <TextBlock Text="Review your selections before installing."
+                                   FontSize="13" Foreground="#556677" TextWrapping="Wrap" />
+
+                        <Border Classes="card">
+                            <StackPanel Spacing="12">
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0">
+                                    <TextBlock Grid.Row="0" Grid.Column="0"
+                                               Text="Program:" FontSize="13" FontWeight="SemiBold" Foreground="#556677"
+                                               Margin="0,0,16,8" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1"
+                                               Text="{Binding SelectedProgram}" FontSize="13" Foreground="#1A1A2E" Margin="0,0,0,8" />
+
+                                    <TextBlock Grid.Row="1" Grid.Column="0"
+                                               Text="Bundle:" FontSize="13" FontWeight="SemiBold" Foreground="#556677"
+                                               Margin="0,0,16,8" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1"
+                                               Text="{Binding SelectedBundle}" FontSize="13" Foreground="#1A1A2E" Margin="0,0,0,8" />
+
+                                    <TextBlock Grid.Row="2" Grid.Column="0"
+                                               Text="Location:" FontSize="13" FontWeight="SemiBold" Foreground="#556677"
+                                               Margin="0,0,16,8" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1"
+                                               Text="{Binding InstallPath}" FontSize="13" Foreground="#1A1A2E" Margin="0,0,0,8" />
+
+                                    <TextBlock Grid.Row="3" Grid.Column="0"
+                                               Text="Download:" FontSize="13" FontWeight="SemiBold" Foreground="#556677"
+                                               Margin="0,0,16,0" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1"
+                                               Text="{Binding TotalDownloadSize}" FontSize="13" FontWeight="Bold" Foreground="#5B8DEF" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <TextBlock Text="Packages to Install" FontSize="15" FontWeight="SemiBold" Foreground="#1A1A2E" />
+                        <ItemsControl ItemsSource="{Binding SelectedPackages}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:WizardPackageItem">
+                                    <Border Padding="8,4" IsVisible="{Binding IsSelected}">
+                                        <Grid ColumnDefinitions="Auto,*,Auto">
+                                            <TextBlock Grid.Column="0" Text="&#x2713;" FontSize="13" Foreground="#4CAF50"
+                                                       VerticalAlignment="Center" Margin="0,0,8,0" />
+                                            <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="13" Foreground="#1A1A2E"
+                                                       VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="2" Text="{Binding SizeDisplay}" FontSize="12" Foreground="#889AAB"
+                                                       VerticalAlignment="Center" Margin="12,0,0,0" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- Step 5: Progress -->
+                    <StackPanel IsVisible="{Binding CurrentStep, Converter={StaticResource StringEqualConverter}, ConverterParameter=5}"
+                                Spacing="24" MaxWidth="480" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="Installing..."
+                                   FontSize="22" FontWeight="Bold" Foreground="#1A1A2E"
+                                   HorizontalAlignment="Center" />
+                        <TextBlock Text="{Binding InstallStatus}"
+                                   FontSize="13" Foreground="#556677"
+                                   HorizontalAlignment="Center" />
+                        <ProgressBar Value="{Binding InstallProgress}"
+                                     Minimum="0" Maximum="100"
+                                     Height="8"
+                                     Foreground="#5B8DEF" />
+                        <TextBlock Text="This may take several minutes depending on your internet connection."
+                                   FontSize="11" Foreground="#889AAB"
+                                   HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Panel>
+            </ScrollViewer>
+        </DockPanel>
+    </Border>
+</UserControl>

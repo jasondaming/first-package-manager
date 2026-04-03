@@ -4,15 +4,13 @@ using Avalonia.Data.Converters;
 
 namespace FrcToolsuite.Gui.Converters;
 
-public class StringEqualConverter : IValueConverter
+public class GreaterThanConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        var s = value?.ToString();
-        var p = parameter?.ToString();
-        if (s is not null && p is not null)
+        if (value is int intValue && parameter is string paramStr && int.TryParse(paramStr, out int threshold))
         {
-            return string.Equals(s, p, StringComparison.Ordinal);
+            return intValue > threshold;
         }
         return false;
     }

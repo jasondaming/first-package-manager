@@ -63,6 +63,12 @@ public static class PageFactory
             var view = new PackageDetailPage { DataContext = vm };
             return (view, vm);
         },
+        ["FirstRunWizard"] = () =>
+        {
+            var vm = new FirstRunWizardViewModel();
+            var view = new FirstRunWizard { DataContext = vm };
+            return (view, vm);
+        },
         ["MainWindow"] = () =>
         {
             var vm = new MainWindowViewModel();

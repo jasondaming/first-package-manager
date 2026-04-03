@@ -1,0 +1,79 @@
+{
+  "id": "wpilib.advantagescope",
+  "name": "AdvantageScope",
+  "version": "4.1.0",
+  "season": 2026,
+  "publisher": "wpilib",
+  "description": "AdvantageScope robot telemetry viewer and dashboard. Provides log replay, 3D field visualization, and real-time data plotting for FRC robots.",
+  "category": "dashboard",
+  "tags": ["dashboard", "logging", "telemetry", "visualization", "3d"],
+  "competition": "Frc",
+  "license": "MIT",
+  "homepage": "https://github.com/Mechanical-Advantage/AdvantageScope",
+  "repository": "https://github.com/Mechanical-Advantage/AdvantageScope",
+  "releaseNotes": "AdvantageScope 4.1.0 with improved 3D visualization, new export formats, and enhanced NetworkTables integration.",
+  "dependencies": [],
+  "conflicts": [],
+  "artifacts": {
+    "win-x64": {
+      "url": "https://github.com/Mechanical-Advantage/AdvantageScope/releases/download/v4.1.0/advantagescope-win-x64-v4.1.0.zip",
+      "sha256": "placeholder-sha256-win-x64",
+      "size": 120000000,
+      "archiveType": "zip",
+      "extractPath": "advantagescope-win-x64",
+      "filename": "advantagescope-win-x64-v4.1.0.zip",
+      "mirrors": []
+    },
+    "linux-x64": {
+      "url": "https://github.com/Mechanical-Advantage/AdvantageScope/releases/download/v4.1.0/advantagescope-linux-x64-v4.1.0.tar.gz",
+      "sha256": "placeholder-sha256-linux-x64",
+      "size": 115000000,
+      "archiveType": "tar.gz",
+      "extractPath": "advantagescope-linux-x64",
+      "filename": "advantagescope-linux-x64-v4.1.0.tar.gz",
+      "mirrors": []
+    },
+    "linux-arm64": {
+      "url": "https://github.com/Mechanical-Advantage/AdvantageScope/releases/download/v4.1.0/advantagescope-linux-arm64-v4.1.0.tar.gz",
+      "sha256": "placeholder-sha256-linux-arm64",
+      "size": 112000000,
+      "archiveType": "tar.gz",
+      "extractPath": "advantagescope-linux-arm64",
+      "filename": "advantagescope-linux-arm64-v4.1.0.tar.gz",
+      "mirrors": []
+    },
+    "osx-x64": {
+      "url": "https://github.com/Mechanical-Advantage/AdvantageScope/releases/download/v4.1.0/advantagescope-macos-x64-v4.1.0.dmg",
+      "sha256": "placeholder-sha256-osx-x64",
+      "size": 118000000,
+      "archiveType": "dmg",
+      "extractPath": "AdvantageScope.app",
+      "filename": "advantagescope-macos-x64-v4.1.0.dmg",
+      "mirrors": []
+    },
+    "osx-arm64": {
+      "url": "https://github.com/Mechanical-Advantage/AdvantageScope/releases/download/v4.1.0/advantagescope-macos-arm64-v4.1.0.dmg",
+      "sha256": "placeholder-sha256-osx-arm64",
+      "size": 115000000,
+      "archiveType": "dmg",
+      "extractPath": "AdvantageScope.app",
+      "filename": "advantagescope-macos-arm64-v4.1.0.dmg",
+      "mirrors": []
+    }
+  },
+  "install": {
+    "installDir": "advantagescope",
+    "requiresAdmin": false,
+    "postInstall": [
+      {
+        "action": "create-shortcut",
+        "platform": "windows",
+        "params": {
+          "name": "AdvantageScope",
+          "target": "${installDir}\\advantagescope\\AdvantageScope.exe"
+        }
+      }
+    ]
+  },
+  "deprecated": false
+}

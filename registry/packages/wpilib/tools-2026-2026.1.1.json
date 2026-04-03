@@ -1,0 +1,104 @@
+{
+  "id": "wpilib.tools",
+  "name": "WPILib Tools",
+  "version": "2026.1.1",
+  "season": 2026,
+  "publisher": "wpilib",
+  "description": "WPILib Tools bundle including Glass, SysId, Shuffleboard, SmartDashboard, RobotBuilder, PathWeaver, and OutlineViewer for FRC development and debugging.",
+  "category": "tool",
+  "tags": ["tools", "shuffleboard", "smartdashboard", "robotbuilder", "pathweaver", "glass", "sysid"],
+  "competition": "Frc",
+  "license": "BSD-3-Clause",
+  "homepage": "https://docs.wpilib.org/en/stable/docs/software/wpilib-tools/",
+  "repository": "https://github.com/wpilibsuite/allwpilib",
+  "releaseNotes": "WPILib Tools 2026.1.1 with Glass improvements, SysId enhancements, and Shuffleboard bug fixes.",
+  "dependencies": [
+    {
+      "id": "wpilib.jdk",
+      "versionRange": ">=17.0.0",
+      "type": "Required",
+      "reason": "Java runtime required to run WPILib Tools."
+    }
+  ],
+  "conflicts": [],
+  "artifacts": {
+    "win-x64": {
+      "url": "https://github.com/wpilibsuite/allwpilib/releases/download/v2026.1.1/WPILib_Windows-2026.1.1.zip",
+      "sha256": "placeholder-sha256-win-x64",
+      "size": 250000000,
+      "archiveType": "zip",
+      "extractPath": "WPILib_Windows-2026.1.1",
+      "filename": "WPILib_Windows-2026.1.1.zip",
+      "mirrors": [
+        "https://frcmaven.wpi.edu/releases/tools/WPILib_Windows-2026.1.1.zip"
+      ]
+    },
+    "linux-x64": {
+      "url": "https://github.com/wpilibsuite/allwpilib/releases/download/v2026.1.1/WPILib_Linux-2026.1.1.tar.gz",
+      "sha256": "placeholder-sha256-linux-x64",
+      "size": 240000000,
+      "archiveType": "tar.gz",
+      "extractPath": "WPILib_Linux-2026.1.1",
+      "filename": "WPILib_Linux-2026.1.1.tar.gz",
+      "mirrors": []
+    },
+    "linux-arm64": {
+      "url": "https://github.com/wpilibsuite/allwpilib/releases/download/v2026.1.1/WPILib_LinuxArm64-2026.1.1.tar.gz",
+      "sha256": "placeholder-sha256-linux-arm64",
+      "size": 235000000,
+      "archiveType": "tar.gz",
+      "extractPath": "WPILib_LinuxArm64-2026.1.1",
+      "filename": "WPILib_LinuxArm64-2026.1.1.tar.gz",
+      "mirrors": []
+    },
+    "osx-x64": {
+      "url": "https://github.com/wpilibsuite/allwpilib/releases/download/v2026.1.1/WPILib_macOS-2026.1.1.tar.gz",
+      "sha256": "placeholder-sha256-osx-x64",
+      "size": 245000000,
+      "archiveType": "tar.gz",
+      "extractPath": "WPILib_macOS-2026.1.1",
+      "filename": "WPILib_macOS-2026.1.1.tar.gz",
+      "mirrors": []
+    },
+    "osx-arm64": {
+      "url": "https://github.com/wpilibsuite/allwpilib/releases/download/v2026.1.1/WPILib_macOSArm64-2026.1.1.tar.gz",
+      "sha256": "placeholder-sha256-osx-arm64",
+      "size": 240000000,
+      "archiveType": "tar.gz",
+      "extractPath": "WPILib_macOSArm64-2026.1.1",
+      "filename": "WPILib_macOSArm64-2026.1.1.tar.gz",
+      "mirrors": []
+    }
+  },
+  "install": {
+    "installDir": "tools",
+    "requiresAdmin": false,
+    "postInstall": [
+      {
+        "action": "create-shortcut",
+        "platform": "windows",
+        "params": {
+          "name": "Glass",
+          "target": "${installDir}\\tools\\glass.bat"
+        }
+      },
+      {
+        "action": "create-shortcut",
+        "platform": "windows",
+        "params": {
+          "name": "Shuffleboard",
+          "target": "${installDir}\\tools\\shuffleboard.bat"
+        }
+      },
+      {
+        "action": "create-shortcut",
+        "platform": "windows",
+        "params": {
+          "name": "SysId",
+          "target": "${installDir}\\tools\\sysid.bat"
+        }
+      }
+    ]
+  },
+  "deprecated": false
+}

@@ -1,0 +1,110 @@
+{
+  "id": "rev.revlib",
+  "name": "REVLib",
+  "version": "2026.0.2",
+  "season": 2026,
+  "publisher": "rev",
+  "description": "REVLib vendor library for REV Robotics hardware in FRC. Provides Java and C++ APIs for SPARK MAX, SPARK Flex, and other REV devices.",
+  "category": "library",
+  "tags": ["vendor", "rev", "spark", "motor-controller", "revlib"],
+  "competition": "Frc",
+  "license": "REV-Robotics-EULA",
+  "homepage": "https://docs.revrobotics.com/brushless/revlib",
+  "repository": "https://github.com/REVrobotics/REVLib",
+  "releaseNotes": "REVLib 2026.0.2 with SPARK Flex follower improvements and enhanced CAN diagnostics.",
+  "dependencies": [
+    {
+      "id": "wpilib.jdk",
+      "versionRange": ">=17.0.0",
+      "type": "Required",
+      "reason": "Java runtime required for REVLib Java API."
+    }
+  ],
+  "conflicts": [],
+  "artifacts": {
+    "win-x64": {
+      "url": "https://software-metadata.revrobotics.com/REVLib-2026.0.2-windows-x86-64.zip",
+      "sha256": "placeholder-sha256-win-x64",
+      "size": 45000000,
+      "archiveType": "zip",
+      "extractPath": "REVLib-2026.0.2",
+      "filename": "REVLib-2026.0.2-windows-x86-64.zip",
+      "mirrors": []
+    },
+    "linux-x64": {
+      "url": "https://software-metadata.revrobotics.com/REVLib-2026.0.2-linux-x86-64.zip",
+      "sha256": "placeholder-sha256-linux-x64",
+      "size": 42000000,
+      "archiveType": "zip",
+      "extractPath": "REVLib-2026.0.2",
+      "filename": "REVLib-2026.0.2-linux-x86-64.zip",
+      "mirrors": []
+    },
+    "linux-arm64": {
+      "url": "https://software-metadata.revrobotics.com/REVLib-2026.0.2-linux-aarch64.zip",
+      "sha256": "placeholder-sha256-linux-arm64",
+      "size": 40000000,
+      "archiveType": "zip",
+      "extractPath": "REVLib-2026.0.2",
+      "filename": "REVLib-2026.0.2-linux-aarch64.zip",
+      "mirrors": []
+    },
+    "osx-x64": {
+      "url": "https://software-metadata.revrobotics.com/REVLib-2026.0.2-macos-x86-64.zip",
+      "sha256": "placeholder-sha256-osx-x64",
+      "size": 43000000,
+      "archiveType": "zip",
+      "extractPath": "REVLib-2026.0.2",
+      "filename": "REVLib-2026.0.2-macos-x86-64.zip",
+      "mirrors": []
+    },
+    "osx-arm64": {
+      "url": "https://software-metadata.revrobotics.com/REVLib-2026.0.2-macos-aarch64.zip",
+      "sha256": "placeholder-sha256-osx-arm64",
+      "size": 41000000,
+      "archiveType": "zip",
+      "extractPath": "REVLib-2026.0.2",
+      "filename": "REVLib-2026.0.2-macos-aarch64.zip",
+      "mirrors": []
+    }
+  },
+  "mavenArtifacts": {
+    "vendordepJson": "https://software-metadata.revrobotics.com/REVLib-2026.json",
+    "repositories": [
+      "https://maven.revrobotics.com/",
+      "https://software-metadata.revrobotics.com/"
+    ],
+    "coordinates": [
+      {
+        "groupId": "com.revrobotics.frc",
+        "artifactId": "REVLib-java",
+        "version": "2026.0.2",
+        "classifiers": [],
+        "sha256": {}
+      },
+      {
+        "groupId": "com.revrobotics.frc",
+        "artifactId": "REVLib-driver",
+        "version": "2026.0.2",
+        "classifiers": ["windowsx86-64", "linuxx86-64", "linuxathena"],
+        "sha256": {}
+      }
+    ],
+    "runMetadataFixer": true
+  },
+  "install": {
+    "installDir": "vendordeps/rev",
+    "requiresAdmin": false,
+    "postInstall": [
+      {
+        "action": "copy-vendordep",
+        "platform": "windows",
+        "params": {
+          "source": "${installDir}/vendordeps/rev/REVLib-2026.json",
+          "destination": "vendordeps/"
+        }
+      }
+    ]
+  },
+  "deprecated": false
+}
