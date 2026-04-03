@@ -6,6 +6,7 @@ using FrcToolsuite.Core.Install;
 using FrcToolsuite.Core.Packages;
 using FrcToolsuite.Core.Platform;
 using FrcToolsuite.Core.Registry;
+using FrcToolsuite.Core.Update;
 using FrcToolsuite.Gui.Shell;
 using FrcToolsuite.Gui.ViewModels;
 
@@ -35,6 +36,11 @@ public static class ServiceConfiguration
         services.AddSingleton<IInstallEngine>(sp =>
             new InstallEngine(sp.GetRequiredService<IPlatformService>()));
         services.AddSingleton<IPackageManager, PackageManager>();
+        services.AddSingleton<ISelfUpdater>(sp =>
+            new SelfUpdater(
+                new HttpClient(),
+                sp.GetRequiredService<IDownloadManager>(),
+                sp.GetRequiredService<IPlatformService>()));
 
         // ViewModels
         services.AddTransient<MainWindowViewModel>(sp =>

@@ -1,4 +1,5 @@
 using System.CommandLine;
+using System.Runtime.InteropServices;
 using Microsoft.Extensions.DependencyInjection;
 using FrcToolsuite.Cli.Commands;
 using FrcToolsuite.Core.Configuration;
@@ -8,6 +9,7 @@ using FrcToolsuite.Core.Install;
 using FrcToolsuite.Core.Packages;
 using FrcToolsuite.Core.Platform;
 using FrcToolsuite.Core.Registry;
+using FrcToolsuite.Core.Update;
 
 namespace FrcToolsuite.Cli;
 
@@ -197,7 +199,8 @@ public static class Program
         var selfUpdateCommand = new Command("self-update", "Update the FIRST Package Manager itself");
         selfUpdateCommand.SetHandler(async () =>
         {
-            Environment.ExitCode = await SelfUpdateCommand.ExecuteAsync();
+            var updater = services.GetRequiredService<ISelfUpdater>();
+            Environment.ExitCode = await SelfUpdateCommand.ExecuteAsync(updater);
         });
 
         // Add all subcommands to root
@@ -222,8 +225,23 @@ public static class Program
         // HTTP client
         services.AddSingleton<HttpClient>();
 
-        // Platform service (stub for now)
-        services.AddSingleton<IPlatformService, StubPlatformService>();
+        // Platform service
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            FrcToolsuite.Platform.Windows.ServiceRegistration.AddPlatformServices(services);
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            FrcToolsuite.Platform.Linux.ServiceRegistration.AddPlatformServices(services);
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            FrcToolsuite.Platform.macOS.ServiceRegistration.AddPlatformServices(services);
+        }
+        else
+        {
+            services.AddSingleton<IPlatformService, StubPlatformService>();
+        }
 
         // Configuration
         services.AddSingleton<ISettingsProvider, SettingsProvider>();
@@ -266,6 +284,15 @@ public static class Program
             var pm = sp.GetRequiredService<IPackageManager>();
             var settings = sp.GetRequiredService<ISettingsProvider>();
             return new HealthChecker(pm, settings);
+        });
+
+        // Self-updater
+        services.AddSingleton<ISelfUpdater>(sp =>
+        {
+            var httpClient = sp.GetRequiredService<HttpClient>();
+            var downloadManager = sp.GetRequiredService<IDownloadManager>();
+            var platform = sp.GetRequiredService<IPlatformService>();
+            return new SelfUpdater(httpClient, downloadManager, platform);
         });
 
         return services.BuildServiceProvider();
