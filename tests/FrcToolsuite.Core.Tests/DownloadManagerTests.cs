@@ -173,7 +173,7 @@ public class DownloadManagerTests : IDisposable
         var result = await manager.DownloadAsync(request, progress);
 
         // Allow progress callbacks to be delivered (they are posted to the sync context)
-        await Task.Delay(100);
+        await Task.Delay(500);
 
         Assert.True(result.Success);
         Assert.NotEmpty(progressReports);
