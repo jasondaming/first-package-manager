@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Microsoft.Extensions.DependencyInjection;
 using FrcToolsuite.Core.Configuration;
 using FrcToolsuite.Core.Download;
@@ -18,7 +19,15 @@ public static class ServiceConfiguration
 
         // Core services
         services.AddSingleton<ISettingsProvider, SettingsProvider>();
-        services.AddSingleton<IPlatformService, StubPlatformService>();
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            Platform.Windows.ServiceRegistration.AddPlatformServices(services);
+        }
+        else
+        {
+            services.AddSingleton<IPlatformService, StubPlatformService>();
+        }
         services.AddSingleton<IRegistryClient>(sp =>
             new RegistryClient(new HttpClient()));
         services.AddSingleton<IDownloadManager>(sp =>

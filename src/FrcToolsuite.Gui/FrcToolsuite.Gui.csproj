@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FrcToolsuite.Core\FrcToolsuite.Core.csproj" />
+    <ProjectReference Include="..\FrcToolsuite.Platform.Windows\FrcToolsuite.Platform.Windows.csproj" />
   </ItemGroup>
 
 </Project>
