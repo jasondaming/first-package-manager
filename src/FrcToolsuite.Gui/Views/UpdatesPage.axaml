@@ -1,0 +1,113 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:FrcToolsuite.Gui.ViewModels"
+             mc:Ignorable="d"
+             d:DesignWidth="900" d:DesignHeight="600"
+             x:Class="FrcToolsuite.Gui.Views.UpdatesPage"
+             x:DataType="vm:UpdatesPageViewModel">
+
+    <DockPanel Margin="32,24">
+        <!-- Header -->
+        <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="0,0,0,20">
+            <StackPanel>
+                <TextBlock Text="Available Updates"
+                           FontSize="22"
+                           FontWeight="Bold"
+                           Foreground="#1A1A2E" />
+                <TextBlock Text="{Binding AvailableUpdates.Count, StringFormat='{}{0} updates available'}"
+                           FontSize="13"
+                           Foreground="#888899"
+                           Margin="0,4,0,0" />
+            </StackPanel>
+            <Button Grid.Column="1"
+                    Content="Update All"
+                    FontSize="13"
+                    FontWeight="SemiBold"
+                    Padding="20,10"
+                    CornerRadius="6"
+                    Background="#5B8DEF"
+                    Foreground="#FFFFFF"
+                    BorderThickness="0"
+                    VerticalAlignment="Top"
+                    Command="{Binding UpdateAllCommand}" />
+        </Grid>
+
+        <!-- Updates List -->
+        <ScrollViewer>
+            <ItemsControl ItemsSource="{Binding AvailableUpdates}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="vm:UpdateablePackageViewModel">
+                        <Border Background="#FFFFFF"
+                                CornerRadius="8"
+                                Padding="20"
+                                Margin="0,0,0,10"
+                                BoxShadow="0 1 2 0 #10000000"
+                                BorderBrush="#E0E4EA"
+                                BorderThickness="1">
+                            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="48,*,Auto">
+                                <!-- Icon -->
+                                <Border Grid.Row="0" Grid.Column="0"
+                                        Grid.RowSpan="2"
+                                        Width="40" Height="40"
+                                        CornerRadius="8"
+                                        Background="#EEF1F8"
+                                        VerticalAlignment="Top">
+                                    <TextBlock Text="{Binding Icon}"
+                                               FontSize="20"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center" />
+                                </Border>
+
+                                <!-- Name and version info -->
+                                <StackPanel Grid.Row="0" Grid.Column="1" Margin="8,0" Spacing="2">
+                                    <TextBlock Text="{Binding Name}"
+                                               FontSize="14"
+                                               FontWeight="SemiBold"
+                                               Foreground="#1A1A2E" />
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <TextBlock Text="{Binding CurrentVersion}"
+                                                   FontSize="11"
+                                                   Foreground="#99AABB" />
+                                        <TextBlock Text="&#x2192;"
+                                                   FontSize="11"
+                                                   Foreground="#99AABB" />
+                                        <TextBlock Text="{Binding NewVersion}"
+                                                   FontSize="11"
+                                                   Foreground="#5B8DEF"
+                                                   FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding Size, StringFormat='({0})'}"
+                                                   FontSize="11"
+                                                   Foreground="#99AABB" />
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!-- Update button -->
+                                <Button Grid.Row="0" Grid.Column="2"
+                                        Content="Update"
+                                        FontSize="12"
+                                        Padding="16,6"
+                                        CornerRadius="4"
+                                        Background="#5B8DEF"
+                                        Foreground="#FFFFFF"
+                                        BorderThickness="0"
+                                        VerticalAlignment="Center"
+                                        Command="{Binding $parent[ItemsControl].((vm:UpdatesPageViewModel)DataContext).UpdatePackageCommand}"
+                                        CommandParameter="{Binding Name}" />
+
+                                <!-- Changelog -->
+                                <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
+                                           Text="{Binding ChangelogSummary}"
+                                           FontSize="12"
+                                           Foreground="#667788"
+                                           TextWrapping="Wrap"
+                                           Margin="8,8,0,0" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </DockPanel>
+</UserControl>

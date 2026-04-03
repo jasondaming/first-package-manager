@@ -1,0 +1,234 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:shell="using:FrcToolsuite.Gui.Shell"
+        xmlns:vm="using:FrcToolsuite.Gui.ViewModels"
+        xmlns:views="using:FrcToolsuite.Gui.Views"
+        mc:Ignorable="d"
+        d:DesignWidth="1280" d:DesignHeight="720"
+        x:Class="FrcToolsuite.Gui.Shell.MainWindow"
+        x:DataType="shell:MainWindowViewModel"
+        Title="FIRST Package Manager"
+        MinWidth="1024" MinHeight="640"
+        Width="1280" Height="720">
+
+    <Window.Styles>
+        <!-- Sidebar nav button base style -->
+        <Style Selector="Button.nav-item">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="#99AABB" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Padding" Value="20,12" />
+            <Setter Property="CornerRadius" Value="0" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="BorderThickness" Value="3,0,0,0" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+        </Style>
+        <Style Selector="Button.nav-item:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#2A2A4A" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+        </Style>
+
+        <!-- Active override: applied alongside nav-item -->
+        <Style Selector="Button.nav-item.active">
+            <Setter Property="Background" Value="#2A2A4A" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="BorderBrush" Value="#5B8DEF" />
+        </Style>
+        <Style Selector="Button.nav-item.active /template/ ContentPresenter">
+            <Setter Property="Background" Value="#2A2A4A" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+        </Style>
+
+        <!-- Category chip style -->
+        <Style Selector="Button.chip">
+            <Setter Property="Background" Value="#E8EDF2" />
+            <Setter Property="Foreground" Value="#444444" />
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="Padding" Value="14,6" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Margin" Value="0,0,8,0" />
+        </Style>
+        <Style Selector="Button.chip:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#5B8DEF" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+        </Style>
+        <Style Selector="Button.chip.active">
+            <Setter Property="Background" Value="#5B8DEF" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+        </Style>
+        <Style Selector="Button.chip.active /template/ ContentPresenter">
+            <Setter Property="Background" Value="#5B8DEF" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+        </Style>
+    </Window.Styles>
+
+    <DockPanel>
+        <!-- Top Bar -->
+        <Border DockPanel.Dock="Top" Background="#1E1E3A" Height="48">
+            <Grid ColumnDefinitions="200,*,Auto">
+                <!-- App Title in sidebar header area -->
+                <StackPanel Grid.Column="0"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            Margin="16,0">
+                    <TextBlock Text="&#x2B50;"
+                               FontSize="18"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0" />
+                    <TextBlock Text="FIRST Package Manager"
+                               FontSize="14"
+                               FontWeight="Bold"
+                               Foreground="#FFFFFF"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+
+                <!-- Center spacer -->
+                <Border Grid.Column="1" />
+
+                <!-- Program and season selectors -->
+                <StackPanel Grid.Column="2"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            Margin="0,0,16,0"
+                            Spacing="12">
+                    <ComboBox ItemsSource="{Binding Programs}"
+                              SelectedItem="{Binding SelectedProgram}"
+                              MinWidth="90"
+                              FontSize="12" />
+                    <ComboBox ItemsSource="{Binding Seasons}"
+                              SelectedItem="{Binding SelectedSeason}"
+                              MinWidth="90"
+                              FontSize="12" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Sidebar -->
+        <Border DockPanel.Dock="Left" Width="200" Background="#1A1A2E">
+            <ScrollViewer>
+                <StackPanel Margin="0,8">
+                    <!-- Home -->
+                    <Button Classes="nav-item"
+                            Classes.active="{Binding SelectedPage, Converter={StaticResource StringEqualConverter}, ConverterParameter=Home}"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Home">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <TextBlock Text="&#x2302;" FontSize="16" Width="20" TextAlignment="Center" />
+                            <TextBlock Text="Home" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Browse -->
+                    <Button Classes="nav-item"
+                            Classes.active="{Binding SelectedPage, Converter={StaticResource StringEqualConverter}, ConverterParameter=Browse}"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Browse">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <TextBlock Text="&#x1F50D;" FontSize="16" Width="20" TextAlignment="Center" />
+                            <TextBlock Text="Browse" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Installed -->
+                    <Button Classes="nav-item"
+                            Classes.active="{Binding SelectedPage, Converter={StaticResource StringEqualConverter}, ConverterParameter=Installed}"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Installed">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <TextBlock Text="&#x1F4E6;" FontSize="16" Width="20" TextAlignment="Center" />
+                            <TextBlock Text="Installed" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Updates -->
+                    <Button Classes="nav-item"
+                            Classes.active="{Binding SelectedPage, Converter={StaticResource StringEqualConverter}, ConverterParameter=Updates}"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Updates">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <TextBlock Text="&#x2B07;" FontSize="16" Width="20" TextAlignment="Center" />
+                            <TextBlock Text="Updates" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Separator -->
+                    <Border Height="1" Background="#2A2A4A" Margin="16,12" />
+
+                    <!-- Profiles -->
+                    <Button Classes="nav-item"
+                            Classes.active="{Binding SelectedPage, Converter={StaticResource StringEqualConverter}, ConverterParameter=Profiles}"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Profiles">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <TextBlock Text="&#x1F464;" FontSize="16" Width="20" TextAlignment="Center" />
+                            <TextBlock Text="Profiles" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <!-- USB Mode -->
+                    <Button Classes="nav-item"
+                            Classes.active="{Binding SelectedPage, Converter={StaticResource StringEqualConverter}, ConverterParameter=USBMode}"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="USBMode">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <TextBlock Text="&#x1F4BE;" FontSize="16" Width="20" TextAlignment="Center" />
+                            <TextBlock Text="USB Mode" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Health -->
+                    <Button Classes="nav-item"
+                            Classes.active="{Binding SelectedPage, Converter={StaticResource StringEqualConverter}, ConverterParameter=Health}"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Health">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <TextBlock Text="&#x2764;" FontSize="16" Width="20" TextAlignment="Center" />
+                            <TextBlock Text="Health" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Separator -->
+                    <Border Height="1" Background="#2A2A4A" Margin="16,12" />
+
+                    <!-- Settings -->
+                    <Button Classes="nav-item"
+                            Classes.active="{Binding SelectedPage, Converter={StaticResource StringEqualConverter}, ConverterParameter=Settings}"
+                            Command="{Binding NavigateToCommand}"
+                            CommandParameter="Settings">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <TextBlock Text="&#x2699;" FontSize="16" Width="20" TextAlignment="Center" />
+                            <TextBlock Text="Settings" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Content Area -->
+        <Border Background="#F5F6FA">
+            <ContentControl Content="{Binding CurrentPageViewModel}" Margin="0">
+                <ContentControl.DataTemplates>
+                    <DataTemplate DataType="vm:HomePageViewModel">
+                        <views:HomePage />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:BrowsePageViewModel">
+                        <views:BrowsePage />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:InstalledPageViewModel">
+                        <views:InstalledPage />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:UpdatesPageViewModel">
+                        <views:UpdatesPage />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:SettingsPageViewModel">
+                        <views:SettingsPage />
+                    </DataTemplate>
+                </ContentControl.DataTemplates>
+            </ContentControl>
+        </Border>
+    </DockPanel>
+</Window>

@@ -1,0 +1,92 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:FrcToolsuite.Gui.ViewModels"
+             xmlns:controls="using:FrcToolsuite.Gui.Controls"
+             mc:Ignorable="d"
+             d:DesignWidth="900" d:DesignHeight="600"
+             x:Class="FrcToolsuite.Gui.Views.BrowsePage"
+             x:DataType="vm:BrowsePageViewModel">
+
+    <DockPanel Margin="32,24">
+        <!-- Header -->
+        <TextBlock DockPanel.Dock="Top"
+                   Text="Browse Packages"
+                   FontSize="22"
+                   FontWeight="Bold"
+                   Foreground="#1A1A2E"
+                   Margin="0,0,0,16" />
+
+        <!-- Search Bar -->
+        <Border DockPanel.Dock="Top"
+                Background="#FFFFFF"
+                CornerRadius="8"
+                Padding="4"
+                Margin="0,0,0,16"
+                BoxShadow="0 1 3 0 #15000000"
+                BorderBrush="#E0E4EA"
+                BorderThickness="1">
+            <TextBox Text="{Binding SearchQuery}"
+                     Watermark="Search packages..."
+                     BorderThickness="0"
+                     Background="Transparent"
+                     FontSize="14"
+                     Padding="12,8" />
+        </Border>
+
+        <!-- Category Filters -->
+        <StackPanel DockPanel.Dock="Top"
+                    Orientation="Horizontal"
+                    Margin="0,0,0,20">
+            <Button Classes="chip"
+                    Classes.active="{Binding FilterCategory, Converter={StaticResource StringEqualConverter}, ConverterParameter=All}"
+                    Content="All"
+                    Command="{Binding SetCategoryCommand}"
+                    CommandParameter="All" />
+            <Button Classes="chip"
+                    Classes.active="{Binding FilterCategory, Converter={StaticResource StringEqualConverter}, ConverterParameter=Runtime}"
+                    Content="Runtime"
+                    Command="{Binding SetCategoryCommand}"
+                    CommandParameter="Runtime" />
+            <Button Classes="chip"
+                    Classes.active="{Binding FilterCategory, Converter={StaticResource StringEqualConverter}, ConverterParameter=IDE}"
+                    Content="IDE"
+                    Command="{Binding SetCategoryCommand}"
+                    CommandParameter="IDE" />
+            <Button Classes="chip"
+                    Classes.active="{Binding FilterCategory, Converter={StaticResource StringEqualConverter}, ConverterParameter=Tools}"
+                    Content="Tools"
+                    Command="{Binding SetCategoryCommand}"
+                    CommandParameter="Tools" />
+            <Button Classes="chip"
+                    Classes.active="{Binding FilterCategory, Converter={StaticResource StringEqualConverter}, ConverterParameter=Libraries}"
+                    Content="Libraries"
+                    Command="{Binding SetCategoryCommand}"
+                    CommandParameter="Libraries" />
+            <Button Classes="chip"
+                    Classes.active="{Binding FilterCategory, Converter={StaticResource StringEqualConverter}, ConverterParameter=Dashboards}"
+                    Content="Dashboards"
+                    Command="{Binding SetCategoryCommand}"
+                    CommandParameter="Dashboards" />
+        </StackPanel>
+
+        <!-- Package Grid -->
+        <ScrollViewer>
+            <ItemsControl ItemsSource="{Binding FilteredPackages}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="vm:PackageViewModel">
+                        <Border Margin="0,0,12,12" Width="320">
+                            <controls:PackageCard />
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </DockPanel>
+</UserControl>

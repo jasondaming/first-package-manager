@@ -1,0 +1,130 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:FrcToolsuite.Gui.ViewModels"
+             mc:Ignorable="d"
+             d:DesignWidth="900" d:DesignHeight="600"
+             x:Class="FrcToolsuite.Gui.Views.SettingsPage"
+             x:DataType="vm:SettingsPageViewModel">
+
+    <ScrollViewer Padding="32,24">
+        <StackPanel Spacing="20" MaxWidth="640">
+            <TextBlock Text="Settings"
+                       FontSize="22"
+                       FontWeight="Bold"
+                       Foreground="#1A1A2E"
+                       Margin="0,0,0,8" />
+
+            <!-- Install Path -->
+            <Border Background="#FFFFFF" CornerRadius="8" Padding="20"
+                    BoxShadow="0 1 2 0 #10000000" BorderBrush="#E0E4EA" BorderThickness="1">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Installation" FontSize="15" FontWeight="SemiBold" Foreground="#1A1A2E" />
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Install Path" FontSize="12" Foreground="#556677" />
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding InstallPath}"
+                                     FontSize="13" />
+                            <Button Grid.Column="1"
+                                    Content="Browse..."
+                                    FontSize="12"
+                                    Padding="14,8"
+                                    Margin="8,0,0,0"
+                                    CornerRadius="4"
+                                    Command="{Binding BrowseInstallPathCommand}" />
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Max Concurrent Downloads" FontSize="12" Foreground="#556677" />
+                        <NumericUpDown Value="{Binding MaxConcurrentDownloads}"
+                                       Minimum="1" Maximum="10"
+                                       FontSize="13"
+                                       Width="120"
+                                       HorizontalAlignment="Left" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Updates -->
+            <Border Background="#FFFFFF" CornerRadius="8" Padding="20"
+                    BoxShadow="0 1 2 0 #10000000" BorderBrush="#E0E4EA" BorderThickness="1">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Updates" FontSize="15" FontWeight="SemiBold" Foreground="#1A1A2E" />
+
+                    <CheckBox IsChecked="{Binding AutoCheckUpdates}" FontSize="13">
+                        <TextBlock Text="Automatically check for updates" />
+                    </CheckBox>
+
+                    <CheckBox IsChecked="{Binding UseBetaChannel}" FontSize="13">
+                        <TextBlock Text="Use beta update channel" />
+                    </CheckBox>
+                </StackPanel>
+            </Border>
+
+            <!-- Cache -->
+            <Border Background="#FFFFFF" CornerRadius="8" Padding="20"
+                    BoxShadow="0 1 2 0 #10000000" BorderBrush="#E0E4EA" BorderThickness="1">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Cache" FontSize="15" FontWeight="SemiBold" Foreground="#1A1A2E" />
+
+                    <CheckBox IsChecked="{Binding KeepInstallerCache}" FontSize="13">
+                        <TextBlock Text="Keep installer files in cache" />
+                    </CheckBox>
+
+                    <Button Content="Clear Cache"
+                            FontSize="12"
+                            Padding="14,8"
+                            CornerRadius="4"
+                            Background="#FEF0F0"
+                            Foreground="#CC4444"
+                            BorderThickness="0"
+                            HorizontalAlignment="Left"
+                            Command="{Binding ClearCacheCommand}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Network -->
+            <Border Background="#FFFFFF" CornerRadius="8" Padding="20"
+                    BoxShadow="0 1 2 0 #10000000" BorderBrush="#E0E4EA" BorderThickness="1">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Network" FontSize="15" FontWeight="SemiBold" Foreground="#1A1A2E" />
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Proxy URL (optional)" FontSize="12" Foreground="#556677" />
+                        <TextBox Text="{Binding ProxyUrl}"
+                                 Watermark="http://proxy:8080"
+                                 FontSize="13" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Telemetry -->
+            <Border Background="#FFFFFF" CornerRadius="8" Padding="20"
+                    BoxShadow="0 1 2 0 #10000000" BorderBrush="#E0E4EA" BorderThickness="1">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Privacy" FontSize="15" FontWeight="SemiBold" Foreground="#1A1A2E" />
+
+                    <CheckBox IsChecked="{Binding EnableTelemetry}" FontSize="13">
+                        <TextBlock Text="Send anonymous usage data to help improve the tool" />
+                    </CheckBox>
+                </StackPanel>
+            </Border>
+
+            <!-- Actions -->
+            <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,20">
+                <Button Content="Reset to Defaults"
+                        FontSize="13"
+                        Padding="20,10"
+                        CornerRadius="6"
+                        Background="#E8EDF2"
+                        Foreground="#444444"
+                        BorderThickness="0"
+                        Command="{Binding ResetDefaultsCommand}" />
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
