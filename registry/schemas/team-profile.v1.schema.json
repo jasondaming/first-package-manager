@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://first-toolsuite.github.io/schemas/team-profile.v1.schema.json",
+  "title": "Team Profile",
+  "description": "Schema for a FIRST Package Manager team profile.",
+  "type": "object",
+  "required": ["schemaVersion", "profileName", "competition", "season", "packages"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Schema version identifier."
+    },
+    "profileName": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable profile name."
+    },
+    "teamNumber": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Team number."
+    },
+    "competition": {
+      "type": "string",
+      "enum": ["Frc", "Ftc"],
+      "description": "Target competition program."
+    },
+    "season": {
+      "type": "integer",
+      "description": "Competition season year."
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the profile was created."
+    },
+    "createdBy": {
+      "type": "string",
+      "description": "Who created the profile."
+    },
+    "baseBundle": {
+      "type": "string",
+      "description": "Bundle ID this profile is based on."
+    },
+    "packages": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Package IDs included in this profile."
+    },
+    "installOptions": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Custom installation options."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Free-form notes about this profile."
+    }
+  },
+  "additionalProperties": false
+}

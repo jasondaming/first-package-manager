@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://first-toolsuite.github.io/schemas/bundle.v1.schema.json",
+  "title": "Bundle Definition",
+  "description": "Schema for a FIRST Package Manager bundle definition.",
+  "type": "object",
+  "required": ["id", "name", "season", "description", "competition", "packages"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique bundle identifier."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable bundle name."
+    },
+    "season": {
+      "type": "integer",
+      "description": "Competition season year."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Bundle description."
+    },
+    "competition": {
+      "type": "string",
+      "enum": ["Frc", "Ftc"],
+      "description": "Target competition program."
+    },
+    "audience": {
+      "type": "string",
+      "description": "Target audience (beginner, intermediate, advanced)."
+    },
+    "packages": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/bundlePackageRef" },
+      "description": "Packages included in this bundle."
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "bundlePackageRef": {
+      "type": "object",
+      "required": ["id", "inclusion"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Package identifier."
+        },
+        "inclusion": {
+          "type": "string",
+          "enum": ["Required", "Default", "Optional"],
+          "description": "Whether the package is required, default, or optional in the bundle."
+        },
+        "reason": {
+          "type": "string",
+          "description": "Explanation of why this package is included."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

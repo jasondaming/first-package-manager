@@ -1,0 +1,141 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://first-toolsuite.github.io/schemas/registry-index.v1.schema.json",
+  "title": "Registry Index",
+  "description": "Schema for the FIRST Package Manager registry index.",
+  "type": "object",
+  "required": ["schemaVersion", "lastUpdated", "packages"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Schema version identifier."
+    },
+    "lastUpdated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of last update."
+    },
+    "seasons": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/seasonInfo" },
+      "description": "Available competition seasons."
+    },
+    "publishers": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/publisherInfo" },
+      "description": "Known package publishers."
+    },
+    "packages": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/packageSummary" },
+      "description": "Available packages."
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "seasonInfo": {
+      "type": "object",
+      "required": ["year", "status"],
+      "properties": {
+        "year": {
+          "type": "integer",
+          "description": "Season year."
+        },
+        "status": {
+          "type": "string",
+          "description": "Season status (active, archived, etc.)."
+        },
+        "kickoffDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Season kickoff date."
+        }
+      },
+      "additionalProperties": false
+    },
+    "publisherInfo": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Publisher identifier."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Publisher display name."
+        },
+        "trusted": {
+          "type": "boolean",
+          "description": "Whether this publisher is trusted."
+        }
+      },
+      "additionalProperties": false
+    },
+    "packageSummary": {
+      "type": "object",
+      "required": ["id", "name", "season", "version", "manifestUrl"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique package identifier."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable package name."
+        },
+        "season": {
+          "type": "integer",
+          "description": "Competition season year."
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Latest version string."
+        },
+        "category": {
+          "type": "string",
+          "description": "Package category."
+        },
+        "competition": {
+          "type": "string",
+          "enum": ["Frc", "Ftc"],
+          "description": "Target competition program."
+        },
+        "publisherId": {
+          "type": "string",
+          "description": "Publisher identifier."
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Searchable tags."
+        },
+        "description": {
+          "type": "string",
+          "description": "Package description."
+        },
+        "totalSize": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" },
+          "description": "Total size per platform in bytes."
+        },
+        "manifestUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to the full package manifest."
+        },
+        "manifestSha256": {
+          "type": "string",
+          "description": "SHA-256 hash of the manifest file."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
