@@ -147,11 +147,11 @@ public class InstallEngine : IInstallEngine
             files = package.InstalledFiles;
         }
 
-        // Delete files in reverse order (deepest first)
+        // Delete files in reverse order (deepest first), with path traversal protection
         foreach (var file in files.Reverse())
         {
             ct.ThrowIfCancellationRequested();
-            var fullPath = Path.IsPathRooted(file) ? file : Path.Combine(package.InstallPath, file);
+            var fullPath = SafeJoinPath(package.InstallPath, file);
             if (File.Exists(fullPath))
             {
                 File.Delete(fullPath);
@@ -166,6 +166,21 @@ public class InstallEngine : IInstallEngine
 
         // Remove empty directories (bottom-up)
         RemoveEmptyDirectories(package.InstallPath);
+    }
+
+    /// <summary>
+    /// Safely joins a base directory with a relative path, preventing path traversal attacks.
+    /// </summary>
+    private static string SafeJoinPath(string baseDir, string relativePath)
+    {
+        var fullPath = Path.GetFullPath(Path.Combine(baseDir, relativePath));
+        var normalizedBase = Path.GetFullPath(baseDir + Path.DirectorySeparatorChar);
+        if (!fullPath.StartsWith(normalizedBase, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                $"Path traversal detected: '{relativePath}' escapes install directory '{baseDir}'");
+        }
+        return fullPath;
     }
 
     private static string InferArchiveType(string path)
@@ -202,7 +217,7 @@ public class InstallEngine : IInstallEngine
             }
 
             var entryPath = entry.Name;
-            var fullPath = Path.Combine(destinationPath, entryPath);
+            var fullPath = SafeJoinPath(destinationPath, entryPath);
             var dir = Path.GetDirectoryName(fullPath);
             if (dir != null)
             {
@@ -245,7 +260,7 @@ public class InstallEngine : IInstallEngine
             }
 
             var entryPath = tarEntry.Name;
-            var fullPath = Path.Combine(destinationPath, entryPath);
+            var fullPath = SafeJoinPath(destinationPath, entryPath);
             var dir = Path.GetDirectoryName(fullPath);
             if (dir != null)
             {

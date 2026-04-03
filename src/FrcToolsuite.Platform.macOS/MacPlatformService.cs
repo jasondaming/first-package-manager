@@ -75,6 +75,7 @@ public class MacPlatformService : IPlatformService
 
     public void AddToPath(string path)
     {
+        ValidateShellSafe(path, nameof(path));
         var exportLine = $"export PATH=\"{path}:$PATH\"";
         var marker = $"# frc-toolsuite-path: {path}";
         var fullLine = $"{marker}\n{exportLine}";
@@ -122,6 +123,8 @@ public class MacPlatformService : IPlatformService
 
     public void SetEnvironmentVariable(string name, string value)
     {
+        ValidateShellSafe(name, nameof(name));
+        ValidateShellSafe(value, nameof(value));
         var exportLine = $"export {name}=\"{value}\"";
         var marker = $"# frc-toolsuite-env: {name}";
 
@@ -311,5 +314,20 @@ public class MacPlatformService : IPlatformService
     {
         var invalid = Path.GetInvalidFileNameChars();
         return new string(name.Select(c => Array.IndexOf(invalid, c) >= 0 ? '_' : c).ToArray());
+    }
+
+    /// <summary>
+    /// Validates that a value is safe to write into shell profile files.
+    /// Rejects characters that could enable command injection.
+    /// </summary>
+    private static void ValidateShellSafe(string value, string paramName)
+    {
+        char[] dangerous = ['`', '$', '"', '\'', '\n', '\r', ';', '|', '&'];
+        if (value.IndexOfAny(dangerous) >= 0)
+        {
+            throw new ArgumentException(
+                $"Value contains unsafe shell characters and cannot be written to profile files.",
+                paramName);
+        }
     }
 }
