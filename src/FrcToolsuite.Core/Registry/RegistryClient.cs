@@ -33,7 +33,7 @@ public class RegistryClient : IRegistryClient
     {
         _httpClient = httpClient;
         _registryUrl = registryUrl
-            ?? "https://raw.githubusercontent.com/first-toolsuite/registry/main/index.json";
+            ?? "https://raw.githubusercontent.com/jasondaming/vendor-json-repo/main/installer-index.json";
         _cacheDir = cacheDir ?? DefaultCacheDir;
         _indexCachePath = Path.Combine(_cacheDir, "registry-index.json");
         _etagCachePath = Path.Combine(_cacheDir, "registry-etag.txt");
