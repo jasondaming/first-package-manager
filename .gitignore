@@ -27,7 +27,6 @@ bld/
 publish/
 
 # NuGet
-**/packages/*
 *.nupkg
 **/[Pp]ackages/build/
 project.lock.json
