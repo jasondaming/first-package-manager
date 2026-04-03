@@ -162,7 +162,7 @@ public class DownloadManagerTests : IDisposable
         var manager = new DownloadManager(http);
 
         var progressReports = new List<DownloadProgress>();
-        var progress = new Progress<DownloadProgress>(p => progressReports.Add(p));
+        var progress = new SynchronousProgress<DownloadProgress>(p => progressReports.Add(p));
 
         var request = new DownloadRequest(
             "https://example.com/large.bin",
@@ -171,9 +171,6 @@ public class DownloadManagerTests : IDisposable
             ExpectedSize: content.Length);
 
         var result = await manager.DownloadAsync(request, progress);
-
-        // Allow progress callbacks to be delivered (they are posted to the sync context)
-        await Task.Delay(500);
 
         Assert.True(result.Success);
         Assert.NotEmpty(progressReports);
@@ -344,5 +341,19 @@ public class DownloadManagerTests : IDisposable
                 OnAfterSend?.Invoke();
             }
         }
+    }
+
+    /// <summary>
+    /// IProgress implementation that invokes the callback synchronously,
+    /// avoiding the race conditions inherent in Progress&lt;T&gt; which posts
+    /// callbacks via SynchronizationContext.
+    /// </summary>
+    private sealed class SynchronousProgress<T> : IProgress<T>
+    {
+        private readonly Action<T> _handler;
+
+        public SynchronousProgress(Action<T> handler) => _handler = handler;
+
+        public void Report(T value) => _handler(value);
     }
 }
