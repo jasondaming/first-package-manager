@@ -25,11 +25,19 @@
       <Setter Property="Foreground" Value="#44BB88" />
       <Setter Property="BorderThickness" Value="0" />
     </Style>
+    <Style Selector="Button.ghost-white">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="BorderThickness" Value="1.5" />
+      <Setter Property="BorderBrush" Value="#FFFFFF" />
+    </Style>
   </Application.Styles>
   <Application.Resources>
     <conv:StringEqualConverter x:Key="StringEqualConverter" />
     <conv:StringToBrushConverter x:Key="StringToBrushConverter" />
     <conv:GreaterThanConverter x:Key="GreaterThanConverter" />
     <conv:InclusionBrushConverter x:Key="InclusionBrushConverter" />
+    <conv:BoolToBorderBrushConverter x:Key="BoolToBorderBrushConverter" />
+    <conv:BoolToBorderThicknessConverter x:Key="BoolToBorderThicknessConverter" />
   </Application.Resources>
 </Application>

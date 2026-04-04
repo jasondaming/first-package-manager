@@ -129,7 +129,7 @@
             <!-- Bottom Button Bar -->
             <Border DockPanel.Dock="Bottom" Background="#FFFFFF" Padding="32,12"
                     BorderBrush="#E0E4EA" BorderThickness="0,1,0,0">
-                <Grid ColumnDefinitions="*,Auto">
+                <Grid ColumnDefinitions="Auto,*,Auto">
                     <Button Grid.Column="0"
                             Classes="secondary"
                             Content="Back"
@@ -137,7 +137,20 @@
                             IsVisible="{Binding CanGoBack}"
                             HorizontalAlignment="Left" />
 
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+                    <Button Grid.Column="1"
+                            Content="Advanced Setup"
+                            Command="{Binding SkipWizardCommand}"
+                            Background="Transparent"
+                            Foreground="#889AAB"
+                            BorderThickness="0"
+                            FontSize="12"
+                            Padding="12,8"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Cursor="Hand"
+                            IsVisible="{Binding CanSkipWizard}" />
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
                         <Button Classes="primary"
                                 Content="Next"
                                 Command="{Binding GoNextCommand}"
@@ -202,7 +215,8 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="vm:WizardPackageItem">
                                     <Border Background="#FFFFFF" CornerRadius="6" Padding="16,12" Margin="0,0,0,6"
-                                            BorderBrush="#E0E4EA" BorderThickness="1">
+                                            BorderBrush="{Binding IsSelected, Converter={StaticResource BoolToBorderBrushConverter}}"
+                                            BorderThickness="{Binding IsSelected, Converter={StaticResource BoolToBorderThicknessConverter}}">
                                         <Grid ColumnDefinitions="Auto,*,Auto">
                                             <CheckBox Grid.Column="0"
                                                       IsChecked="{Binding IsSelected}"

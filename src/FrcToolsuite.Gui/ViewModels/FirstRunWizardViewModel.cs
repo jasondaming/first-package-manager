@@ -83,6 +83,9 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
     [ObservableProperty]
     private string _installStatus = string.Empty;
 
+    [ObservableProperty]
+    private bool _canSkipWizard = true;
+
     public ObservableCollection<string> Programs { get; } = new() { "FRC", "FTC" };
 
     public ObservableCollection<string> Bundles { get; } = new()
@@ -145,6 +148,7 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
         CanGoBack = CurrentStep > 1 && !IsInstalling;
         CanGoNext = CurrentStep < 4 && !IsInstalling;
         ShowInstallButton = CurrentStep == 4;
+        CanSkipWizard = !IsInstalling && CurrentStep < 5;
 
         StepTitle = CurrentStep switch
         {
@@ -243,6 +247,12 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
             }
         };
         SelectedPackages.Add(item);
+    }
+
+    [RelayCommand]
+    private void SkipWizard()
+    {
+        _dismissWizard?.Invoke();
     }
 
     [RelayCommand]
@@ -375,6 +385,7 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
             ShowInstallButton,
             IsInstalling,
             InstallProgress,
+            CanSkipWizard,
             TotalDownloadSize,
             SelectedPackageCount,
             Packages = SelectedPackages.Select(p => new
