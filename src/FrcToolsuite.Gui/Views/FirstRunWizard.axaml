@@ -138,11 +138,9 @@
                             HorizontalAlignment="Left" />
 
                     <Button Grid.Column="1"
-                            Content="Advanced Setup"
+                            Content="&#x2699;  Advanced Setup"
                             Command="{Binding SkipWizardCommand}"
-                            Background="Transparent"
-                            Foreground="#889AAB"
-                            BorderThickness="0"
+                            Classes="ghost-link"
                             FontSize="12"
                             Padding="12,8"
                             HorizontalAlignment="Center"

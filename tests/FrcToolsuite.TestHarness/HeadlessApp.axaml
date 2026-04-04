@@ -31,6 +31,11 @@
       <Setter Property="BorderThickness" Value="1.5" />
       <Setter Property="BorderBrush" Value="#FFFFFF" />
     </Style>
+    <Style Selector="Button.ghost-link">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="#889AAB" />
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
   </Application.Styles>
   <Application.Resources>
     <conv:StringEqualConverter x:Key="StringEqualConverter" />

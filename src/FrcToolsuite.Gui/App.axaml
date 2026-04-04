@@ -62,6 +62,24 @@
         <Setter Property="BorderBrush" Value="#FFFFFF" />
       </Style>
     </Style>
+    <Style Selector="Button.ghost-link">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="#889AAB" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="#5B8DEF" />
+      </Style>
+      <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="#3A6BD0" />
+      </Style>
+    </Style>
+    <!-- Make unchecked checkboxes more visible on white backgrounds -->
+    <Style Selector="CheckBox:unchecked /template/ Border#NormalRectangle">
+      <Setter Property="BorderBrush" Value="#99AABB" />
+      <Setter Property="BorderThickness" Value="2" />
+    </Style>
   </Application.Styles>
   <Application.Resources>
     <conv:StringEqualConverter x:Key="StringEqualConverter" />
