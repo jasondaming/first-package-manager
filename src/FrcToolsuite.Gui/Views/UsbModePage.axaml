@@ -197,12 +197,11 @@
                                 Content="Sync to USB"
                                 Command="{Binding SyncToUsbCommand}"
                                 IsEnabled="{Binding !IsSyncing}"
+                                Classes="accent"
                                 FontSize="14"
                                 FontWeight="SemiBold"
                                 Padding="24,10"
-                                CornerRadius="6"
-                                Background="#5B8DEF"
-                                Foreground="White" />
+                                CornerRadius="6" />
                     </Grid>
                 </Border>
             </StackPanel>

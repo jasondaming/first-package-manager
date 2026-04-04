@@ -66,28 +66,25 @@
                         <WrapPanel Orientation="Horizontal">
                             <Button Content="Export Profile"
                                     Command="{Binding ExportProfileCommand}"
+                                    Classes="accent"
                                     FontSize="13"
                                     Padding="18,8"
                                     Margin="0,0,10,0"
-                                    CornerRadius="6"
-                                    Background="#5B8DEF"
-                                    Foreground="White" />
+                                    CornerRadius="6" />
                             <Button Content="Import Profile"
                                     Command="{Binding ImportProfileCommand}"
+                                    Classes="success"
                                     FontSize="13"
                                     Padding="18,8"
                                     Margin="0,0,10,0"
-                                    CornerRadius="6"
-                                    Background="#44BB88"
-                                    Foreground="White" />
+                                    CornerRadius="6" />
                             <Button Content="Apply Profile"
                                     Command="{Binding ApplyProfileCommand}"
                                     IsEnabled="{Binding HasLoadedProfile}"
+                                    Classes="warning"
                                     FontSize="13"
                                     Padding="18,8"
-                                    CornerRadius="6"
-                                    Background="#E8A838"
-                                    Foreground="White" />
+                                    CornerRadius="6" />
                         </WrapPanel>
                     </StackPanel>
                 </Border>
