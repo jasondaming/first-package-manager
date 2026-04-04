@@ -3,6 +3,7 @@ using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FrcToolsuite.Core;
+using FrcToolsuite.Core.Packages;
 
 namespace FrcToolsuite.Gui.ViewModels;
 
@@ -40,6 +41,9 @@ public partial class WizardPackageItem : ObservableObject
 
 public partial class FirstRunWizardViewModel : ObservableObject, IStateExportable
 {
+    private readonly IPackageManager? _packageManager;
+    private readonly Action? _dismissWizard;
+
     [ObservableProperty]
     private int _currentStep = 1;
 
@@ -104,7 +108,14 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
     public int SelectedPackageCount => SelectedPackages.Count(p => p.IsSelected);
 
     public FirstRunWizardViewModel()
+        : this(null, null)
     {
+    }
+
+    public FirstRunWizardViewModel(IPackageManager? packageManager, Action? dismissWizard)
+    {
+        _packageManager = packageManager;
+        _dismissWizard = dismissWizard;
         UpdateBundlesForProgram();
         LoadBundlePackages();
         UpdateStepState();
@@ -250,13 +261,82 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
     }
 
     [RelayCommand]
-    private void BeginInstall()
+    private async Task BeginInstallAsync()
     {
         CurrentStep = 5;
         IsInstalling = true;
         InstallProgress = 0;
         InstallStatus = "Preparing downloads...";
         UpdateStepState();
+
+        await ExecuteInstallAsync();
+    }
+
+    private async Task ExecuteInstallAsync()
+    {
+        if (_packageManager == null)
+        {
+            InstallStatus = "Package manager is not available (running in design mode).";
+            return;
+        }
+
+        try
+        {
+            var bundleId = SelectedBundle switch
+            {
+                "FRC Java Starter Kit" => "frc-java-starter-2026",
+                "FRC C++ Starter Kit" => "frc-cpp-starter-2026",
+                "CSA USB Toolkit" => "csa-usb-toolkit-2026",
+                "FTC Starter Kit" => "ftc-starter-2026",
+                _ => "frc-java-starter-2026"
+            };
+
+            var selectedIds = SelectedPackages
+                .Where(p => p.IsSelected && !p.IsRequired)
+                .Select(p => p.Id)
+                .ToList();
+
+            InstallStatus = "Planning installation...";
+            var plan = await _packageManager.PlanBundleInstallAsync(bundleId, selectedIds);
+
+            if (plan.Steps.Count == 0)
+            {
+                InstallProgress = 100;
+                InstallStatus = "Everything is already installed.";
+                IsInstalling = false;
+                _dismissWizard?.Invoke();
+                return;
+            }
+
+            var progress = new Progress<InstallProgress>(p =>
+            {
+                if (p.TotalSteps > 0)
+                {
+                    InstallProgress = (double)p.CurrentStep / p.TotalSteps * 100;
+                }
+
+                var phase = p.Phase switch
+                {
+                    InstallPhase.Downloading => "Downloading",
+                    InstallPhase.Extracting => "Extracting",
+                    InstallPhase.Configuring => "Configuring",
+                    _ => "Processing"
+                };
+                InstallStatus = $"{phase} {p.CurrentPackageId}...";
+            });
+
+            await _packageManager.ExecutePlanAsync(plan, progress);
+
+            InstallProgress = 100;
+            InstallStatus = "Installation complete!";
+            IsInstalling = false;
+            _dismissWizard?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            InstallStatus = $"Installation failed: {ex.Message}";
+            IsInstalling = false;
+        }
     }
 
     [RelayCommand]

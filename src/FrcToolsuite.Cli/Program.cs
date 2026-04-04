@@ -2,6 +2,7 @@ using System.CommandLine;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.DependencyInjection;
 using FrcToolsuite.Cli.Commands;
+using FrcToolsuite.Cli.Output;
 using FrcToolsuite.Core.Configuration;
 using FrcToolsuite.Core.Download;
 using FrcToolsuite.Core.Health;
@@ -53,18 +54,38 @@ public static class Program
 
         // install
         var installCommand = new Command("install", "Install a package or bundle");
-        var installPackageArg = new Argument<string>("package-or-bundle", "Package ID or bundle name to install");
+        var installPackageArg = new Argument<string>("package-or-bundle", () => string.Empty, "Package ID or bundle name to install");
         var installBundleOption = new Option<bool>("--bundle", "Treat the argument as a bundle name");
         var installYesOption = new Option<bool>("--yes", "Skip confirmation prompt");
         installYesOption.AddAlias("-Y");
+        var installCsaOption = new Option<bool>("--csa", "Shortcut: install the CSA USB Toolkit bundle");
+        var installVolunteerOption = new Option<bool>("--volunteer", "Shortcut: install the volunteer/team starter kit bundle");
         installCommand.AddArgument(installPackageArg);
         installCommand.AddOption(installBundleOption);
         installCommand.AddOption(installYesOption);
-        installCommand.SetHandler(async (packageOrBundle, isBundle, yes) =>
+        installCommand.AddOption(installCsaOption);
+        installCommand.AddOption(installVolunteerOption);
+        installCommand.SetHandler(async (packageOrBundle, isBundle, yes, csa, volunteer) =>
         {
             var pm = services.GetRequiredService<IPackageManager>();
-            Environment.ExitCode = await InstallCommand.ExecuteAsync(pm, packageOrBundle, isBundle, yes);
-        }, installPackageArg, installBundleOption, installYesOption);
+            if (csa)
+            {
+                Environment.ExitCode = await InstallCommand.ExecuteAsync(pm, "csa-usb-toolkit-2026", isBundle: true, autoConfirm: true);
+            }
+            else if (volunteer)
+            {
+                Environment.ExitCode = await InstallCommand.ExecuteAsync(pm, "frc-java-starter-2026", isBundle: true, autoConfirm: true);
+            }
+            else if (!string.IsNullOrEmpty(packageOrBundle))
+            {
+                Environment.ExitCode = await InstallCommand.ExecuteAsync(pm, packageOrBundle, isBundle, yes);
+            }
+            else
+            {
+                ConsoleHelper.WriteError("Please specify a package/bundle name, or use --csa / --volunteer.");
+                Environment.ExitCode = 1;
+            }
+        }, installPackageArg, installBundleOption, installYesOption, installCsaOption, installVolunteerOption);
 
         // update
         var updateCommand = new Command("update", "Update installed packages");

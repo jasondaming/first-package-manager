@@ -3,12 +3,15 @@ using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FrcToolsuite.Core;
+using FrcToolsuite.Core.Packages;
 using FrcToolsuite.Core.Registry;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FrcToolsuite.Gui.ViewModels;
 
-public class PackageViewModel
+public partial class PackageViewModel : ObservableObject
 {
+    public string PackageId { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string Publisher { get; set; } = string.Empty;
     public string Version { get; set; } = string.Empty;
@@ -16,8 +19,59 @@ public class PackageViewModel
     public string Category { get; set; } = string.Empty;
     public string Size { get; set; } = string.Empty;
     public string Icon { get; set; } = "\U0001F4E6";
-    public bool IsInstalled { get; set; }
+
+    [ObservableProperty]
+    private bool _isInstalled;
+
+    [ObservableProperty]
+    private bool _isInstalling;
+
+    [ObservableProperty]
+    private string? _installError;
+
     public bool HasUpdate { get; set; }
+
+    [RelayCommand]
+    private async Task InstallAsync()
+    {
+        if (IsInstalled || IsInstalling)
+        {
+            return;
+        }
+
+        var pm = App.Services?.GetService<IPackageManager>();
+        if (pm == null)
+        {
+            InstallError = "Package manager is not available.";
+            return;
+        }
+
+        IsInstalling = true;
+        InstallError = null;
+
+        try
+        {
+            var id = !string.IsNullOrEmpty(PackageId) ? PackageId : Name;
+            var plan = await pm.PlanInstallAsync(new[] { id });
+
+            if (plan.Steps.Count == 0)
+            {
+                IsInstalled = true;
+                return;
+            }
+
+            await pm.ExecutePlanAsync(plan);
+            IsInstalled = true;
+        }
+        catch (Exception ex)
+        {
+            InstallError = ex.Message;
+        }
+        finally
+        {
+            IsInstalling = false;
+        }
+    }
 
     /// <summary>
     /// First letter of package name for the colored circle icon.
@@ -130,6 +184,7 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
 
                     Packages.Add(new PackageViewModel
                     {
+                        PackageId = summary.Id,
                         Name = summary.Name,
                         Publisher = summary.PublisherId,
                         Version = summary.Version,

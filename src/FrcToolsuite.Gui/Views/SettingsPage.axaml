@@ -100,18 +100,6 @@
                 </StackPanel>
             </Border>
 
-            <!-- Telemetry -->
-            <Border Background="#FFFFFF" CornerRadius="8" Padding="20"
-                    BoxShadow="0 1 2 0 #10000000" BorderBrush="#E0E4EA" BorderThickness="1">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="Privacy" FontSize="15" FontWeight="SemiBold" Foreground="#1A1A2E" />
-
-                    <CheckBox IsChecked="{Binding EnableTelemetry}" FontSize="13">
-                        <TextBlock Text="Send anonymous usage data to help improve the tool" />
-                    </CheckBox>
-                </StackPanel>
-            </Border>
-
             <!-- Actions -->
             <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,20">
                 <Button Content="Reset to Defaults"

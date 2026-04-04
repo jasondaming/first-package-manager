@@ -39,7 +39,7 @@ public partial class MainWindowViewModel : ObservableObject, IStateExportable
     public UsbModePageViewModel UsbModePage { get; } = new();
     public HealthPageViewModel HealthPage { get; } = new();
     public PackageDetailPageViewModel PackageDetailPage { get; } = new();
-    public FirstRunWizardViewModel FirstRunWizard { get; } = new();
+    public FirstRunWizardViewModel FirstRunWizard { get; }
 
     public MainWindowViewModel()
         : this(null, null)
@@ -52,6 +52,7 @@ public partial class MainWindowViewModel : ObservableObject, IStateExportable
         BrowsePage = new BrowsePageViewModel(registry);
         InstalledPage = new InstalledPageViewModel(packageManager);
         UpdatesPage = new UpdatesPageViewModel(packageManager);
+        FirstRunWizard = new FirstRunWizardViewModel(packageManager, DismissFirstRunWizard);
         CurrentPageViewModel = HomePage;
 
         // Show first-run wizard if no previous install is detected

@@ -17,9 +17,6 @@ public partial class SettingsPageViewModel : ObservableObject, IStateExportable
     private bool _useBetaChannel;
 
     [ObservableProperty]
-    private bool _enableTelemetry = true;
-
-    [ObservableProperty]
     private string _proxyUrl = string.Empty;
 
     [ObservableProperty]
@@ -46,7 +43,6 @@ public partial class SettingsPageViewModel : ObservableObject, IStateExportable
         InstallPath = @"C:\frc";
         AutoCheckUpdates = true;
         UseBetaChannel = false;
-        EnableTelemetry = true;
         ProxyUrl = string.Empty;
         MaxConcurrentDownloads = 3;
         KeepInstallerCache = true;
@@ -59,7 +55,6 @@ public partial class SettingsPageViewModel : ObservableObject, IStateExportable
             InstallPath,
             AutoCheckUpdates,
             UseBetaChannel,
-            EnableTelemetry,
             ProxyUrl,
             MaxConcurrentDownloads,
             KeepInstallerCache
