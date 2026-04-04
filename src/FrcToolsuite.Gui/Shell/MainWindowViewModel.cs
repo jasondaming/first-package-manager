@@ -3,6 +3,7 @@ using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FrcToolsuite.Core;
+using FrcToolsuite.Core.Health;
 using FrcToolsuite.Core.Packages;
 using FrcToolsuite.Core.Registry;
 using FrcToolsuite.Gui.ViewModels;
@@ -37,21 +38,23 @@ public partial class MainWindowViewModel : ObservableObject, IStateExportable
     public SettingsPageViewModel SettingsPage { get; } = new();
     public ProfilesPageViewModel ProfilesPage { get; } = new();
     public UsbModePageViewModel UsbModePage { get; } = new();
-    public HealthPageViewModel HealthPage { get; } = new();
-    public PackageDetailPageViewModel PackageDetailPage { get; } = new();
+    public HealthPageViewModel HealthPage { get; }
+    public PackageDetailPageViewModel PackageDetailPage { get; }
     public FirstRunWizardViewModel FirstRunWizard { get; }
 
     public MainWindowViewModel()
-        : this(null, null)
+        : this(null, null, null)
     {
     }
 
-    public MainWindowViewModel(IPackageManager? packageManager, IRegistryClient? registry)
+    public MainWindowViewModel(IPackageManager? packageManager, IRegistryClient? registry, IHealthChecker? healthChecker = null)
     {
         HomePage = new HomePageViewModel(packageManager, registry, NavigateTo);
         BrowsePage = new BrowsePageViewModel(registry, packageManager);
         InstalledPage = new InstalledPageViewModel(packageManager);
         UpdatesPage = new UpdatesPageViewModel(packageManager);
+        PackageDetailPage = new PackageDetailPageViewModel(NavigateTo);
+        HealthPage = new HealthPageViewModel(healthChecker);
         FirstRunWizard = new FirstRunWizardViewModel(packageManager, DismissFirstRunWizard);
         CurrentPageViewModel = HomePage;
 

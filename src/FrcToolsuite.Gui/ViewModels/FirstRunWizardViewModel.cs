@@ -1,5 +1,8 @@
 using System.Collections.ObjectModel;
 using System.Text.Json;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FrcToolsuite.Core;
@@ -340,9 +343,21 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
     }
 
     [RelayCommand]
-    private void BrowseInstallPath()
+    private async Task BrowseInstallPathAsync()
     {
-        // Placeholder: would open a folder picker dialog
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
+            && desktop.MainWindow?.StorageProvider is { } storage)
+        {
+            var result = await storage.OpenFolderPickerAsync(new FolderPickerOpenOptions
+            {
+                Title = "Select Install Directory",
+                AllowMultiple = false
+            });
+            if (result.Count > 0)
+            {
+                InstallPath = result[0].Path.LocalPath;
+            }
+        }
     }
 
     public string ExportStateJson()

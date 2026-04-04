@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using Microsoft.Extensions.DependencyInjection;
 using FrcToolsuite.Core.Configuration;
 using FrcToolsuite.Core.Download;
+using FrcToolsuite.Core.Health;
 using FrcToolsuite.Core.Install;
 using FrcToolsuite.Core.Packages;
 using FrcToolsuite.Core.Platform;
@@ -36,6 +37,7 @@ public static class ServiceConfiguration
         services.AddSingleton<IInstallEngine>(sp =>
             new InstallEngine(sp.GetRequiredService<IPlatformService>()));
         services.AddSingleton<IPackageManager, PackageManager>();
+        services.AddSingleton<IHealthChecker, HealthChecker>();
         services.AddSingleton<ISelfUpdater>(sp =>
             new SelfUpdater(
                 new HttpClient(),
@@ -46,7 +48,8 @@ public static class ServiceConfiguration
         services.AddTransient<MainWindowViewModel>(sp =>
             new MainWindowViewModel(
                 sp.GetRequiredService<IPackageManager>(),
-                sp.GetRequiredService<IRegistryClient>()));
+                sp.GetRequiredService<IRegistryClient>(),
+                sp.GetRequiredService<IHealthChecker>()));
         services.AddTransient<HomePageViewModel>(sp =>
             new HomePageViewModel(
                 sp.GetRequiredService<IPackageManager>(),
@@ -63,8 +66,11 @@ public static class ServiceConfiguration
         services.AddTransient<SettingsPageViewModel>();
         services.AddTransient<ProfilesPageViewModel>();
         services.AddTransient<UsbModePageViewModel>();
-        services.AddTransient<HealthPageViewModel>();
-        services.AddTransient<PackageDetailPageViewModel>();
+        services.AddTransient<HealthPageViewModel>(sp =>
+            new HealthPageViewModel(
+                sp.GetRequiredService<IHealthChecker>()));
+        services.AddTransient<PackageDetailPageViewModel>(sp =>
+            new PackageDetailPageViewModel());
 
         return services.BuildServiceProvider();
     }

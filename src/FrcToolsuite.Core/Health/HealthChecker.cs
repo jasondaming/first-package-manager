@@ -26,7 +26,7 @@ public class HealthChecker : IHealthChecker
             {
                 Severity = HealthSeverity.Info,
                 Description = $"Install directory '{settings.InstallDirectory}' does not exist (no packages installed yet).",
-                CanAutoFix = false
+                CanAutoFix = true
             });
             return report;
         }
@@ -68,9 +68,44 @@ public class HealthChecker : IHealthChecker
         return RunFullCheckAsync(ct);
     }
 
-    public Task<bool> RepairAsync(HealthIssue issue, CancellationToken ct = default)
+    public async Task<bool> RepairAsync(HealthIssue issue, CancellationToken ct = default)
     {
-        // Placeholder: repair is not yet implemented
-        return Task.FromResult(false);
+        if (!issue.CanAutoFix)
+        {
+            return false;
+        }
+
+        try
+        {
+            var settings = await _settingsProvider.LoadAsync(ct);
+
+            // Repair: missing install directory - create it
+            if (issue.Description.Contains("install directory", StringComparison.OrdinalIgnoreCase)
+                && issue.Description.Contains("does not exist", StringComparison.OrdinalIgnoreCase))
+            {
+                Directory.CreateDirectory(settings.InstallDirectory);
+                return Directory.Exists(settings.InstallDirectory);
+            }
+
+            // Repair: missing package install directory - create it
+            if (issue.PackageId != null
+                && issue.Description.Contains("install directory is missing", StringComparison.OrdinalIgnoreCase))
+            {
+                var packages = await _packageManager.GetInstalledPackagesAsync(ct);
+                var pkg = packages.FirstOrDefault(p =>
+                    string.Equals(p.PackageId, issue.PackageId, StringComparison.OrdinalIgnoreCase));
+                if (pkg != null && !string.IsNullOrEmpty(pkg.InstallPath))
+                {
+                    Directory.CreateDirectory(pkg.InstallPath);
+                    return Directory.Exists(pkg.InstallPath);
+                }
+            }
+
+            return false;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

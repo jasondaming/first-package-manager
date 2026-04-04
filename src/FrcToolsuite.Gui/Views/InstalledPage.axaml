@@ -82,6 +82,8 @@
                                 <!-- Uninstall button -->
                                 <Button Grid.Column="4"
                                         Content="Uninstall"
+                                        Command="{Binding $parent[ItemsControl].((vm:InstalledPageViewModel)DataContext).UninstallPackageCommand}"
+                                        CommandParameter="{Binding Name}"
                                         Classes="danger"
                                         FontSize="12"
                                         Padding="14,6"

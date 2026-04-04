@@ -8,6 +8,18 @@ namespace FrcToolsuite.Gui.ViewModels;
 
 public partial class PackageDetailPageViewModel : ObservableObject, IStateExportable
 {
+    private readonly Action<string>? _navigateCallback;
+
+    public PackageDetailPageViewModel()
+        : this(null)
+    {
+    }
+
+    public PackageDetailPageViewModel(Action<string>? navigateCallback)
+    {
+        _navigateCallback = navigateCallback;
+    }
+
     [ObservableProperty]
     private string _name = "WPILib";
 
@@ -64,7 +76,7 @@ public partial class PackageDetailPageViewModel : ObservableObject, IStateExport
     [RelayCommand]
     private void GoBack()
     {
-        // Placeholder: would navigate back
+        _navigateCallback?.Invoke("Browse");
     }
 
     public string ExportStateJson()

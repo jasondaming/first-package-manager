@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using FrcToolsuite.Core;
 using FrcToolsuite.Core.Packages;
 
@@ -24,6 +25,9 @@ public partial class InstalledPageViewModel : ObservableObject, IStateExportable
 
     [ObservableProperty]
     private string _totalSize = "0 MB";
+
+    [ObservableProperty]
+    private bool _isUninstalling;
 
     public InstalledPageViewModel()
         : this(null)
@@ -145,6 +149,39 @@ public partial class InstalledPageViewModel : ObservableObject, IStateExportable
         }
 
         return $"{bytes} B";
+    }
+
+    [RelayCommand]
+    private async Task UninstallPackageAsync(string packageName)
+    {
+        if (_packageManager == null)
+        {
+            return;
+        }
+
+        IsUninstalling = true;
+        try
+        {
+            var plan = await _packageManager.PlanUninstallAsync(new[] { packageName });
+            if (plan.Steps.Count > 0)
+            {
+                await _packageManager.ExecutePlanAsync(plan);
+            }
+
+            var item = InstalledPackages.FirstOrDefault(p => p.Name == packageName);
+            if (item != null)
+            {
+                InstalledPackages.Remove(item);
+            }
+        }
+        catch
+        {
+            // Uninstall failed; keep item in list so user can retry
+        }
+        finally
+        {
+            IsUninstalling = false;
+        }
     }
 
     public string ExportStateJson()

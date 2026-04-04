@@ -1,4 +1,7 @@
 using System.Text.Json;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FrcToolsuite.Core;
@@ -26,15 +29,36 @@ public partial class SettingsPageViewModel : ObservableObject, IStateExportable
     private bool _keepInstallerCache = true;
 
     [RelayCommand]
-    private void BrowseInstallPath()
+    private async Task BrowseInstallPathAsync()
     {
-        // Placeholder: would open a folder picker dialog
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
+            && desktop.MainWindow?.StorageProvider is { } storage)
+        {
+            var result = await storage.OpenFolderPickerAsync(new FolderPickerOpenOptions
+            {
+                Title = "Select Install Directory",
+                AllowMultiple = false
+            });
+            if (result.Count > 0)
+            {
+                InstallPath = result[0].Path.LocalPath;
+            }
+        }
     }
 
     [RelayCommand]
-    private void ClearCache()
+    private async Task ClearCacheAsync()
     {
-        // Placeholder: would clear the download/installer cache
+        var cachePath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            ".frctoolsuite", "cache");
+        if (Directory.Exists(cachePath))
+        {
+            Directory.Delete(cachePath, true);
+            Directory.CreateDirectory(cachePath);
+        }
+
+        await Task.CompletedTask;
     }
 
     [RelayCommand]

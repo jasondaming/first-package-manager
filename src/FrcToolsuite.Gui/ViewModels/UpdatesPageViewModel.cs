@@ -103,16 +103,65 @@ public partial class UpdatesPageViewModel : ObservableObject, IStateExportable
     }
 
     [RelayCommand]
-    private void UpdateAll()
+    private async Task UpdateAllAsync()
     {
+        if (_packageManager == null)
+        {
+            return;
+        }
+
         IsUpdating = true;
-        // In a real implementation this would trigger actual updates
+        try
+        {
+            var plan = await _packageManager.PlanUpdateAsync();
+            if (plan.Steps.Count > 0)
+            {
+                await _packageManager.ExecutePlanAsync(plan);
+            }
+
+            AvailableUpdates.Clear();
+        }
+        catch
+        {
+            // Update failed; keep items in list so user can retry
+        }
+        finally
+        {
+            IsUpdating = false;
+        }
     }
 
     [RelayCommand]
-    private void UpdatePackage(string packageName)
+    private async Task UpdatePackageAsync(string packageName)
     {
-        // Placeholder for single-package update
+        if (_packageManager == null)
+        {
+            return;
+        }
+
+        IsUpdating = true;
+        try
+        {
+            var plan = await _packageManager.PlanUpdateAsync(new[] { packageName });
+            if (plan.Steps.Count > 0)
+            {
+                await _packageManager.ExecutePlanAsync(plan);
+            }
+
+            var item = AvailableUpdates.FirstOrDefault(u => u.Name == packageName);
+            if (item != null)
+            {
+                AvailableUpdates.Remove(item);
+            }
+        }
+        catch
+        {
+            // Update failed; keep item in list so user can retry
+        }
+        finally
+        {
+            IsUpdating = false;
+        }
     }
 
     public string ExportStateJson()

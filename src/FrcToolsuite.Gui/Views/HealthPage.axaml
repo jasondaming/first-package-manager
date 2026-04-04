@@ -8,82 +8,171 @@
              x:Class="FrcToolsuite.Gui.Views.HealthPage"
              x:DataType="vm:HealthPageViewModel">
 
-    <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
-        <StackPanel Spacing="16" MaxWidth="420" HorizontalAlignment="Center">
-            <!-- Icon circle -->
-            <Border Width="80" Height="80"
-                    CornerRadius="40"
-                    Background="#EEF1F8"
-                    HorizontalAlignment="Center">
-                <TextBlock Text="&#x2764;"
-                           FontSize="36"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center" />
-            </Border>
-
-            <!-- Title -->
-            <TextBlock Text="{Binding Title}"
-                       FontSize="22"
-                       FontWeight="Bold"
-                       Foreground="#1A1A2E"
-                       HorizontalAlignment="Center" />
-
-            <!-- Description -->
-            <TextBlock Text="{Binding Description}"
-                       FontSize="14"
-                       Foreground="#556677"
-                       TextWrapping="Wrap"
-                       TextAlignment="Center"
-                       LineHeight="22"
-                       HorizontalAlignment="Center" />
-
-            <!-- Coming Soon badge -->
-            <Border Background="#FFF3E0"
-                    CornerRadius="16"
-                    Padding="20,8"
-                    HorizontalAlignment="Center"
-                    Margin="0,8,0,0">
-                <TextBlock Text="{Binding Status}"
-                           FontSize="13"
-                           FontWeight="SemiBold"
-                           Foreground="#E8A838" />
-            </Border>
-
-            <!-- Decorative feature hints -->
-            <Border Background="#FFFFFF"
-                    CornerRadius="8"
-                    Padding="20,16"
-                    Margin="0,12,0,0"
-                    BoxShadow="0 1 3 0 #15000000"
-                    BorderBrush="#E0E4EA"
-                    BorderThickness="1">
-                <StackPanel Spacing="12">
-                    <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Border Width="28" Height="28" CornerRadius="14" Background="#FFF3E0">
-                            <TextBlock Text="&#x2713;" FontSize="14" Foreground="#E8A838"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <TextBlock Text="Check Java, C++, and Python toolchains"
-                                   FontSize="12" Foreground="#556677" VerticalAlignment="Center" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Border Width="28" Height="28" CornerRadius="14" Background="#FFF3E0">
-                            <TextBlock Text="&#x2713;" FontSize="14" Foreground="#E8A838"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <TextBlock Text="Verify network and firewall settings"
-                                   FontSize="12" Foreground="#556677" VerticalAlignment="Center" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Border Width="28" Height="28" CornerRadius="14" Background="#FFF3E0">
-                            <TextBlock Text="&#x2713;" FontSize="14" Foreground="#E8A838"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <TextBlock Text="Detect version conflicts and missing dependencies"
-                                   FontSize="12" Foreground="#556677" VerticalAlignment="Center" />
-                    </StackPanel>
+    <DockPanel Margin="32,24">
+        <!-- Header -->
+        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,20">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel>
+                    <TextBlock Text="{Binding Title}"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               Foreground="#1A1A2E" />
+                    <TextBlock Text="{Binding Description}"
+                               FontSize="13"
+                               Foreground="#888899"
+                               TextWrapping="Wrap"
+                               Margin="0,4,0,0" />
                 </StackPanel>
-            </Border>
+
+                <Button Grid.Column="1"
+                        Content="Run Health Check"
+                        Command="{Binding RunCheckCommand}"
+                        IsEnabled="{Binding !IsChecking}"
+                        Classes="accent"
+                        FontSize="13"
+                        FontWeight="SemiBold"
+                        Padding="20,10"
+                        CornerRadius="6"
+                        VerticalAlignment="Top" />
+            </Grid>
         </StackPanel>
-    </Grid>
+
+        <!-- Status banner: healthy -->
+        <Border DockPanel.Dock="Top"
+                CornerRadius="8"
+                Padding="16,12"
+                Margin="0,0,0,16"
+                Background="#E8F5E9"
+                IsVisible="{Binding IsHealthy}">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <Border Width="32" Height="32" CornerRadius="16" Background="#C8E6C9">
+                    <TextBlock Text="&#x2714;"
+                               FontSize="16"
+                               Foreground="#2E7D32"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center" />
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="All checks passed"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="#2E7D32" />
+                    <TextBlock Text="Your FRC development environment looks good."
+                               FontSize="12"
+                               Foreground="#388E3C" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Status banner: issues found -->
+        <Border DockPanel.Dock="Top"
+                CornerRadius="8"
+                Padding="16,12"
+                Margin="0,0,0,16"
+                Background="#FFF3E0"
+                IsVisible="{Binding !IsHealthy}">
+            <StackPanel Orientation="Horizontal"
+                        Spacing="10"
+                        IsVisible="{Binding HasResults}">
+                <Border Width="32" Height="32" CornerRadius="16" Background="#FFE0B2">
+                    <TextBlock Text="&#x26A0;"
+                               FontSize="16"
+                               Foreground="#E8A838"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center" />
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Status}"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="#E65100" />
+                    <TextBlock Text="Review the issues below for details."
+                               FontSize="12"
+                               Foreground="#EF6C00" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Loading indicator -->
+        <Border DockPanel.Dock="Top"
+                Background="#FFFFFF"
+                CornerRadius="8"
+                Padding="20,16"
+                Margin="0,0,0,12"
+                BoxShadow="0 1 2 0 #10000000"
+                BorderBrush="#E0E4EA"
+                BorderThickness="1"
+                IsVisible="{Binding IsChecking}">
+            <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
+                <TextBlock Text="Checking..."
+                           FontSize="14"
+                           Foreground="#556677"
+                           VerticalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Issues list -->
+        <ScrollViewer>
+            <ItemsControl ItemsSource="{Binding Issues}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="vm:HealthCheckItemViewModel">
+                        <Border Background="#FFFFFF"
+                                CornerRadius="8"
+                                Padding="16"
+                                Margin="0,0,0,8"
+                                BoxShadow="0 1 2 0 #10000000"
+                                BorderBrush="#E0E4EA"
+                                BorderThickness="1">
+                            <Grid ColumnDefinitions="40,*,Auto">
+                                <!-- Severity icon -->
+                                <Border Grid.Column="0"
+                                        Width="32" Height="32"
+                                        CornerRadius="16"
+                                        Background="#FFF3E0"
+                                        VerticalAlignment="Center">
+                                    <Panel>
+                                        <TextBlock Text="{Binding SeverityIcon}"
+                                                   FontSize="16"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   IsVisible="{Binding !IsRepaired}" />
+                                        <TextBlock Text="&#x2714;"
+                                                   FontSize="16"
+                                                   Foreground="#2E7D32"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   IsVisible="{Binding IsRepaired}" />
+                                    </Panel>
+                                </Border>
+
+                                <!-- Description -->
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="8,0">
+                                    <TextBlock Text="{Binding Description}"
+                                               FontSize="13"
+                                               Foreground="#1A1A2E"
+                                               TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding PackageId, StringFormat='Package: {0}'}"
+                                               FontSize="11"
+                                               Foreground="#888899"
+                                               IsVisible="{Binding PackageId, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                               Margin="0,4,0,0" />
+                                </StackPanel>
+
+                                <!-- Repair button -->
+                                <Button Grid.Column="2"
+                                        Content="Repair"
+                                        Command="{Binding $parent[ItemsControl].((vm:HealthPageViewModel)DataContext).RepairIssueCommand}"
+                                        CommandParameter="{Binding}"
+                                        IsVisible="{Binding CanAutoFix}"
+                                        FontSize="12"
+                                        Padding="14,6"
+                                        CornerRadius="4"
+                                        VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </DockPanel>
 </UserControl>

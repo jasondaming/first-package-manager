@@ -7,6 +7,7 @@ using FrcToolsuite.Core.Configuration;
 using FrcToolsuite.Core.Download;
 using FrcToolsuite.Core.Health;
 using FrcToolsuite.Core.Install;
+using FrcToolsuite.Core.Offline;
 using FrcToolsuite.Core.Packages;
 using FrcToolsuite.Core.Platform;
 using FrcToolsuite.Core.Registry;
@@ -93,18 +94,20 @@ public static class Program
         var updateAllOption = new Option<bool>("--all", "Update all installed packages");
         updateCommand.AddArgument(updatePackageArg);
         updateCommand.AddOption(updateAllOption);
-        updateCommand.SetHandler((packageId, all) =>
+        updateCommand.SetHandler(async (packageId, all) =>
         {
-            Console.WriteLine("Not yet implemented");
+            var pm = services.GetRequiredService<IPackageManager>();
+            Environment.ExitCode = await UpdateCommand.ExecuteAsync(pm, packageId, all);
         }, updatePackageArg, updateAllOption);
 
         // uninstall
         var uninstallCommand = new Command("uninstall", "Uninstall a package");
         var uninstallPackageArg = new Argument<string>("package-id", "Package ID to uninstall");
         uninstallCommand.AddArgument(uninstallPackageArg);
-        uninstallCommand.SetHandler((packageId) =>
+        uninstallCommand.SetHandler(async (packageId) =>
         {
-            Console.WriteLine("Not yet implemented");
+            var pm = services.GetRequiredService<IPackageManager>();
+            Environment.ExitCode = await UninstallCommand.ExecuteAsync(pm, packageId);
         }, uninstallPackageArg);
 
         // list
@@ -152,31 +155,42 @@ public static class Program
         syncUsbCommand.AddArgument(syncDrivePathArg);
         syncUsbCommand.AddOption(syncBundleOption);
         syncUsbCommand.AddOption(syncPlatformOption);
-        syncUsbCommand.SetHandler((drivePath, bundle, platform) =>
+        syncUsbCommand.SetHandler(async (drivePath, bundle, platform) =>
         {
-            Console.WriteLine("Not yet implemented");
+            var cm = services.GetRequiredService<IOfflineCacheManager>();
+            var pm = services.GetRequiredService<IPackageManager>();
+            var rc = services.GetRequiredService<IRegistryClient>();
+            Environment.ExitCode = await SyncUsbCommand.ExecuteAsync(cm, pm, rc, drivePath, bundle);
         }, syncDrivePathArg, syncBundleOption, syncPlatformOption);
 
         // profile
         var profileCommand = new Command("profile", "Manage team installation profiles");
 
         var profileExportCommand = new Command("export", "Export current installation as a profile");
-        profileExportCommand.SetHandler(() =>
+        var profileExportFileArg = new Argument<string?>("file", () => null, "Output file path (default: team-profile.json)");
+        profileExportCommand.AddArgument(profileExportFileArg);
+        profileExportCommand.SetHandler(async (file) =>
         {
-            Console.WriteLine("Not yet implemented");
-        });
+            var pm = services.GetRequiredService<IPackageManager>();
+            Environment.ExitCode = await ProfileCommand.ExecuteExportAsync(pm, file);
+        }, profileExportFileArg);
 
         var profileImportCommand = new Command("import", "Import a team profile");
-        profileImportCommand.SetHandler(() =>
+        var profileImportFileArg = new Argument<string?>("file", () => null, "Profile file path (default: team-profile.json)");
+        profileImportCommand.AddArgument(profileImportFileArg);
+        profileImportCommand.SetHandler(async (file) =>
         {
-            Console.WriteLine("Not yet implemented");
-        });
+            Environment.ExitCode = await ProfileCommand.ExecuteImportAsync(file);
+        }, profileImportFileArg);
 
         var profileApplyCommand = new Command("apply", "Apply a team profile to this machine");
-        profileApplyCommand.SetHandler(() =>
+        var profileApplyFileArg = new Argument<string?>("file", () => null, "Profile file path (default: team-profile.json)");
+        profileApplyCommand.AddArgument(profileApplyFileArg);
+        profileApplyCommand.SetHandler(async (file) =>
         {
-            Console.WriteLine("Not yet implemented");
-        });
+            var pm = services.GetRequiredService<IPackageManager>();
+            Environment.ExitCode = await ProfileCommand.ExecuteApplyAsync(pm, file);
+        }, profileApplyFileArg);
 
         profileCommand.AddCommand(profileExportCommand);
         profileCommand.AddCommand(profileImportCommand);
@@ -297,6 +311,14 @@ public static class Program
             var platform = sp.GetRequiredService<IPlatformService>();
             var settings = sp.GetRequiredService<ISettingsProvider>();
             return new PackageManager(registry, download, install, platform, settings);
+        });
+
+        // Offline cache manager
+        services.AddSingleton<IOfflineCacheManager>(sp =>
+        {
+            var registry = sp.GetRequiredService<IRegistryClient>();
+            var download = sp.GetRequiredService<IDownloadManager>();
+            return new OfflineCacheManager(registry, download);
         });
 
         // Health checker
