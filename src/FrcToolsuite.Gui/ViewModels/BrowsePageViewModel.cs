@@ -19,6 +19,7 @@ public partial class PackageViewModel : ObservableObject
     public string Category { get; set; } = string.Empty;
     public string Size { get; set; } = string.Empty;
     public string Icon { get; set; } = "\U0001F4E6";
+    public bool RequiresAdmin { get; set; }
 
     [ObservableProperty]
     private bool _isInstalled;
@@ -274,7 +275,8 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
                         Description = summary.Description,
                         Category = NormalizeCategory(summary.Category),
                         Size = FormatBytes(sizeBytes),
-                        IsInstalled = installedIds.Contains(summary.Id)
+                        IsInstalled = installedIds.Contains(summary.Id),
+                        RequiresAdmin = summary.RequiresAdmin
                     });
                 }
 

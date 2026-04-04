@@ -34,11 +34,13 @@ public record InstallProgress(
     string CurrentPackageId,
     long BytesDownloaded,
     long TotalBytes,
-    InstallPhase Phase);
+    InstallPhase Phase,
+    IReadOnlyList<string>? SkippedPackages = null);
 
 public enum InstallPhase
 {
     Downloading,
     Extracting,
-    Configuring
+    Configuring,
+    AwaitingAdmin
 }

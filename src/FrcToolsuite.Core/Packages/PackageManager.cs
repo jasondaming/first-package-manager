@@ -159,81 +159,157 @@ public class PackageManager : IPackageManager
         var settings = await _settingsProvider.LoadAsync(ct);
         var platform = _platformService.GetPlatformId();
 
-        for (int i = 0; i < plan.Steps.Count; i++)
+        // Split steps into non-admin and admin groups
+        var nonAdminSteps = plan.Steps.Where(s => !s.RequiresAdmin).ToList();
+        var adminSteps = plan.Steps.Where(s => s.RequiresAdmin).ToList();
+        var totalSteps = plan.Steps.Count;
+        var skippedPackages = new List<string>();
+
+        // Phase 1: Execute all non-admin steps first
+        int stepIndex = 0;
+        foreach (var step in nonAdminSteps)
         {
             ct.ThrowIfCancellationRequested();
-            var step = plan.Steps[i];
+            await ExecuteStepAsync(step, stepIndex, totalSteps, settings, platform, progress, ct);
+            stepIndex++;
+        }
 
-            if (step.Action == InstallAction.Uninstall)
+        // Phase 2: Handle admin steps
+        if (adminSteps.Count > 0)
+        {
+            bool canRunAdmin = _platformService.IsAdminElevated;
+
+            if (!canRunAdmin)
             {
-                var installed = await GetInstalledPackagesAsync(ct);
-                var pkg = installed.FirstOrDefault(p =>
-                    string.Equals(p.PackageId, step.PackageId, StringComparison.OrdinalIgnoreCase));
-                if (pkg != null)
+                // Report awaiting admin phase
+                var adminPackageIds = adminSteps.Select(s => s.PackageId).ToList();
+                progress?.Report(new InstallProgress(
+                    stepIndex + 1, totalSteps,
+                    string.Join(", ", adminPackageIds),
+                    0, 0,
+                    InstallPhase.AwaitingAdmin));
+
+                try
                 {
-                    await _installEngine.RemoveInstalledFilesAsync(pkg, ct);
+                    await _platformService.RequestAdminElevationAsync(
+                        adminSteps.Select(s => $"Install {s.PackageId} v{s.Version}").ToList());
+                    canRunAdmin = true;
                 }
-                continue;
+                catch
+                {
+                    // Admin elevation denied or failed; skip admin steps
+                    canRunAdmin = false;
+                }
             }
 
-            var installDir = Path.Combine(settings.InstallDirectory, step.PackageId);
+            if (canRunAdmin)
+            {
+                foreach (var step in adminSteps)
+                {
+                    ct.ThrowIfCancellationRequested();
+                    await ExecuteStepAsync(step, stepIndex, totalSteps, settings, platform, progress, ct);
+                    stepIndex++;
+                }
+            }
+            else
+            {
+                foreach (var step in adminSteps)
+                {
+                    skippedPackages.Add(step.PackageId);
+                }
+            }
+        }
 
-            // Download
+        // Report final progress with skipped packages if any
+        if (skippedPackages.Count > 0)
+        {
             progress?.Report(new InstallProgress(
-                i + 1, plan.Steps.Count, step.PackageId, 0, step.DownloadSize, InstallPhase.Downloading));
+                totalSteps, totalSteps,
+                string.Empty,
+                0, 0,
+                InstallPhase.Configuring,
+                skippedPackages));
+        }
+    }
 
-            if (step.ArtifactUrl != null)
+    private async Task ExecuteStepAsync(
+        InstallStep step,
+        int stepIndex,
+        int totalSteps,
+        Configuration.AppSettings settings,
+        string platform,
+        IProgress<InstallProgress>? progress,
+        CancellationToken ct)
+    {
+        if (step.Action == InstallAction.Uninstall)
+        {
+            var installed = await GetInstalledPackagesAsync(ct);
+            var pkg = installed.FirstOrDefault(p =>
+                string.Equals(p.PackageId, step.PackageId, StringComparison.OrdinalIgnoreCase));
+            if (pkg != null)
             {
-                var downloadPath = Path.Combine(settings.CacheDirectory, $"{step.PackageId}-{step.Version}.download");
-                Directory.CreateDirectory(settings.CacheDirectory);
-
-                var downloadResult = await _downloadManager.DownloadAsync(
-                    new DownloadRequest(step.ArtifactUrl, downloadPath),
-                    new Progress<DownloadProgress>(dp =>
-                        progress?.Report(new InstallProgress(
-                            i + 1, plan.Steps.Count, step.PackageId,
-                            dp.BytesDownloaded, dp.TotalBytes, InstallPhase.Downloading))),
-                    ct);
-
-                if (!downloadResult.Success)
-                {
-                    throw new InvalidOperationException(
-                        $"Download failed for '{step.PackageId}': {downloadResult.Error}");
-                }
-
-                // Extract
-                progress?.Report(new InstallProgress(
-                    i + 1, plan.Steps.Count, step.PackageId, step.DownloadSize, step.DownloadSize,
-                    InstallPhase.Extracting));
-
-                var extractedFiles = await _installEngine.ExtractAsync(
-                    downloadResult.FilePath, installDir, null, ct);
-
-                // Post-install
-                progress?.Report(new InstallProgress(
-                    i + 1, plan.Steps.Count, step.PackageId, step.DownloadSize, step.DownloadSize,
-                    InstallPhase.Configuring));
-
-                var manifest = await _registry.GetPackageAsync(step.PackageId, ct);
-                if (manifest.Install?.PostInstall.Count > 0)
-                {
-                    var platformActions = manifest.Install.PostInstall
-                        .Where(a => a.Platform == null || a.Platform == platform)
-                        .ToList();
-                    await _installEngine.RunPostInstallAsync(platformActions, installDir, ct);
-                }
-
-                // Record
-                var installedPackage = new InstalledPackage(
-                    step.PackageId,
-                    step.Version,
-                    manifest.Season,
-                    DateTimeOffset.UtcNow,
-                    installDir,
-                    extractedFiles.ToArray());
-
-                await _installEngine.RecordInstallAsync(installedPackage, ct);
+                await _installEngine.RemoveInstalledFilesAsync(pkg, ct);
             }
+            return;
+        }
+
+        var installDir = Path.Combine(settings.InstallDirectory, step.PackageId);
+
+        // Download
+        progress?.Report(new InstallProgress(
+            stepIndex + 1, totalSteps, step.PackageId, 0, step.DownloadSize, InstallPhase.Downloading));
+
+        if (step.ArtifactUrl != null)
+        {
+            var downloadPath = Path.Combine(settings.CacheDirectory, $"{step.PackageId}-{step.Version}.download");
+            Directory.CreateDirectory(settings.CacheDirectory);
+
+            var downloadResult = await _downloadManager.DownloadAsync(
+                new DownloadRequest(step.ArtifactUrl, downloadPath),
+                new Progress<DownloadProgress>(dp =>
+                    progress?.Report(new InstallProgress(
+                        stepIndex + 1, totalSteps, step.PackageId,
+                        dp.BytesDownloaded, dp.TotalBytes, InstallPhase.Downloading))),
+                ct);
+
+            if (!downloadResult.Success)
+            {
+                throw new InvalidOperationException(
+                    $"Download failed for '{step.PackageId}': {downloadResult.Error}");
+            }
+
+            // Extract
+            progress?.Report(new InstallProgress(
+                stepIndex + 1, totalSteps, step.PackageId, step.DownloadSize, step.DownloadSize,
+                InstallPhase.Extracting));
+
+            var extractedFiles = await _installEngine.ExtractAsync(
+                downloadResult.FilePath, installDir, null, ct);
+
+            // Post-install
+            progress?.Report(new InstallProgress(
+                stepIndex + 1, totalSteps, step.PackageId, step.DownloadSize, step.DownloadSize,
+                InstallPhase.Configuring));
+
+            var manifest = await _registry.GetPackageAsync(step.PackageId, ct);
+            if (manifest.Install?.PostInstall.Count > 0)
+            {
+                var platformActions = manifest.Install.PostInstall
+                    .Where(a => a.Platform == null || a.Platform == platform)
+                    .ToList();
+                await _installEngine.RunPostInstallAsync(platformActions, installDir, ct);
+            }
+
+            // Record
+            var installedPackage = new InstalledPackage(
+                step.PackageId,
+                step.Version,
+                manifest.Season,
+                DateTimeOffset.UtcNow,
+                installDir,
+                extractedFiles.ToArray());
+
+            await _installEngine.RecordInstallAsync(installedPackage, ct);
         }
     }
 

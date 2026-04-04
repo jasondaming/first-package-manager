@@ -49,7 +49,14 @@ public static class InstallCommand
 
             if (plan.RequiresAdminElevation)
             {
-                ConsoleHelper.WriteWarning("This installation requires administrator privileges.");
+                ConsoleHelper.WriteInfo("");
+                ConsoleHelper.WriteWarning("\u26A0 The following packages require administrator access:");
+                foreach (var adminStep in plan.Steps.Where(s => s.RequiresAdmin))
+                {
+                    ConsoleHelper.WriteWarning($"  - {adminStep.PackageId}");
+                }
+                ConsoleHelper.WriteInfo("");
+                ConsoleHelper.WriteInfo("Administrator privileges will be requested after non-admin packages install.");
             }
 
             // Ask for confirmation
@@ -65,24 +72,52 @@ public static class InstallCommand
             }
 
             // Execute with progress
+            IReadOnlyList<string>? skippedPackages = null;
             var progress = new Progress<InstallProgress>(p =>
             {
+                if (p.SkippedPackages != null && p.SkippedPackages.Count > 0)
+                {
+                    skippedPackages = p.SkippedPackages;
+                    return;
+                }
+
                 var phase = p.Phase switch
                 {
                     InstallPhase.Downloading => "Downloading",
                     InstallPhase.Extracting => "Extracting",
                     InstallPhase.Configuring => "Configuring",
+                    InstallPhase.AwaitingAdmin => "Requesting admin",
                     _ => "Processing"
                 };
-                ConsoleHelper.WriteProgressBar(
-                    $"[{p.CurrentStep}/{p.TotalSteps}] {phase} {p.CurrentPackageId}",
-                    p.BytesDownloaded,
-                    p.TotalBytes);
+
+                if (p.Phase == InstallPhase.AwaitingAdmin)
+                {
+                    ConsoleHelper.WriteInfo("");
+                    ConsoleHelper.WriteWarning($"Requesting administrator privileges for: {p.CurrentPackageId}");
+                }
+                else
+                {
+                    ConsoleHelper.WriteProgressBar(
+                        $"[{p.CurrentStep}/{p.TotalSteps}] {phase} {p.CurrentPackageId}",
+                        p.BytesDownloaded,
+                        p.TotalBytes);
+                }
             });
 
             await packageManager.ExecutePlanAsync(plan, progress);
 
             ConsoleHelper.WriteInfo("");
+
+            if (skippedPackages != null && skippedPackages.Count > 0)
+            {
+                ConsoleHelper.WriteWarning("The following packages were skipped (admin elevation denied):");
+                foreach (var skipped in skippedPackages)
+                {
+                    ConsoleHelper.WriteWarning($"  - {skipped}");
+                }
+                ConsoleHelper.WriteInfo("");
+            }
+
             ConsoleHelper.WriteSuccess("Done.");
             return 0;
         }

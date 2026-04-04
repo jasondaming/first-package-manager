@@ -33,6 +33,9 @@ public partial class WizardPackageItem : ObservableObject
     [ObservableProperty]
     private long _size;
 
+    [ObservableProperty]
+    private bool _requiresAdmin;
+
     public string SizeDisplay => Size switch
     {
         >= 1_000_000_000 => $"{Size / 1_000_000_000.0:F1} GB",
@@ -226,7 +229,7 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
         OnPropertyChanged(nameof(SelectedPackageCount));
     }
 
-    private void AddPackage(string id, string name, string description, string inclusion, long size)
+    private void AddPackage(string id, string name, string description, string inclusion, long size, bool requiresAdmin = false)
     {
         var item = new WizardPackageItem
         {
@@ -237,6 +240,7 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
             IsRequired = inclusion == "Required",
             IsSelected = inclusion is "Required" or "Default",
             Size = size,
+            RequiresAdmin = requiresAdmin,
         };
         item.PropertyChanged += (_, e) =>
         {
@@ -333,6 +337,7 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
                     InstallPhase.Downloading => "Downloading",
                     InstallPhase.Extracting => "Extracting",
                     InstallPhase.Configuring => "Configuring",
+                    InstallPhase.AwaitingAdmin => "Requesting administrator access for",
                     _ => "Processing"
                 };
                 InstallStatus = $"{phase} {p.CurrentPackageId}...";
@@ -395,6 +400,7 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
                 p.Inclusion,
                 p.IsSelected,
                 p.IsRequired,
+                p.RequiresAdmin,
                 p.SizeDisplay
             }).ToArray()
         };

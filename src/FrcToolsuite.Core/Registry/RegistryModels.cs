@@ -94,6 +94,9 @@ public class PackageSummary
 
     [JsonPropertyName("manifestSha256")]
     public string ManifestSha256 { get; set; } = string.Empty;
+
+    [JsonPropertyName("requiresAdmin")]
+    public bool RequiresAdmin { get; set; }
 }
 
 public class PackageManifest
