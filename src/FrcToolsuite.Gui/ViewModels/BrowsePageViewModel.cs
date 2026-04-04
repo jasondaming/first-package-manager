@@ -121,12 +121,16 @@ public partial class PackageViewModel : ObservableObject
 public partial class BrowsePageViewModel : ObservableObject, IStateExportable
 {
     private readonly IRegistryClient? _registry;
+    private readonly IPackageManager? _packageManager;
 
     [ObservableProperty]
     private string _searchQuery = string.Empty;
 
     [ObservableProperty]
     private string _filterCategory = "All";
+
+    [ObservableProperty]
+    private bool _hideInstalled;
 
     public ObservableCollection<string> Categories { get; } = new()
     {
@@ -139,13 +143,14 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
     private ObservableCollection<PackageViewModel> _filteredPackages = new();
 
     public BrowsePageViewModel()
-        : this(null)
+        : this(null, null)
     {
     }
 
-    public BrowsePageViewModel(IRegistryClient? registry)
+    public BrowsePageViewModel(IRegistryClient? registry, IPackageManager? packageManager = null)
     {
         _registry = registry;
+        _packageManager = packageManager;
         LoadMockData();
         FilteredPackages = new ObservableCollection<PackageViewModel>(Packages);
 
@@ -165,6 +170,39 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
         try
         {
             var results = await _registry.SearchAsync();
+
+            // Get installed packages to cross-reference (both new manifest and legacy WPILib)
+            var installedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (_packageManager != null)
+            {
+                try
+                {
+                    var installed = await _packageManager.GetInstalledPackagesAsync();
+                    foreach (var pkg in installed)
+                    {
+                        installedIds.Add(pkg.PackageId);
+                    }
+                }
+                catch
+                {
+                    // Continue without installed state
+                }
+            }
+
+            // Also detect legacy WPILib installations
+            try
+            {
+                var legacyInstalled = Core.Install.LegacyInstallDetector.DetectInstalledPackages();
+                foreach (var id in legacyInstalled)
+                {
+                    installedIds.Add(id);
+                }
+            }
+            catch
+            {
+                // Continue without legacy detection
+            }
+
             if (results.Count > 0)
             {
                 Packages.Clear();
@@ -190,7 +228,8 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
                         Version = summary.Version,
                         Description = summary.Description,
                         Category = NormalizeCategory(summary.Category),
-                        Size = FormatBytes(sizeBytes)
+                        Size = FormatBytes(sizeBytes),
+                        IsInstalled = installedIds.Contains(summary.Id)
                     });
                 }
 
@@ -307,6 +346,11 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
         ApplyFilters();
     }
 
+    partial void OnHideInstalledChanged(bool value)
+    {
+        ApplyFilters();
+    }
+
     [RelayCommand]
     private void SetCategory(string category)
     {
@@ -324,7 +368,9 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
 
             bool matchesCategory = FilterCategory == "All" || pkg.Category == FilterCategory;
 
-            if (matchesSearch && matchesCategory)
+            bool matchesInstalled = !HideInstalled || !pkg.IsInstalled;
+
+            if (matchesSearch && matchesCategory && matchesInstalled)
             {
                 FilteredPackages.Add(pkg);
             }

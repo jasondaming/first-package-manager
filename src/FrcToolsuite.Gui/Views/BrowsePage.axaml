@@ -69,6 +69,12 @@
                     Content="Dashboards"
                     Command="{Binding SetCategoryCommand}"
                     CommandParameter="Dashboards" />
+            <Border Width="1" Background="#E0E4EA" Margin="12,4" />
+            <CheckBox IsChecked="{Binding HideInstalled}"
+                      Margin="4,0"
+                      VerticalAlignment="Center">
+                <TextBlock Text="Hide installed" FontSize="12" />
+            </CheckBox>
         </StackPanel>
 
         <!-- Package Grid -->

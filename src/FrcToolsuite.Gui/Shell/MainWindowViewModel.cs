@@ -49,7 +49,7 @@ public partial class MainWindowViewModel : ObservableObject, IStateExportable
     public MainWindowViewModel(IPackageManager? packageManager, IRegistryClient? registry)
     {
         HomePage = new HomePageViewModel(packageManager, registry);
-        BrowsePage = new BrowsePageViewModel(registry);
+        BrowsePage = new BrowsePageViewModel(registry, packageManager);
         InstalledPage = new InstalledPageViewModel(packageManager);
         UpdatesPage = new UpdatesPageViewModel(packageManager);
         FirstRunWizard = new FirstRunWizardViewModel(packageManager, DismissFirstRunWizard);
