@@ -151,7 +151,7 @@ public static class Program
         var syncUsbCommand = new Command("sync-usb", "Sync packages to a USB drive for offline installation");
         var syncDrivePathArg = new Argument<string>("drive-path", "Path to the USB drive");
         var syncBundleOption = new Option<string?>("--bundle", "Bundle to sync");
-        var syncPlatformOption = new Option<string?>("--platform", "Target platform (windows, macos, linux)");
+        var syncPlatformOption = new Option<string?>("--platform", "Target platforms, comma-separated (e.g. windows-x64,macos-arm64)");
         syncUsbCommand.AddArgument(syncDrivePathArg);
         syncUsbCommand.AddOption(syncBundleOption);
         syncUsbCommand.AddOption(syncPlatformOption);
@@ -160,7 +160,7 @@ public static class Program
             var cm = services.GetRequiredService<IOfflineCacheManager>();
             var pm = services.GetRequiredService<IPackageManager>();
             var rc = services.GetRequiredService<IRegistryClient>();
-            Environment.ExitCode = await SyncUsbCommand.ExecuteAsync(cm, pm, rc, drivePath, bundle);
+            Environment.ExitCode = await SyncUsbCommand.ExecuteAsync(cm, pm, rc, drivePath, bundle, platform);
         }, syncDrivePathArg, syncBundleOption, syncPlatformOption);
 
         // profile

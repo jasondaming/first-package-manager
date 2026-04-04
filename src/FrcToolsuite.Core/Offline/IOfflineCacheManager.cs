@@ -7,6 +7,7 @@ public interface IOfflineCacheManager
     Task ExportToUsbAsync(
         string targetPath,
         IReadOnlyList<string>? packageIds = null,
+        IReadOnlyList<string>? targetPlatforms = null,
         IProgress<OfflineSyncProgress>? progress = null,
         CancellationToken ct = default);
 

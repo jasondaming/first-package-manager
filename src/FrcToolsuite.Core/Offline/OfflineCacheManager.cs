@@ -33,6 +33,7 @@ public class OfflineCacheManager : IOfflineCacheManager
     public async Task ExportToUsbAsync(
         string targetPath,
         IReadOnlyList<string>? packageIds = null,
+        IReadOnlyList<string>? targetPlatforms = null,
         IProgress<OfflineSyncProgress>? progress = null,
         CancellationToken ct = default)
     {
@@ -78,9 +79,16 @@ public class OfflineCacheManager : IOfflineCacheManager
                     Path.Combine(registryDir, $"{SanitizeId(manifest.Id)}.json"),
                     manifestJson, ct).ConfigureAwait(false);
 
-                // Download each artifact
+                // Download artifacts (filtered by target platforms if specified)
                 foreach (var (platformKey, artifact) in manifest.Artifacts)
                 {
+                    // If target platforms specified, only download matching ones (plus "any")
+                    if (targetPlatforms is { Count: > 0 }
+                        && platformKey != "any"
+                        && !targetPlatforms.Any(tp => string.Equals(tp, platformKey, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        continue;
+                    }
                     ct.ThrowIfCancellationRequested();
 
                     var fileName = artifact.Filename

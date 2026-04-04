@@ -12,7 +12,8 @@ public static class SyncUsbCommand
         IPackageManager packageManager,
         IRegistryClient registryClient,
         string drivePath,
-        string? bundleName)
+        string? bundleName,
+        string? platformFilter = null)
     {
         try
         {
@@ -78,7 +79,19 @@ public static class SyncUsbCommand
                     p.TotalBytes);
             });
 
-            await cacheManager.ExportToUsbAsync(drivePath, packageIds, progress);
+            // Parse platform filter (comma-separated: "windows-x64,macos-arm64")
+            IReadOnlyList<string>? targetPlatforms = null;
+            if (!string.IsNullOrEmpty(platformFilter))
+            {
+                targetPlatforms = platformFilter.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+                ConsoleHelper.WriteInfo($"Target platforms: {string.Join(", ", targetPlatforms)}");
+            }
+            else
+            {
+                ConsoleHelper.WriteInfo("Downloading all platforms (use --platform to filter)");
+            }
+
+            await cacheManager.ExportToUsbAsync(drivePath, packageIds, targetPlatforms, progress);
 
             ConsoleHelper.WriteInfo("");
             ConsoleHelper.WriteSuccess($"USB sync complete. Packages exported to '{drivePath}'.");
