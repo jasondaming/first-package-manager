@@ -61,8 +61,8 @@ public partial class MainWindowViewModel : ObservableObject, IStateExportable
         FirstRunWizard = new FirstRunWizardViewModel(packageManager, DismissFirstRunWizard);
         CurrentPageViewModel = HomePage;
 
-        // Show first-run wizard if no previous install is detected
-        ShowFirstRunWizard = !HasPreviousInstall();
+        // Wizard is the default experience; "Advanced Setup" switches to the full app
+        ShowFirstRunWizard = true;
     }
 
     private static bool HasPreviousInstall()
