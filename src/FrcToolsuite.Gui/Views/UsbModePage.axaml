@@ -112,10 +112,19 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="vm:UsbPlatformItem">
-                                        <CheckBox IsChecked="{Binding IsSelected}"
-                                                  Content="{Binding Label}"
-                                                  FontSize="12"
-                                                  Margin="0,0,16,4" />
+                                        <Border Background="#F8F9FB" CornerRadius="6"
+                                                Padding="12,8" Margin="0,0,10,6"
+                                                BorderBrush="#E0E4EA" BorderThickness="1">
+                                            <CheckBox IsChecked="{Binding IsSelected}" Margin="0">
+                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                    <TextBlock Text="{Binding Label}"
+                                                               FontSize="12"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="#1A1A2E"
+                                                               VerticalAlignment="Center" />
+                                                </StackPanel>
+                                            </CheckBox>
+                                        </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
