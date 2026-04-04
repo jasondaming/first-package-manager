@@ -4,86 +4,208 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:FrcToolsuite.Gui.ViewModels"
              mc:Ignorable="d"
-             d:DesignWidth="900" d:DesignHeight="600"
+             d:DesignWidth="900" d:DesignHeight="760"
              x:Class="FrcToolsuite.Gui.Views.UsbModePage"
              x:DataType="vm:UsbModePageViewModel">
 
-    <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
-        <StackPanel Spacing="16" MaxWidth="420" HorizontalAlignment="Center">
-            <!-- Icon circle -->
-            <Border Width="80" Height="80"
-                    CornerRadius="40"
-                    Background="#EEF1F8"
-                    HorizontalAlignment="Center">
-                <TextBlock Text="&#x1F4BE;"
-                           FontSize="36"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center" />
-            </Border>
-
-            <!-- Title -->
+    <DockPanel Margin="32,24">
+        <!-- Header -->
+        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,16">
             <TextBlock Text="{Binding Title}"
                        FontSize="22"
                        FontWeight="Bold"
-                       Foreground="#1A1A2E"
-                       HorizontalAlignment="Center" />
-
-            <!-- Description -->
+                       Foreground="#1A1A2E" />
             <TextBlock Text="{Binding Description}"
-                       FontSize="14"
-                       Foreground="#556677"
-                       TextWrapping="Wrap"
-                       TextAlignment="Center"
-                       LineHeight="22"
-                       HorizontalAlignment="Center" />
-
-            <!-- Coming Soon badge -->
-            <Border Background="#FFF3E0"
-                    CornerRadius="16"
-                    Padding="20,8"
-                    HorizontalAlignment="Center"
-                    Margin="0,8,0,0">
-                <TextBlock Text="{Binding Status}"
-                           FontSize="13"
-                           FontWeight="SemiBold"
-                           Foreground="#E8A838" />
-            </Border>
-
-            <!-- Decorative feature hints -->
-            <Border Background="#FFFFFF"
-                    CornerRadius="8"
-                    Padding="20,16"
-                    Margin="0,12,0,0"
-                    BoxShadow="0 1 3 0 #15000000"
-                    BorderBrush="#E0E4EA"
-                    BorderThickness="1">
-                <StackPanel Spacing="12">
-                    <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Border Width="28" Height="28" CornerRadius="14" Background="#E3F2FD">
-                            <TextBlock Text="&#x2713;" FontSize="14" Foreground="#5B8DEF"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <TextBlock Text="Sync packages to USB for offline use"
-                                   FontSize="12" Foreground="#556677" VerticalAlignment="Center" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Border Width="28" Height="28" CornerRadius="14" Background="#E3F2FD">
-                            <TextBlock Text="&#x2713;" FontSize="14" Foreground="#5B8DEF"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <TextBlock Text="Install at competitions without internet"
-                                   FontSize="12" Foreground="#556677" VerticalAlignment="Center" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Border Width="28" Height="28" CornerRadius="14" Background="#E3F2FD">
-                            <TextBlock Text="&#x2713;" FontSize="14" Foreground="#5B8DEF"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <TextBlock Text="Auto-detect and configure USB drives"
-                                   FontSize="12" Foreground="#556677" VerticalAlignment="Center" />
-                    </StackPanel>
-                </StackPanel>
-            </Border>
+                       FontSize="13"
+                       Foreground="#888899"
+                       Margin="0,4,0,0" />
         </StackPanel>
-    </Grid>
+
+        <!-- Status bar -->
+        <Border DockPanel.Dock="Bottom"
+                Margin="0,12,0,0"
+                IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+            <Border Background="#EEF6FF"
+                    CornerRadius="6"
+                    Padding="16,10">
+                <TextBlock Text="{Binding StatusMessage}"
+                           FontSize="13"
+                           Foreground="#3366AA" />
+            </Border>
+        </Border>
+
+        <!-- Progress bar during sync -->
+        <StackPanel DockPanel.Dock="Bottom"
+                    Margin="0,8,0,0"
+                    IsVisible="{Binding IsSyncing}">
+            <ProgressBar Minimum="0" Maximum="100"
+                         Value="{Binding SyncProgress}"
+                         Height="6"
+                         CornerRadius="3" />
+            <TextBlock Text="{Binding SyncProgressText}"
+                       FontSize="11"
+                       Foreground="#888899"
+                       Margin="0,4,0,0" />
+        </StackPanel>
+
+        <ScrollViewer>
+            <StackPanel Spacing="16">
+                <!-- Drive selector section -->
+                <Border Background="#FFFFFF"
+                        CornerRadius="8"
+                        Padding="20,16"
+                        BoxShadow="0 1 3 0 #15000000"
+                        BorderBrush="#E0E4EA"
+                        BorderThickness="1">
+                    <StackPanel Spacing="10">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="USB Drive / Target Path"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Foreground="#1A1A2E"
+                                       VerticalAlignment="Center" />
+                            <Button Grid.Column="1"
+                                    Content="Refresh Drives"
+                                    Command="{Binding RefreshDrivesCommand}"
+                                    FontSize="11"
+                                    Padding="10,4"
+                                    CornerRadius="4" />
+                        </Grid>
+
+                        <!-- Detected drives list -->
+                        <ItemsControl ItemsSource="{Binding DetectedDrives}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}"
+                                               FontSize="12"
+                                               Foreground="#556677"
+                                               Margin="0,2" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Path text box -->
+                        <TextBox Text="{Binding UsbPath}"
+                                 Watermark="Enter USB drive path (e.g. E:\ or /media/usb)"
+                                 FontSize="13" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Platform checkboxes -->
+                <Border Background="#FFFFFF"
+                        CornerRadius="8"
+                        Padding="20,16"
+                        BoxShadow="0 1 3 0 #15000000"
+                        BorderBrush="#E0E4EA"
+                        BorderThickness="1">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Target Platforms"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Foreground="#1A1A2E" />
+                        <WrapPanel Orientation="Horizontal">
+                            <ItemsControl ItemsSource="{Binding Platforms}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="vm:UsbPlatformItem">
+                                        <CheckBox IsChecked="{Binding IsSelected}"
+                                                  Content="{Binding Label}"
+                                                  FontSize="12"
+                                                  Margin="0,0,16,4" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Package selector -->
+                <Border Background="#FFFFFF"
+                        CornerRadius="8"
+                        Padding="20,16"
+                        BoxShadow="0 1 3 0 #15000000"
+                        BorderBrush="#E0E4EA"
+                        BorderThickness="1">
+                    <StackPanel Spacing="8">
+                        <Grid ColumnDefinitions="*,Auto,Auto">
+                            <TextBlock Text="Packages to Sync"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Foreground="#1A1A2E"
+                                       VerticalAlignment="Center" />
+                            <Button Grid.Column="1"
+                                    Content="Select All"
+                                    Command="{Binding SelectAllCommand}"
+                                    FontSize="11"
+                                    Padding="8,4"
+                                    Margin="0,0,6,0"
+                                    CornerRadius="4" />
+                            <Button Grid.Column="2"
+                                    Content="Select None"
+                                    Command="{Binding SelectNoneCommand}"
+                                    FontSize="11"
+                                    Padding="8,4"
+                                    CornerRadius="4" />
+                        </Grid>
+
+                        <ItemsControl ItemsSource="{Binding Packages}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:UsbPackageItem">
+                                    <Border Padding="4,3" Margin="0,1">
+                                        <Grid ColumnDefinitions="Auto,*,Auto">
+                                            <CheckBox Grid.Column="0"
+                                                      IsChecked="{Binding IsSelected}"
+                                                      Margin="0,0,8,0"
+                                                      VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding Name}"
+                                                       FontSize="13"
+                                                       Foreground="#1A1A2E"
+                                                       VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="2"
+                                                       Text="{Binding Size}"
+                                                       FontSize="12"
+                                                       Foreground="#99AABB"
+                                                       VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Size estimate and sync button -->
+                <Border Background="#FFFFFF"
+                        CornerRadius="8"
+                        Padding="20,16"
+                        BoxShadow="0 1 3 0 #15000000"
+                        BorderBrush="#E0E4EA"
+                        BorderThickness="1">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock FontSize="13" Foreground="#556677">
+                                <Run Text="Estimated download size: " />
+                                <Run Text="{Binding EstimatedSize}" FontWeight="SemiBold" Foreground="#1A1A2E" />
+                            </TextBlock>
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Content="Sync to USB"
+                                Command="{Binding SyncToUsbCommand}"
+                                IsEnabled="{Binding !IsSyncing}"
+                                FontSize="14"
+                                FontWeight="SemiBold"
+                                Padding="24,10"
+                                CornerRadius="6"
+                                Background="#5B8DEF"
+                                Foreground="White" />
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
 </UserControl>

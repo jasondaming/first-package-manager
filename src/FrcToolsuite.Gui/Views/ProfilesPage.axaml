@@ -4,86 +4,233 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:FrcToolsuite.Gui.ViewModels"
              mc:Ignorable="d"
-             d:DesignWidth="900" d:DesignHeight="600"
+             d:DesignWidth="900" d:DesignHeight="760"
              x:Class="FrcToolsuite.Gui.Views.ProfilesPage"
              x:DataType="vm:ProfilesPageViewModel">
 
-    <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
-        <StackPanel Spacing="16" MaxWidth="420" HorizontalAlignment="Center">
-            <!-- Icon circle -->
-            <Border Width="80" Height="80"
-                    CornerRadius="40"
-                    Background="#EEF1F8"
-                    HorizontalAlignment="Center">
-                <TextBlock Text="&#x1F465;"
-                           FontSize="36"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center" />
-            </Border>
-
-            <!-- Title -->
+    <DockPanel Margin="32,24">
+        <!-- Header -->
+        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,16">
             <TextBlock Text="{Binding Title}"
                        FontSize="22"
                        FontWeight="Bold"
-                       Foreground="#1A1A2E"
-                       HorizontalAlignment="Center" />
-
-            <!-- Description -->
+                       Foreground="#1A1A2E" />
             <TextBlock Text="{Binding Description}"
-                       FontSize="14"
-                       Foreground="#556677"
-                       TextWrapping="Wrap"
-                       TextAlignment="Center"
-                       LineHeight="22"
-                       HorizontalAlignment="Center" />
-
-            <!-- Coming Soon badge -->
-            <Border Background="#FFF3E0"
-                    CornerRadius="16"
-                    Padding="20,8"
-                    HorizontalAlignment="Center"
-                    Margin="0,8,0,0">
-                <TextBlock Text="{Binding Status}"
-                           FontSize="13"
-                           FontWeight="SemiBold"
-                           Foreground="#E8A838" />
-            </Border>
-
-            <!-- Decorative feature hints -->
-            <Border Background="#FFFFFF"
-                    CornerRadius="8"
-                    Padding="20,16"
-                    Margin="0,12,0,0"
-                    BoxShadow="0 1 3 0 #15000000"
-                    BorderBrush="#E0E4EA"
-                    BorderThickness="1">
-                <StackPanel Spacing="12">
-                    <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Border Width="28" Height="28" CornerRadius="14" Background="#E8F5E9">
-                            <TextBlock Text="&#x2713;" FontSize="14" Foreground="#44BB88"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <TextBlock Text="Export team configuration as shareable files"
-                                   FontSize="12" Foreground="#556677" VerticalAlignment="Center" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Border Width="28" Height="28" CornerRadius="14" Background="#E8F5E9">
-                            <TextBlock Text="&#x2713;" FontSize="14" Foreground="#44BB88"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <TextBlock Text="Import profiles from teammates or mentors"
-                                   FontSize="12" Foreground="#556677" VerticalAlignment="Center" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Border Width="28" Height="28" CornerRadius="14" Background="#E8F5E9">
-                            <TextBlock Text="&#x2713;" FontSize="14" Foreground="#44BB88"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <TextBlock Text="One-click environment replication"
-                                   FontSize="12" Foreground="#556677" VerticalAlignment="Center" />
-                    </StackPanel>
-                </StackPanel>
-            </Border>
+                       FontSize="13"
+                       Foreground="#888899"
+                       Margin="0,4,0,0" />
         </StackPanel>
-    </Grid>
+
+        <!-- Status bar -->
+        <Border DockPanel.Dock="Bottom"
+                Margin="0,12,0,0"
+                IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+            <Border Background="#E8F5E9"
+                    CornerRadius="6"
+                    Padding="16,10">
+                <TextBlock Text="{Binding StatusMessage}"
+                           FontSize="13"
+                           Foreground="#2E7D32" />
+            </Border>
+        </Border>
+
+        <!-- Progress bar during apply -->
+        <StackPanel DockPanel.Dock="Bottom"
+                    Margin="0,8,0,0"
+                    IsVisible="{Binding IsApplying}">
+            <ProgressBar Minimum="0" Maximum="100"
+                         Value="{Binding ApplyProgress}"
+                         Height="6"
+                         CornerRadius="3" />
+            <TextBlock Text="{Binding ApplyProgressText}"
+                       FontSize="11"
+                       Foreground="#888899"
+                       Margin="0,4,0,0" />
+        </StackPanel>
+
+        <ScrollViewer>
+            <StackPanel Spacing="16">
+                <!-- Action buttons -->
+                <Border Background="#FFFFFF"
+                        CornerRadius="8"
+                        Padding="20,16"
+                        BoxShadow="0 1 3 0 #15000000"
+                        BorderBrush="#E0E4EA"
+                        BorderThickness="1">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Profile Actions"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Foreground="#1A1A2E" />
+
+                        <WrapPanel Orientation="Horizontal">
+                            <Button Content="Export Profile"
+                                    Command="{Binding ExportProfileCommand}"
+                                    FontSize="13"
+                                    Padding="18,8"
+                                    Margin="0,0,10,0"
+                                    CornerRadius="6"
+                                    Background="#5B8DEF"
+                                    Foreground="White" />
+                            <Button Content="Import Profile"
+                                    Command="{Binding ImportProfileCommand}"
+                                    FontSize="13"
+                                    Padding="18,8"
+                                    Margin="0,0,10,0"
+                                    CornerRadius="6"
+                                    Background="#44BB88"
+                                    Foreground="White" />
+                            <Button Content="Apply Profile"
+                                    Command="{Binding ApplyProfileCommand}"
+                                    IsEnabled="{Binding HasLoadedProfile}"
+                                    FontSize="13"
+                                    Padding="18,8"
+                                    CornerRadius="6"
+                                    Background="#E8A838"
+                                    Foreground="White" />
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Profile info card (visible when profile loaded) -->
+                <Border Background="#FFFFFF"
+                        CornerRadius="8"
+                        Padding="20,16"
+                        BoxShadow="0 1 3 0 #15000000"
+                        BorderBrush="#E0E4EA"
+                        BorderThickness="1"
+                        IsVisible="{Binding HasLoadedProfile}">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Loaded Profile"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Foreground="#1A1A2E" />
+
+                        <Grid ColumnDefinitions="120,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="0,4,0,0">
+                            <TextBlock Grid.Row="0" Grid.Column="0"
+                                       Text="Name:"
+                                       FontSize="13" FontWeight="SemiBold" Foreground="#556677" />
+                            <TextBlock Grid.Row="0" Grid.Column="1"
+                                       Text="{Binding ProfileName}"
+                                       FontSize="13" Foreground="#1A1A2E" />
+
+                            <TextBlock Grid.Row="1" Grid.Column="0"
+                                       Text="Team:"
+                                       FontSize="13" FontWeight="SemiBold" Foreground="#556677"
+                                       Margin="0,4,0,0" />
+                            <TextBlock Grid.Row="1" Grid.Column="1"
+                                       Text="{Binding ProfileTeamNumber}"
+                                       FontSize="13" Foreground="#1A1A2E"
+                                       Margin="0,4,0,0" />
+
+                            <TextBlock Grid.Row="2" Grid.Column="0"
+                                       Text="Season:"
+                                       FontSize="13" FontWeight="SemiBold" Foreground="#556677"
+                                       Margin="0,4,0,0" />
+                            <TextBlock Grid.Row="2" Grid.Column="1"
+                                       Text="{Binding ProfileSeason}"
+                                       FontSize="13" Foreground="#1A1A2E"
+                                       Margin="0,4,0,0" />
+
+                            <TextBlock Grid.Row="3" Grid.Column="0"
+                                       Text="Created:"
+                                       FontSize="13" FontWeight="SemiBold" Foreground="#556677"
+                                       Margin="0,4,0,0" />
+                            <TextBlock Grid.Row="3" Grid.Column="1"
+                                       Text="{Binding ProfileCreatedAt}"
+                                       FontSize="13" Foreground="#1A1A2E"
+                                       Margin="0,4,0,0" />
+
+                            <TextBlock Grid.Row="4" Grid.Column="0"
+                                       Text="Notes:"
+                                       FontSize="13" FontWeight="SemiBold" Foreground="#556677"
+                                       Margin="0,4,0,0" />
+                            <TextBlock Grid.Row="4" Grid.Column="1"
+                                       Text="{Binding ProfileNotes}"
+                                       FontSize="13" Foreground="#1A1A2E"
+                                       TextWrapping="Wrap"
+                                       Margin="0,4,0,0" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Package list (visible when profile loaded) -->
+                <Border Background="#FFFFFF"
+                        CornerRadius="8"
+                        Padding="20,16"
+                        BoxShadow="0 1 3 0 #15000000"
+                        BorderBrush="#E0E4EA"
+                        BorderThickness="1"
+                        IsVisible="{Binding HasLoadedProfile}">
+                    <StackPanel Spacing="8">
+                        <TextBlock FontSize="14" FontWeight="SemiBold" Foreground="#1A1A2E">
+                            <Run Text="Packages (" />
+                            <Run Text="{Binding ProfilePackages.Count}" />
+                            <Run Text=")" />
+                        </TextBlock>
+
+                        <ItemsControl ItemsSource="{Binding ProfilePackages}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:ProfilePackageItem">
+                                    <Border Padding="8,6"
+                                            Margin="0,2"
+                                            Background="#F8F9FB"
+                                            CornerRadius="4">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Grid.Column="0"
+                                                       Text="{Binding Id}"
+                                                       FontSize="13"
+                                                       Foreground="#1A1A2E"
+                                                       VerticalAlignment="Center" />
+                                            <Border Grid.Column="1"
+                                                    Background="#EEF1F8"
+                                                    CornerRadius="10"
+                                                    Padding="10,3">
+                                                <TextBlock Text="{Binding Status}"
+                                                           FontSize="11"
+                                                           Foreground="#556677" />
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Empty state when no profile loaded -->
+                <Border Background="#FFFFFF"
+                        CornerRadius="8"
+                        Padding="20,24"
+                        BoxShadow="0 1 3 0 #15000000"
+                        BorderBrush="#E0E4EA"
+                        BorderThickness="1"
+                        IsVisible="{Binding !HasLoadedProfile}">
+                    <StackPanel HorizontalAlignment="Center" Spacing="12">
+                        <Border Width="64" Height="64"
+                                CornerRadius="32"
+                                Background="#EEF1F8"
+                                HorizontalAlignment="Center">
+                            <TextBlock Text="&#x1F465;"
+                                       FontSize="28"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </Border>
+                        <TextBlock Text="No profile loaded"
+                                   FontSize="15"
+                                   FontWeight="SemiBold"
+                                   Foreground="#556677"
+                                   HorizontalAlignment="Center" />
+                        <TextBlock Text="Export your current setup or import a profile from a teammate to get started."
+                                   FontSize="13"
+                                   Foreground="#888899"
+                                   TextWrapping="Wrap"
+                                   TextAlignment="Center"
+                                   MaxWidth="360"
+                                   HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
 </UserControl>

@@ -4,6 +4,7 @@ using FrcToolsuite.Core.Configuration;
 using FrcToolsuite.Core.Download;
 using FrcToolsuite.Core.Health;
 using FrcToolsuite.Core.Install;
+using FrcToolsuite.Core.Offline;
 using FrcToolsuite.Core.Packages;
 using FrcToolsuite.Core.Platform;
 using FrcToolsuite.Core.Registry;
@@ -38,6 +39,10 @@ public static class ServiceConfiguration
             new InstallEngine(sp.GetRequiredService<IPlatformService>()));
         services.AddSingleton<IPackageManager, PackageManager>();
         services.AddSingleton<IHealthChecker, HealthChecker>();
+        services.AddSingleton<IOfflineCacheManager>(sp =>
+            new OfflineCacheManager(
+                sp.GetRequiredService<IRegistryClient>(),
+                sp.GetRequiredService<IDownloadManager>()));
         services.AddSingleton<ISelfUpdater>(sp =>
             new SelfUpdater(
                 new HttpClient(),
@@ -49,7 +54,8 @@ public static class ServiceConfiguration
             new MainWindowViewModel(
                 sp.GetRequiredService<IPackageManager>(),
                 sp.GetRequiredService<IRegistryClient>(),
-                sp.GetRequiredService<IHealthChecker>()));
+                sp.GetRequiredService<IHealthChecker>(),
+                sp.GetRequiredService<IOfflineCacheManager>()));
         services.AddTransient<HomePageViewModel>(sp =>
             new HomePageViewModel(
                 sp.GetRequiredService<IPackageManager>(),
@@ -64,8 +70,13 @@ public static class ServiceConfiguration
             new UpdatesPageViewModel(
                 sp.GetRequiredService<IPackageManager>()));
         services.AddTransient<SettingsPageViewModel>();
-        services.AddTransient<ProfilesPageViewModel>();
-        services.AddTransient<UsbModePageViewModel>();
+        services.AddTransient<ProfilesPageViewModel>(sp =>
+            new ProfilesPageViewModel(
+                sp.GetRequiredService<IPackageManager>()));
+        services.AddTransient<UsbModePageViewModel>(sp =>
+            new UsbModePageViewModel(
+                sp.GetRequiredService<IOfflineCacheManager>(),
+                sp.GetRequiredService<IRegistryClient>()));
         services.AddTransient<HealthPageViewModel>(sp =>
             new HealthPageViewModel(
                 sp.GetRequiredService<IHealthChecker>()));
