@@ -75,23 +75,19 @@
                     <!-- Install button -->
                     <StackPanel Grid.Column="2" VerticalAlignment="Top" Spacing="6">
                         <Button Content="{Binding Size, StringFormat='Install ({0})'}"
+                                Classes="accent"
                                 FontSize="14"
                                 FontWeight="SemiBold"
                                 Padding="24,10"
                                 CornerRadius="6"
-                                Background="#5B8DEF"
-                                Foreground="#FFFFFF"
-                                BorderThickness="0"
                                 IsVisible="{Binding !IsInstalled}"
                                 Command="{Binding InstallCommand}" />
                         <Button Content="&#x2714; Installed"
+                                Classes="installed"
                                 FontSize="14"
                                 FontWeight="SemiBold"
                                 Padding="24,10"
                                 CornerRadius="6"
-                                Background="#E8F5E9"
-                                Foreground="#44BB88"
-                                BorderThickness="0"
                                 IsVisible="{Binding IsInstalled}"
                                 IsEnabled="False" />
                     </StackPanel>

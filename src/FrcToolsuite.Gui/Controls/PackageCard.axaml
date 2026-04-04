@@ -85,21 +85,17 @@
                            Margin="12,0,0,0" />
                 <Button Grid.Column="3"
                         Content="Install"
+                        Classes="accent"
                         FontSize="12"
                         Padding="16,6"
                         CornerRadius="4"
-                        Background="#5B8DEF"
-                        Foreground="#FFFFFF"
-                        BorderThickness="0"
                         IsVisible="{Binding !IsInstalled}" />
                 <Button Grid.Column="3"
                         Content="Installed"
+                        Classes="installed"
                         FontSize="12"
                         Padding="16,6"
                         CornerRadius="4"
-                        Background="#E8F5E9"
-                        Foreground="#44BB88"
-                        BorderThickness="0"
                         IsVisible="{Binding IsInstalled}"
                         IsEnabled="False" />
             </Grid>

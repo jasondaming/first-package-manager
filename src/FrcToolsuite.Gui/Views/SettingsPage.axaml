@@ -76,12 +76,10 @@
                     </CheckBox>
 
                     <Button Content="Clear Cache"
+                            Classes="danger"
                             FontSize="12"
                             Padding="14,8"
                             CornerRadius="4"
-                            Background="#FEF0F0"
-                            Foreground="#CC4444"
-                            BorderThickness="0"
                             HorizontalAlignment="Left"
                             Command="{Binding ClearCacheCommand}" />
                 </StackPanel>
@@ -120,9 +118,6 @@
                         FontSize="13"
                         Padding="20,10"
                         CornerRadius="6"
-                        Background="#E8EDF2"
-                        Foreground="#444444"
-                        BorderThickness="0"
                         Command="{Binding ResetDefaultsCommand}" />
             </StackPanel>
         </StackPanel>

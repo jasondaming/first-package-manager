@@ -5,6 +5,47 @@
              RequestedThemeVariant="Default">
   <Application.Styles>
     <FluentTheme />
+    <!-- Fix buttons with custom backgrounds disappearing on hover -->
+    <Style Selector="Button.accent">
+      <Setter Property="Background" Value="#5B8DEF" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="#4A7CE0" />
+        <Setter Property="Foreground" Value="#FFFFFF" />
+      </Style>
+      <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="#3A6BD0" />
+        <Setter Property="Foreground" Value="#FFFFFF" />
+      </Style>
+    </Style>
+    <Style Selector="Button.accent-white">
+      <Setter Property="Background" Value="#FFFFFF" />
+      <Setter Property="Foreground" Value="#3A5BA0" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="#F0F0F0" />
+        <Setter Property="Foreground" Value="#3A5BA0" />
+      </Style>
+    </Style>
+    <Style Selector="Button.danger">
+      <Setter Property="Background" Value="#FEF0F0" />
+      <Setter Property="Foreground" Value="#CC4444" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="#FCDCDC" />
+        <Setter Property="Foreground" Value="#CC4444" />
+      </Style>
+    </Style>
+    <Style Selector="Button.installed">
+      <Setter Property="Background" Value="#E8F5E9" />
+      <Setter Property="Foreground" Value="#44BB88" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="#D0ECD2" />
+        <Setter Property="Foreground" Value="#44BB88" />
+      </Style>
+    </Style>
   </Application.Styles>
   <Application.Resources>
     <conv:StringEqualConverter x:Key="StringEqualConverter" />

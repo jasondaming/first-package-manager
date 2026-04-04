@@ -23,13 +23,11 @@
             </StackPanel>
             <Button Grid.Column="1"
                     Content="Update All"
+                    Classes="accent"
                     FontSize="13"
                     FontWeight="SemiBold"
                     Padding="20,10"
                     CornerRadius="6"
-                    Background="#5B8DEF"
-                    Foreground="#FFFFFF"
-                    BorderThickness="0"
                     VerticalAlignment="Top"
                     Command="{Binding UpdateAllCommand}" />
         </Grid>
@@ -86,12 +84,10 @@
                                 <!-- Update button -->
                                 <Button Grid.Row="0" Grid.Column="2"
                                         Content="Update"
+                                        Classes="accent"
                                         FontSize="12"
                                         Padding="16,6"
                                         CornerRadius="4"
-                                        Background="#5B8DEF"
-                                        Foreground="#FFFFFF"
-                                        BorderThickness="0"
                                         VerticalAlignment="Center"
                                         Command="{Binding $parent[ItemsControl].((vm:UpdatesPageViewModel)DataContext).UpdatePackageCommand}"
                                         CommandParameter="{Binding Name}" />

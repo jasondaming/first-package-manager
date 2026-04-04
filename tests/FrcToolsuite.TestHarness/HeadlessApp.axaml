@@ -5,6 +5,26 @@
              RequestedThemeVariant="Default">
   <Application.Styles>
     <FluentTheme />
+    <Style Selector="Button.accent">
+      <Setter Property="Background" Value="#5B8DEF" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="Button.accent-white">
+      <Setter Property="Background" Value="#FFFFFF" />
+      <Setter Property="Foreground" Value="#3A5BA0" />
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="Button.danger">
+      <Setter Property="Background" Value="#FEF0F0" />
+      <Setter Property="Foreground" Value="#CC4444" />
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="Button.installed">
+      <Setter Property="Background" Value="#E8F5E9" />
+      <Setter Property="Foreground" Value="#44BB88" />
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
   </Application.Styles>
   <Application.Resources>
     <conv:StringEqualConverter x:Key="StringEqualConverter" />
