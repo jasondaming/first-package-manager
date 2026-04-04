@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using FrcToolsuite.Core;
 using FrcToolsuite.Core.Packages;
 using FrcToolsuite.Core.Registry;
@@ -15,10 +16,26 @@ public class FeaturedBundle
     public int PackageCount { get; set; }
 }
 
+public class QuickActionItem
+{
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public int PackageCount { get; set; }
+    public string BundleId { get; set; } = string.Empty;
+}
+
+public class RecentUpdateItem
+{
+    public string PackageName { get; set; } = string.Empty;
+    public string Version { get; set; } = string.Empty;
+    public string UpdatedAgo { get; set; } = string.Empty;
+}
+
 public partial class HomePageViewModel : ObservableObject, IStateExportable
 {
     private readonly IPackageManager? _packageManager;
     private readonly IRegistryClient? _registry;
+    private readonly Action<string>? _navigateCallback;
 
     [ObservableProperty]
     private string _welcomeMessage = "Welcome to FIRST Package Manager";
@@ -34,15 +51,20 @@ public partial class HomePageViewModel : ObservableObject, IStateExportable
 
     public ObservableCollection<FeaturedBundle> FeaturedBundles { get; } = new();
 
+    public ObservableCollection<QuickActionItem> QuickActions { get; } = new();
+
+    public ObservableCollection<RecentUpdateItem> RecentUpdates { get; } = new();
+
     public HomePageViewModel()
-        : this(null, null)
+        : this(null, null, null)
     {
     }
 
-    public HomePageViewModel(IPackageManager? packageManager, IRegistryClient? registry)
+    public HomePageViewModel(IPackageManager? packageManager, IRegistryClient? registry, Action<string>? navigateCallback = null)
     {
         _packageManager = packageManager;
         _registry = registry;
+        _navigateCallback = navigateCallback;
         LoadMockData();
 
         if (_packageManager != null || _registry != null)
@@ -51,11 +73,70 @@ public partial class HomePageViewModel : ObservableObject, IStateExportable
         }
     }
 
+    [RelayCommand]
+    private void Navigate(string destination)
+    {
+        _navigateCallback?.Invoke(destination);
+    }
+
     private void LoadMockData()
     {
         InstalledCount = 3;
         UpdateCount = 2;
         DiskUsage = "1.6 GB";
+
+        QuickActions.Add(new QuickActionItem
+        {
+            Name = "FRC Java Starter",
+            Description = "JDK, VS Code, WPILib, tools, and dashboards",
+            PackageCount = 12,
+            BundleId = "frc-java-starter-2026"
+        });
+        QuickActions.Add(new QuickActionItem
+        {
+            Name = "FRC C++ Starter",
+            Description = "VS Code, WPILib, tools, and dashboards",
+            PackageCount = 10,
+            BundleId = "frc-cpp-starter-2026"
+        });
+        QuickActions.Add(new QuickActionItem
+        {
+            Name = "CSA USB Toolkit",
+            Description = "Diagnostic tools for event support",
+            PackageCount = 6,
+            BundleId = "csa-usb-toolkit-2026"
+        });
+
+        RecentUpdates.Add(new RecentUpdateItem
+        {
+            PackageName = "GradleRIO",
+            Version = "2026.2.1",
+            UpdatedAgo = "2 days ago"
+        });
+        RecentUpdates.Add(new RecentUpdateItem
+        {
+            PackageName = "CTRE Phoenix 6",
+            Version = "26.1.0",
+            UpdatedAgo = "5 days ago"
+        });
+        RecentUpdates.Add(new RecentUpdateItem
+        {
+            PackageName = "AdvantageScope",
+            Version = "v26.0.0",
+            UpdatedAgo = "1 week ago"
+        });
+        RecentUpdates.Add(new RecentUpdateItem
+        {
+            PackageName = "REVLib",
+            Version = "2026.0.1",
+            UpdatedAgo = "1 week ago"
+        });
+        RecentUpdates.Add(new RecentUpdateItem
+        {
+            PackageName = "Elastic Dashboard",
+            Version = "v2026.1.1",
+            UpdatedAgo = "2 weeks ago"
+        });
 
         FeaturedBundles.Add(new FeaturedBundle
         {
@@ -160,6 +241,8 @@ public partial class HomePageViewModel : ObservableObject, IStateExportable
         {
             WelcomeMessage,
             FeaturedBundleCount = FeaturedBundles.Count,
+            QuickActionCount = QuickActions.Count,
+            RecentUpdateCount = RecentUpdates.Count,
             InstalledCount,
             UpdateCount,
             DiskUsage

@@ -9,121 +9,178 @@
              x:DataType="vm:HomePageViewModel">
 
     <ScrollViewer Padding="32,24">
-        <StackPanel Spacing="24">
-            <!-- Hero Section -->
+        <StackPanel Spacing="20">
+            <!-- Compact Hero Section -->
             <Border CornerRadius="12"
-                    Padding="40,36">
+                    Padding="24,20">
                 <Border.Background>
                     <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
                         <GradientStop Color="#5B8DEF" Offset="0" />
                         <GradientStop Color="#3A5BA0" Offset="1" />
                     </LinearGradientBrush>
                 </Border.Background>
-                <StackPanel Spacing="12">
-                    <TextBlock Text="{Binding WelcomeMessage}"
-                               FontSize="28"
-                               FontWeight="Bold"
-                               Foreground="#FFFFFF" />
-                    <TextBlock Text="Install, update, and manage all your FRC and FTC development tools in one place."
-                               FontSize="14"
-                               Foreground="#CCDDFF"
-                               MaxWidth="500"
-                               TextWrapping="Wrap" />
-                    <Button Content="Get Started"
-                            Classes="accent-white"
-                            Margin="0,12,0,0"
-                            Padding="24,10"
-                            FontSize="14"
-                            FontWeight="SemiBold"
-                            CornerRadius="6" />
-                </StackPanel>
+                <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Spacing="8" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding WelcomeMessage}"
+                                   FontSize="22"
+                                   FontWeight="Bold"
+                                   Foreground="#FFFFFF" />
+                        <TextBlock Text="Install, update, and manage all your FRC and FTC development tools in one place."
+                                   FontSize="13"
+                                   Foreground="#CCDDFF"
+                                   MaxWidth="440"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                Spacing="10"
+                                VerticalAlignment="Center">
+                        <Button Content="Browse Packages"
+                                Command="{Binding NavigateCommand}"
+                                CommandParameter="Browse"
+                                Classes="accent-white"
+                                Padding="20,9"
+                                FontSize="13"
+                                FontWeight="SemiBold"
+                                CornerRadius="6" />
+                        <Button Content="Install Starter Kit"
+                                Command="{Binding NavigateCommand}"
+                                CommandParameter="FirstRun"
+                                Padding="20,9"
+                                FontSize="13"
+                                FontWeight="SemiBold"
+                                CornerRadius="6"
+                                Background="#FFFFFF22"
+                                Foreground="#FFFFFF"
+                                BorderThickness="1"
+                                BorderBrush="#FFFFFF44" />
+                    </StackPanel>
+                </Grid>
             </Border>
 
             <!-- Quick Stats -->
-            <Grid ColumnDefinitions="*,*,*" Margin="0,4">
-                <Border Grid.Column="0" Background="#FFFFFF" CornerRadius="8" Padding="20,16" Margin="0,0,8,0"
+            <Grid ColumnDefinitions="*,*,*">
+                <Border Grid.Column="0" Background="#FFFFFF" CornerRadius="8" Padding="16,12" Margin="0,0,8,0"
                         BoxShadow="0 1 3 0 #15000000" BorderBrush="#E0E4EA" BorderThickness="1">
-                    <StackPanel>
-                        <TextBlock Text="{Binding InstalledCount}" FontSize="28" FontWeight="Bold" Foreground="#5B8DEF" />
-                        <TextBlock Text="Packages Installed" FontSize="12" Foreground="#888899" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="{Binding InstalledCount}" FontSize="26" FontWeight="Bold" Foreground="#5B8DEF" VerticalAlignment="Center" />
+                        <TextBlock Text="Packages Installed" FontSize="12" Foreground="#888899" VerticalAlignment="Center" />
                     </StackPanel>
                 </Border>
-                <Border Grid.Column="1" Background="#FFFFFF" CornerRadius="8" Padding="20,16" Margin="4,0"
+                <Border Grid.Column="1" Background="#FFFFFF" CornerRadius="8" Padding="16,12" Margin="4,0"
                         BoxShadow="0 1 3 0 #15000000" BorderBrush="#E0E4EA" BorderThickness="1">
-                    <StackPanel>
-                        <TextBlock Text="{Binding UpdateCount}" FontSize="28" FontWeight="Bold" Foreground="#E8A838" />
-                        <TextBlock Text="Updates Available" FontSize="12" Foreground="#888899" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="{Binding UpdateCount}" FontSize="26" FontWeight="Bold" Foreground="#E8A838" VerticalAlignment="Center" />
+                        <TextBlock Text="Updates Available" FontSize="12" Foreground="#888899" VerticalAlignment="Center" />
                     </StackPanel>
                 </Border>
-                <Border Grid.Column="2" Background="#FFFFFF" CornerRadius="8" Padding="20,16" Margin="8,0,0,0"
+                <Border Grid.Column="2" Background="#FFFFFF" CornerRadius="8" Padding="16,12" Margin="8,0,0,0"
                         BoxShadow="0 1 3 0 #15000000" BorderBrush="#E0E4EA" BorderThickness="1">
-                    <StackPanel>
-                        <TextBlock Text="{Binding DiskUsage}" FontSize="28" FontWeight="Bold" Foreground="#44BB88" />
-                        <TextBlock Text="Disk Usage" FontSize="12" Foreground="#888899" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="{Binding DiskUsage}" FontSize="26" FontWeight="Bold" Foreground="#44BB88" VerticalAlignment="Center" />
+                        <TextBlock Text="Disk Usage" FontSize="12" Foreground="#888899" VerticalAlignment="Center" />
                     </StackPanel>
                 </Border>
             </Grid>
 
-            <!-- Featured Bundles -->
-            <TextBlock Text="Featured Bundles"
-                       FontSize="18"
+            <!-- Quick Actions -->
+            <TextBlock Text="Quick Actions"
+                       FontSize="16"
                        FontWeight="SemiBold"
                        Foreground="#1A1A2E"
-                       Margin="0,8,0,0" />
+                       Margin="0,4,0,0" />
 
-            <ItemsControl ItemsSource="{Binding FeaturedBundles}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="vm:FeaturedBundle">
-                        <Border Background="#FFFFFF"
-                                CornerRadius="8"
-                                Padding="20,16"
-                                Margin="0,0,12,12"
-                                Width="260"
-                                BoxShadow="0 1 3 0 #15000000"
-                                BorderBrush="#E0E4EA"
-                                BorderThickness="1">
-                            <StackPanel Spacing="8">
-                                <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <Border Width="36" Height="36"
-                                            CornerRadius="8"
-                                            Background="#EEF1F8">
-                                        <TextBlock Text="{Binding Icon}"
-                                                   FontSize="18"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center" />
-                                    </Border>
-                                    <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding Name}"
-                                                   FontSize="14"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="#1A1A2E" />
+            <Grid ColumnDefinitions="*,*,*">
+                <ItemsControl ItemsSource="{Binding QuickActions}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="12" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="vm:QuickActionItem">
+                            <Border Background="#FFFFFF"
+                                    CornerRadius="8"
+                                    Padding="18,14"
+                                    Width="230"
+                                    BoxShadow="0 1 3 0 #15000000"
+                                    BorderBrush="#E0E4EA"
+                                    BorderThickness="1">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Text="{Binding Name}"
+                                               FontSize="14"
+                                               FontWeight="SemiBold"
+                                               Foreground="#1A1A2E" />
+                                    <TextBlock Text="{Binding Description}"
+                                               FontSize="11"
+                                               Foreground="#667788"
+                                               TextWrapping="Wrap"
+                                               MaxLines="2" />
+                                    <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,4,0,0">
+                                        <Button Content="Install"
+                                                Classes="accent"
+                                                Padding="14,5"
+                                                FontSize="11"
+                                                CornerRadius="4" />
                                         <TextBlock Text="{Binding PackageCount, StringFormat='{}{0} packages'}"
                                                    FontSize="11"
-                                                   Foreground="#888899" />
+                                                   Foreground="#999999"
+                                                   VerticalAlignment="Center" />
                                     </StackPanel>
                                 </StackPanel>
-                                <TextBlock Text="{Binding Description}"
-                                           FontSize="12"
-                                           Foreground="#556677"
-                                           TextWrapping="Wrap"
-                                           MaxLines="2" />
-                                <Button Content="Install Bundle"
-                                        Classes="accent"
-                                        Padding="14,6"
-                                        FontSize="12"
-                                        CornerRadius="4"
-                                        HorizontalAlignment="Left"
-                                        Margin="0,4,0,0" />
-                            </StackPanel>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+
+            <!-- Recently Updated -->
+            <TextBlock Text="Recently Updated"
+                       FontSize="16"
+                       FontWeight="SemiBold"
+                       Foreground="#1A1A2E"
+                       Margin="0,4,0,0" />
+
+            <Border Background="#FFFFFF"
+                    CornerRadius="8"
+                    Padding="0"
+                    BoxShadow="0 1 3 0 #15000000"
+                    BorderBrush="#E0E4EA"
+                    BorderThickness="1">
+                <ItemsControl ItemsSource="{Binding RecentUpdates}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="vm:RecentUpdateItem">
+                            <Border Padding="18,10"
+                                    BorderBrush="#F0F1F4"
+                                    BorderThickness="0,0,0,1">
+                                <Grid ColumnDefinitions="*,Auto,Auto">
+                                    <TextBlock Grid.Column="0"
+                                               Text="{Binding PackageName}"
+                                               FontSize="13"
+                                               Foreground="#1A1A2E"
+                                               VerticalAlignment="Center" />
+                                    <Border Grid.Column="1"
+                                            Background="#EEF1F8"
+                                            CornerRadius="4"
+                                            Padding="8,3"
+                                            Margin="0,0,16,0"
+                                            VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Version}"
+                                                   FontSize="11"
+                                                   Foreground="#5B8DEF"
+                                                   FontWeight="Medium" />
+                                    </Border>
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding UpdatedAgo}"
+                                               FontSize="11"
+                                               Foreground="#999999"
+                                               VerticalAlignment="Center" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

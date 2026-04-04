@@ -48,7 +48,7 @@ public partial class MainWindowViewModel : ObservableObject, IStateExportable
 
     public MainWindowViewModel(IPackageManager? packageManager, IRegistryClient? registry)
     {
-        HomePage = new HomePageViewModel(packageManager, registry);
+        HomePage = new HomePageViewModel(packageManager, registry, NavigateTo);
         BrowsePage = new BrowsePageViewModel(registry, packageManager);
         InstalledPage = new InstalledPageViewModel(packageManager);
         UpdatesPage = new UpdatesPageViewModel(packageManager);
@@ -84,6 +84,12 @@ public partial class MainWindowViewModel : ObservableObject, IStateExportable
     [RelayCommand]
     private void NavigateTo(string pageName)
     {
+        if (pageName == "FirstRun")
+        {
+            ShowFirstRunWizard = true;
+            return;
+        }
+
         SelectedPage = pageName;
         CurrentPageViewModel = pageName switch
         {
