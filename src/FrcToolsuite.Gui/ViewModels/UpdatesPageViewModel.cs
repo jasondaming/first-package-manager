@@ -35,11 +35,14 @@ public partial class UpdatesPageViewModel : ObservableObject, IStateExportable
     public UpdatesPageViewModel(IPackageManager? packageManager)
     {
         _packageManager = packageManager;
-        LoadMockData();
 
         if (_packageManager != null)
         {
             _ = LoadUpdatesAsync();
+        }
+        else
+        {
+            LoadMockData();
         }
     }
 

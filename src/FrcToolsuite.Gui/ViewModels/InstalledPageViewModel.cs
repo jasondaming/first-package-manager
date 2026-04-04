@@ -3,6 +3,7 @@ using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FrcToolsuite.Core;
+using FrcToolsuite.Core.Install;
 using FrcToolsuite.Core.Packages;
 
 namespace FrcToolsuite.Gui.ViewModels;
@@ -37,11 +38,14 @@ public partial class InstalledPageViewModel : ObservableObject, IStateExportable
     public InstalledPageViewModel(IPackageManager? packageManager)
     {
         _packageManager = packageManager;
-        LoadMockData();
 
         if (_packageManager != null)
         {
             _ = LoadInstalledPackagesAsync();
+        }
+        else
+        {
+            LoadMockData();
         }
     }
 
@@ -79,55 +83,94 @@ public partial class InstalledPageViewModel : ObservableObject, IStateExportable
 
     private async Task LoadInstalledPackagesAsync()
     {
-        if (_packageManager == null)
-        {
-            return;
-        }
-
         try
         {
-            var installed = await _packageManager.GetInstalledPackagesAsync();
-            if (installed.Count > 0)
-            {
-                InstalledPackages.Clear();
-                long totalBytes = 0;
+            var allInstalled = new List<InstalledPackageViewModel>();
 
+            // Get packages installed via our package manager
+            if (_packageManager != null)
+            {
+                var installed = await _packageManager.GetInstalledPackagesAsync();
                 foreach (var pkg in installed)
                 {
-                    long pkgBytes = 0;
-                    if (Directory.Exists(pkg.InstallPath))
-                    {
-                        try
-                        {
-                            var dirInfo = new DirectoryInfo(pkg.InstallPath);
-                            foreach (var file in dirInfo.EnumerateFiles("*", SearchOption.AllDirectories))
-                            {
-                                pkgBytes += file.Length;
-                            }
-                        }
-                        catch
-                        {
-                            // Skip directories we cannot enumerate
-                        }
-                    }
-
-                    totalBytes += pkgBytes;
-
-                    InstalledPackages.Add(new InstalledPackageViewModel
+                    allInstalled.Add(new InstalledPackageViewModel
                     {
                         Name = pkg.PackageId,
                         Version = pkg.Version,
                         InstalledDate = pkg.InstalledAt.ToString("yyyy-MM-dd"),
-                        Size = FormatBytes(pkgBytes)
+                        Size = GetDirectorySize(pkg.InstallPath)
                     });
                 }
+            }
 
-                TotalSize = FormatBytes(totalBytes);
+            // Also detect legacy WPILib installations
+            var legacyIds = LegacyInstallDetector.DetectInstalledPackages();
+            var alreadyListed = new HashSet<string>(
+                allInstalled.Select(p => p.Name), StringComparer.OrdinalIgnoreCase);
+
+            var wpilibBase = @"C:\Users\Public\wpilib\2026";
+            foreach (var id in legacyIds)
+            {
+                if (alreadyListed.Contains(id))
+                {
+                    continue;
+                }
+
+                var legacyDir = id switch
+                {
+                    "wpilib.jdk" => Path.Combine(wpilibBase, "jdk"),
+                    "wpilib.vscode" => Path.Combine(wpilibBase, "vscode"),
+                    "wpilib.tools" => Path.Combine(wpilibBase, "tools"),
+                    "wpilib.gradlerio" => Path.Combine(wpilibBase, "maven"),
+                    "wpilib.advantagescope" => Path.Combine(wpilibBase, "advantagescope"),
+                    "wpilib.elastic" => Path.Combine(wpilibBase, "elastic"),
+                    _ => null
+                };
+
+                allInstalled.Add(new InstalledPackageViewModel
+                {
+                    Name = id,
+                    Version = "(legacy)",
+                    InstalledDate = "(WPILib installer)",
+                    Size = legacyDir != null ? GetDirectorySize(legacyDir) : ""
+                });
+            }
+
+            if (allInstalled.Count > 0)
+            {
+                InstalledPackages.Clear();
+                foreach (var pkg in allInstalled)
+                {
+                    InstalledPackages.Add(pkg);
+                }
+                TotalSize = $"{allInstalled.Count} packages";
             }
         }
         catch
         {
             // Keep mock data as fallback
+        }
+    }
+
+    private static string GetDirectorySize(string path)
+    {
+        if (!Directory.Exists(path))
+        {
+            return "";
+        }
+
+        try
+        {
+            long bytes = 0;
+            foreach (var file in new DirectoryInfo(path).EnumerateFiles("*", SearchOption.AllDirectories))
+            {
+                bytes += file.Length;
+            }
+            return FormatBytes(bytes);
+        }
+        catch
+        {
+            return "";
         }
     }
 

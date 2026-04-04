@@ -151,13 +151,17 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
     {
         _registry = registry;
         _packageManager = packageManager;
-        LoadMockData();
-        FilteredPackages = new ObservableCollection<PackageViewModel>(Packages);
 
         if (_registry != null)
         {
             _ = LoadPackagesAsync();
         }
+        else
+        {
+            LoadMockData();
+        }
+
+        FilteredPackages = new ObservableCollection<PackageViewModel>(Packages);
     }
 
     public async Task LoadPackagesAsync()
