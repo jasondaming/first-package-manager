@@ -18,6 +18,18 @@ public class RegistryIndex
 
     [JsonPropertyName("packages")]
     public List<PackageSummary> Packages { get; set; } = [];
+
+    [JsonPropertyName("bundles")]
+    public List<BundleRef> Bundles { get; set; } = [];
+}
+
+public class BundleRef
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = string.Empty;
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
 }
 
 public class SeasonInfo

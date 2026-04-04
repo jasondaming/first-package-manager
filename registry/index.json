@@ -30,6 +30,11 @@
       "trusted": true
     }
   ],
+  "bundles": [
+    { "id": "frc-java-starter", "name": "FRC Java Starter Kit" },
+    { "id": "frc-cpp-starter", "name": "FRC C++ Starter Kit" },
+    { "id": "csa-usb-toolkit", "name": "CSA USB Toolkit" }
+  ],
   "packages": [
     {
       "id": "wpilib.jdk",

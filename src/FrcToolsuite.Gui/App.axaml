@@ -88,5 +88,6 @@
     <conv:InclusionBrushConverter x:Key="InclusionBrushConverter" />
     <conv:BoolToBorderBrushConverter x:Key="BoolToBorderBrushConverter" />
     <conv:BoolToBorderThicknessConverter x:Key="BoolToBorderThicknessConverter" />
+    <conv:BoolToExpandIconConverter x:Key="BoolToExpandIconConverter" />
   </Application.Resources>
 </Application>

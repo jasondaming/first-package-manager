@@ -118,6 +118,45 @@ public partial class PackageViewModel : ObservableObject
     };
 }
 
+public partial class CollectionViewModel : ObservableObject
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public int PackageCount { get; set; }
+    public string TotalSize { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    private bool _isExpanded;
+
+    [ObservableProperty]
+    private bool _isInstalled;
+
+    public ObservableCollection<PackageViewModel> Packages { get; } = new();
+
+    [RelayCommand]
+    private void ToggleExpanded() => IsExpanded = !IsExpanded;
+
+    [RelayCommand]
+    private async Task InstallAllAsync()
+    {
+        foreach (var pkg in Packages)
+        {
+            if (!pkg.IsInstalled && !pkg.IsInstalling)
+            {
+                await pkg.InstallCommand.ExecuteAsync(null);
+            }
+        }
+
+        IsInstalled = Packages.All(p => p.IsInstalled);
+    }
+
+    /// <summary>
+    /// First letter of collection name for the colored circle icon.
+    /// </summary>
+    public string IconLetter => string.IsNullOrEmpty(Name) ? "?" : Name[..1].ToUpperInvariant();
+}
+
 public partial class BrowsePageViewModel : ObservableObject, IStateExportable
 {
     private readonly IRegistryClient? _registry;
@@ -138,6 +177,8 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
     };
 
     public ObservableCollection<PackageViewModel> Packages { get; } = new();
+
+    public ObservableCollection<CollectionViewModel> Collections { get; } = new();
 
     [ObservableProperty]
     private ObservableCollection<PackageViewModel> _filteredPackages = new();
@@ -239,10 +280,108 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
 
                 ApplyFilters();
             }
+
+            // Load bundles from registry index
+            await LoadBundlesAsync(installedIds);
         }
         catch
         {
             // Keep mock data as fallback when registry is unavailable
+        }
+    }
+
+    private async Task LoadBundlesAsync(HashSet<string> installedIds)
+    {
+        if (_registry == null)
+        {
+            return;
+        }
+
+        try
+        {
+            var index = await _registry.FetchRegistryAsync();
+            var packageLookup = new Dictionary<string, PackageViewModel>(StringComparer.OrdinalIgnoreCase);
+            foreach (var pkg in Packages)
+            {
+                packageLookup[pkg.PackageId] = pkg;
+            }
+
+            Collections.Clear();
+            foreach (var bundleRef in index.Bundles)
+            {
+                try
+                {
+                    var bundle = await _registry.GetBundleAsync(bundleRef.Id);
+                    var collection = new CollectionViewModel
+                    {
+                        Id = bundle.Id,
+                        Name = bundle.Name,
+                        Description = bundle.Description,
+                        PackageCount = bundle.Packages.Count
+                    };
+
+                    long totalBytes = 0;
+                    bool allInstalled = true;
+
+                    foreach (var pkgRef in bundle.Packages)
+                    {
+                        if (packageLookup.TryGetValue(pkgRef.Id, out var existingPkg))
+                        {
+                            collection.Packages.Add(existingPkg);
+                        }
+                        else
+                        {
+                            // Create a placeholder for packages not in the main list
+                            collection.Packages.Add(new PackageViewModel
+                            {
+                                PackageId = pkgRef.Id,
+                                Name = pkgRef.Id,
+                                Description = pkgRef.Reason ?? string.Empty,
+                                IsInstalled = installedIds.Contains(pkgRef.Id)
+                            });
+                        }
+
+                        var pkg = collection.Packages[^1];
+                        if (!pkg.IsInstalled)
+                        {
+                            allInstalled = false;
+                        }
+                    }
+
+                    collection.IsInstalled = allInstalled;
+
+                    // Sum sizes from the package summaries in the index
+                    foreach (var pkgRef in bundle.Packages)
+                    {
+                        var summary = index.Packages.FirstOrDefault(
+                            p => string.Equals(p.Id, pkgRef.Id, StringComparison.OrdinalIgnoreCase));
+                        if (summary?.TotalSize != null)
+                        {
+                            long maxSize = 0;
+                            foreach (var kvp in summary.TotalSize)
+                            {
+                                if (kvp.Value > maxSize)
+                                {
+                                    maxSize = kvp.Value;
+                                }
+                            }
+
+                            totalBytes += maxSize;
+                        }
+                    }
+
+                    collection.TotalSize = FormatBytes(totalBytes);
+                    Collections.Add(collection);
+                }
+                catch
+                {
+                    // Skip bundles that fail to load
+                }
+            }
+        }
+        catch
+        {
+            // Continue without bundles if loading fails
         }
     }
 
@@ -338,6 +477,34 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
             Size = "450 MB",
             Icon = "\U0001F4DD"
         });
+
+        // Mock collections
+        var javaStarter = new CollectionViewModel
+        {
+            Id = "frc-java-starter",
+            Name = "FRC Java Starter Kit",
+            Description = "Everything you need to get started with FRC Java robot development.",
+            PackageCount = 4,
+            TotalSize = "1.9 GB"
+        };
+        javaStarter.Packages.Add(Packages.First(p => p.Name == "WPILib"));
+        javaStarter.Packages.Add(Packages.First(p => p.Name == "VS Code + FRC Extension"));
+        javaStarter.Packages.Add(Packages.First(p => p.Name == "Shuffleboard"));
+        javaStarter.Packages.Add(Packages.First(p => p.Name == "AdvantageScope"));
+        Collections.Add(javaStarter);
+
+        var csaToolkit = new CollectionViewModel
+        {
+            Id = "csa-usb-toolkit",
+            Name = "CSA USB Toolkit",
+            Description = "Portable toolkit for Control System Advisors at FRC events.",
+            PackageCount = 3,
+            TotalSize = "680 MB"
+        };
+        csaToolkit.Packages.Add(Packages.First(p => p.Name == "FRC Driver Station"));
+        csaToolkit.Packages.Add(Packages.First(p => p.Name == "AdvantageScope"));
+        csaToolkit.Packages.Add(Packages.First(p => p.Name == "CTRE Phoenix"));
+        Collections.Add(csaToolkit);
     }
 
     partial void OnSearchQueryChanged(string value)
@@ -429,7 +596,8 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
             SearchQuery,
             FilterCategory,
             PackageCount = Packages.Count,
-            FilteredCount = FilteredPackages.Count
+            FilteredCount = FilteredPackages.Count,
+            CollectionCount = Collections.Count
         };
         return JsonSerializer.Serialize(state, new JsonSerializerOptions { WriteIndented = true });
     }

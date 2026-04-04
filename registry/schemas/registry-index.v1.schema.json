@@ -26,6 +26,11 @@
       "items": { "$ref": "#/definitions/publisherInfo" },
       "description": "Known package publishers."
     },
+    "bundles": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/bundleRef" },
+      "description": "Available bundle collections."
+    },
     "packages": {
       "type": "array",
       "items": { "$ref": "#/definitions/packageSummary" },
@@ -34,6 +39,23 @@
   },
   "additionalProperties": false,
   "definitions": {
+    "bundleRef": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Bundle identifier."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Bundle display name."
+        }
+      },
+      "additionalProperties": false
+    },
     "seasonInfo": {
       "type": "object",
       "required": ["year", "status"],
