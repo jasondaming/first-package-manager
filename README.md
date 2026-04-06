@@ -363,4 +363,4 @@ See [CLAUDE.md](CLAUDE.md) for build commands and development details.
 
 ## License
 
-TBD
+Apache License 2.0 — see [LICENSE](LICENSE)
