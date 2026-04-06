@@ -14,10 +14,10 @@
             <TextBlock Text="{Binding Title}"
                        FontSize="22"
                        FontWeight="Bold"
-                       Foreground="#1A1A2E" />
+                       Foreground="{DynamicResource TextPrimary}" />
             <TextBlock Text="{Binding Description}"
                        FontSize="13"
-                       Foreground="#888899"
+                       Foreground="{DynamicResource TextMuted}"
                        Margin="0,4,0,0" />
         </StackPanel>
 
@@ -44,24 +44,24 @@
                          CornerRadius="3" />
             <TextBlock Text="{Binding ApplyProgressText}"
                        FontSize="11"
-                       Foreground="#888899"
+                       Foreground="{DynamicResource TextMuted}"
                        Margin="0,4,0,0" />
         </StackPanel>
 
         <ScrollViewer>
             <StackPanel Spacing="16">
                 <!-- Action buttons -->
-                <Border Background="#FFFFFF"
+                <Border Background="{DynamicResource CardBackground}"
                         CornerRadius="8"
                         Padding="20,16"
                         BoxShadow="0 1 3 0 #15000000"
-                        BorderBrush="#E0E4EA"
+                        BorderBrush="{DynamicResource CardBorder}"
                         BorderThickness="1">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Profile Actions"
                                    FontSize="14"
                                    FontWeight="SemiBold"
-                                   Foreground="#1A1A2E" />
+                                   Foreground="{DynamicResource TextPrimary}" />
 
                         <WrapPanel Orientation="Horizontal">
                             <Button Content="Export Profile"
@@ -90,61 +90,61 @@
                 </Border>
 
                 <!-- Profile info card (visible when profile loaded) -->
-                <Border Background="#FFFFFF"
+                <Border Background="{DynamicResource CardBackground}"
                         CornerRadius="8"
                         Padding="20,16"
                         BoxShadow="0 1 3 0 #15000000"
-                        BorderBrush="#E0E4EA"
+                        BorderBrush="{DynamicResource CardBorder}"
                         BorderThickness="1"
                         IsVisible="{Binding HasLoadedProfile}">
                     <StackPanel Spacing="10">
                         <TextBlock Text="Loaded Profile"
                                    FontSize="14"
                                    FontWeight="SemiBold"
-                                   Foreground="#1A1A2E" />
+                                   Foreground="{DynamicResource TextPrimary}" />
 
                         <Grid ColumnDefinitions="120,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="0,4,0,0">
                             <TextBlock Grid.Row="0" Grid.Column="0"
                                        Text="Name:"
-                                       FontSize="13" FontWeight="SemiBold" Foreground="#556677" />
+                                       FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondary}" />
                             <TextBlock Grid.Row="0" Grid.Column="1"
                                        Text="{Binding ProfileName}"
-                                       FontSize="13" Foreground="#1A1A2E" />
+                                       FontSize="13" Foreground="{DynamicResource TextPrimary}" />
 
                             <TextBlock Grid.Row="1" Grid.Column="0"
                                        Text="Team:"
-                                       FontSize="13" FontWeight="SemiBold" Foreground="#556677"
+                                       FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondary}"
                                        Margin="0,4,0,0" />
                             <TextBlock Grid.Row="1" Grid.Column="1"
                                        Text="{Binding ProfileTeamNumber}"
-                                       FontSize="13" Foreground="#1A1A2E"
+                                       FontSize="13" Foreground="{DynamicResource TextPrimary}"
                                        Margin="0,4,0,0" />
 
                             <TextBlock Grid.Row="2" Grid.Column="0"
                                        Text="Season:"
-                                       FontSize="13" FontWeight="SemiBold" Foreground="#556677"
+                                       FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondary}"
                                        Margin="0,4,0,0" />
                             <TextBlock Grid.Row="2" Grid.Column="1"
                                        Text="{Binding ProfileSeason}"
-                                       FontSize="13" Foreground="#1A1A2E"
+                                       FontSize="13" Foreground="{DynamicResource TextPrimary}"
                                        Margin="0,4,0,0" />
 
                             <TextBlock Grid.Row="3" Grid.Column="0"
                                        Text="Created:"
-                                       FontSize="13" FontWeight="SemiBold" Foreground="#556677"
+                                       FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondary}"
                                        Margin="0,4,0,0" />
                             <TextBlock Grid.Row="3" Grid.Column="1"
                                        Text="{Binding ProfileCreatedAt}"
-                                       FontSize="13" Foreground="#1A1A2E"
+                                       FontSize="13" Foreground="{DynamicResource TextPrimary}"
                                        Margin="0,4,0,0" />
 
                             <TextBlock Grid.Row="4" Grid.Column="0"
                                        Text="Notes:"
-                                       FontSize="13" FontWeight="SemiBold" Foreground="#556677"
+                                       FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondary}"
                                        Margin="0,4,0,0" />
                             <TextBlock Grid.Row="4" Grid.Column="1"
                                        Text="{Binding ProfileNotes}"
-                                       FontSize="13" Foreground="#1A1A2E"
+                                       FontSize="13" Foreground="{DynamicResource TextPrimary}"
                                        TextWrapping="Wrap"
                                        Margin="0,4,0,0" />
                         </Grid>
@@ -152,15 +152,15 @@
                 </Border>
 
                 <!-- Package list (visible when profile loaded) -->
-                <Border Background="#FFFFFF"
+                <Border Background="{DynamicResource CardBackground}"
                         CornerRadius="8"
                         Padding="20,16"
                         BoxShadow="0 1 3 0 #15000000"
-                        BorderBrush="#E0E4EA"
+                        BorderBrush="{DynamicResource CardBorder}"
                         BorderThickness="1"
                         IsVisible="{Binding HasLoadedProfile}">
                     <StackPanel Spacing="8">
-                        <TextBlock FontSize="14" FontWeight="SemiBold" Foreground="#1A1A2E">
+                        <TextBlock FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}">
                             <Run Text="Packages (" />
                             <Run Text="{Binding ProfilePackages.Count}" />
                             <Run Text=")" />
@@ -171,21 +171,21 @@
                                 <DataTemplate DataType="vm:ProfilePackageItem">
                                     <Border Padding="8,6"
                                             Margin="0,2"
-                                            Background="#F8F9FB"
+                                            Background="{DynamicResource SubtleBackground}"
                                             CornerRadius="4">
                                         <Grid ColumnDefinitions="*,Auto">
                                             <TextBlock Grid.Column="0"
                                                        Text="{Binding Id}"
                                                        FontSize="13"
-                                                       Foreground="#1A1A2E"
+                                                       Foreground="{DynamicResource TextPrimary}"
                                                        VerticalAlignment="Center" />
                                             <Border Grid.Column="1"
-                                                    Background="#EEF1F8"
+                                                    Background="{DynamicResource BadgeBackground}"
                                                     CornerRadius="10"
                                                     Padding="10,3">
                                                 <TextBlock Text="{Binding Status}"
                                                            FontSize="11"
-                                                           Foreground="#556677" />
+                                                           Foreground="{DynamicResource TextSecondary}" />
                                             </Border>
                                         </Grid>
                                     </Border>
@@ -196,17 +196,17 @@
                 </Border>
 
                 <!-- Empty state when no profile loaded -->
-                <Border Background="#FFFFFF"
+                <Border Background="{DynamicResource CardBackground}"
                         CornerRadius="8"
                         Padding="20,24"
                         BoxShadow="0 1 3 0 #15000000"
-                        BorderBrush="#E0E4EA"
+                        BorderBrush="{DynamicResource CardBorder}"
                         BorderThickness="1"
                         IsVisible="{Binding !HasLoadedProfile}">
                     <StackPanel HorizontalAlignment="Center" Spacing="12">
                         <Border Width="64" Height="64"
                                 CornerRadius="32"
-                                Background="#EEF1F8"
+                                Background="{DynamicResource IconCircleBackground}"
                                 HorizontalAlignment="Center">
                             <TextBlock Text="&#x1F465;"
                                        FontSize="28"
@@ -216,11 +216,11 @@
                         <TextBlock Text="No profile loaded"
                                    FontSize="15"
                                    FontWeight="SemiBold"
-                                   Foreground="#556677"
+                                   Foreground="{DynamicResource TextSecondary}"
                                    HorizontalAlignment="Center" />
                         <TextBlock Text="Export your current setup or import a profile from a teammate to get started."
                                    FontSize="13"
-                                   Foreground="#888899"
+                                   Foreground="{DynamicResource TextMuted}"
                                    TextWrapping="Wrap"
                                    TextAlignment="Center"
                                    MaxWidth="360"

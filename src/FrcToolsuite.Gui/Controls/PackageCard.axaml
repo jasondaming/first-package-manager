@@ -8,12 +8,12 @@
              x:Class="FrcToolsuite.Gui.Controls.PackageCard"
              x:DataType="vm:PackageViewModel">
 
-    <Border Background="#FFFFFF"
+    <Border Background="{DynamicResource CardBackground}"
             CornerRadius="10"
             Padding="18"
             Margin="0,0,0,0"
             BoxShadow="0 2 6 0 #18000000"
-            BorderBrush="#E0E4EA"
+            BorderBrush="{DynamicResource CardBorder}"
             BorderThickness="1">
         <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="52,*">
             <!-- Colored circle icon with first letter -->
@@ -71,14 +71,14 @@
                 </Grid>
                 <TextBlock Text="{Binding Publisher}"
                            FontSize="11"
-                           Foreground="#888899" />
+                           Foreground="{DynamicResource TextMuted}" />
             </StackPanel>
 
             <!-- Description -->
             <TextBlock Grid.Row="1" Grid.Column="1"
                        Text="{Binding Description}"
                        FontSize="12"
-                       Foreground="#556677"
+                       Foreground="{DynamicResource TextSecondary}"
                        TextWrapping="Wrap"
                        MaxLines="2"
                        Margin="0,6,0,8" />
@@ -89,12 +89,12 @@
                 <TextBlock Grid.Column="0"
                            Text="{Binding Version}"
                            FontSize="11"
-                           Foreground="#99AABB"
+                           Foreground="{DynamicResource TextMuted}"
                            VerticalAlignment="Center" />
                 <TextBlock Grid.Column="1"
                            Text="{Binding Size}"
                            FontSize="11"
-                           Foreground="#99AABB"
+                           Foreground="{DynamicResource TextMuted}"
                            VerticalAlignment="Center"
                            Margin="12,0,0,0" />
                 <!-- Admin badge -->

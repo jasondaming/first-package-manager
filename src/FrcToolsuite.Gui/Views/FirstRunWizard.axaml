@@ -38,11 +38,11 @@
 
         <!-- Card style -->
         <Style Selector="Border.card">
-            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="Background" Value="{DynamicResource CardBackground}" />
             <Setter Property="CornerRadius" Value="8" />
             <Setter Property="Padding" Value="24" />
             <Setter Property="BoxShadow" Value="0 1 3 0 #18000000" />
-            <Setter Property="BorderBrush" Value="#E0E4EA" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CardBorder}" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
 
@@ -74,11 +74,11 @@
         </Style>
     </UserControl.Styles>
 
-    <Border Background="#F5F6FA">
+    <Border Background="{DynamicResource ContentBackground}">
         <DockPanel>
             <!-- Step Indicator at Top -->
-            <Border DockPanel.Dock="Top" Background="#FFFFFF" Padding="0,16"
-                    BorderBrush="#E0E4EA" BorderThickness="0,0,0,1">
+            <Border DockPanel.Dock="Top" Background="{DynamicResource CardBackground}" Padding="0,16"
+                    BorderBrush="{DynamicResource CardBorder}" BorderThickness="0,0,0,1">
                 <StackPanel HorizontalAlignment="Center" Spacing="0">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
                         <!-- Step 1 -->
@@ -87,7 +87,7 @@
                                 Classes.step-done="{Binding CurrentStep, Converter={StaticResource GreaterThanConverter}, ConverterParameter=1}">
                             <TextBlock Text="1" />
                         </Border>
-                        <Border Width="40" Height="2" Background="#E0E4EA" VerticalAlignment="Center" />
+                        <Border Width="40" Height="2" Background="{DynamicResource CardBorder}" VerticalAlignment="Center" />
 
                         <!-- Step 2 -->
                         <Border Classes="step-dot"
@@ -95,7 +95,7 @@
                                 Classes.step-done="{Binding CurrentStep, Converter={StaticResource GreaterThanConverter}, ConverterParameter=2}">
                             <TextBlock Text="2" />
                         </Border>
-                        <Border Width="40" Height="2" Background="#E0E4EA" VerticalAlignment="Center" />
+                        <Border Width="40" Height="2" Background="{DynamicResource CardBorder}" VerticalAlignment="Center" />
 
                         <!-- Step 3 -->
                         <Border Classes="step-dot"
@@ -103,7 +103,7 @@
                                 Classes.step-done="{Binding CurrentStep, Converter={StaticResource GreaterThanConverter}, ConverterParameter=3}">
                             <TextBlock Text="3" />
                         </Border>
-                        <Border Width="40" Height="2" Background="#E0E4EA" VerticalAlignment="Center" />
+                        <Border Width="40" Height="2" Background="{DynamicResource CardBorder}" VerticalAlignment="Center" />
 
                         <!-- Step 4 -->
                         <Border Classes="step-dot"
@@ -111,7 +111,7 @@
                                 Classes.step-done="{Binding CurrentStep, Converter={StaticResource GreaterThanConverter}, ConverterParameter=4}">
                             <TextBlock Text="4" />
                         </Border>
-                        <Border Width="40" Height="2" Background="#E0E4EA" VerticalAlignment="Center" />
+                        <Border Width="40" Height="2" Background="{DynamicResource CardBorder}" VerticalAlignment="Center" />
 
                         <!-- Step 5 -->
                         <Border Classes="step-dot"
@@ -120,15 +120,15 @@
                         </Border>
                     </StackPanel>
                     <TextBlock Text="{Binding StepTitle}"
-                               FontSize="12" Foreground="#556677"
+                               FontSize="12" Foreground="{DynamicResource TextSecondary}"
                                HorizontalAlignment="Center"
                                Margin="0,8,0,0" />
                 </StackPanel>
             </Border>
 
             <!-- Bottom Button Bar -->
-            <Border DockPanel.Dock="Bottom" Background="#FFFFFF" Padding="32,12"
-                    BorderBrush="#E0E4EA" BorderThickness="0,1,0,0">
+            <Border DockPanel.Dock="Bottom" Background="{DynamicResource CardBackground}" Padding="32,12"
+                    BorderBrush="{DynamicResource CardBorder}" BorderThickness="0,1,0,0">
                 <Grid ColumnDefinitions="Auto,*,Auto">
                     <Button Grid.Column="0"
                             Classes="secondary"
@@ -169,22 +169,22 @@
                                 Spacing="24" MaxWidth="560" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <TextBlock Text="&#x2B50;" FontSize="48" HorizontalAlignment="Center" />
                         <TextBlock Text="Welcome to FIRST Package Manager"
-                                   FontSize="26" FontWeight="Bold" Foreground="#1A1A2E"
+                                   FontSize="26" FontWeight="Bold" Foreground="{DynamicResource TextPrimary}"
                                    HorizontalAlignment="Center" TextAlignment="Center" />
                         <TextBlock Text="Set up your development environment in just a few steps. Choose your competition program to get started."
-                                   FontSize="14" Foreground="#556677"
+                                   FontSize="14" Foreground="{DynamicResource TextSecondary}"
                                    HorizontalAlignment="Center" TextAlignment="Center"
                                    TextWrapping="Wrap" MaxWidth="440" />
 
                         <Border Classes="card" HorizontalAlignment="Center" MinWidth="320">
                             <StackPanel Spacing="12">
-                                <TextBlock Text="Competition Program" FontSize="14" FontWeight="SemiBold" Foreground="#1A1A2E" />
+                                <TextBlock Text="Competition Program" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" />
                                 <ComboBox ItemsSource="{Binding Programs}"
                                           SelectedItem="{Binding SelectedProgram}"
                                           HorizontalAlignment="Stretch"
                                           FontSize="14" />
                                 <TextBlock Text="Select FRC for FIRST Robotics Competition or FTC for FIRST Tech Challenge."
-                                           FontSize="12" Foreground="#889AAB" TextWrapping="Wrap" />
+                                           FontSize="12" Foreground="{DynamicResource TextMuted}" TextWrapping="Wrap" />
                             </StackPanel>
                         </Border>
                     </StackPanel>
@@ -193,13 +193,13 @@
                     <StackPanel IsVisible="{Binding CurrentStep, Converter={StaticResource StringEqualConverter}, ConverterParameter=2}"
                                 Spacing="20" MaxWidth="640" HorizontalAlignment="Center">
                         <TextBlock Text="Choose a Starter Bundle"
-                                   FontSize="22" FontWeight="Bold" Foreground="#1A1A2E" />
+                                   FontSize="22" FontWeight="Bold" Foreground="{DynamicResource TextPrimary}" />
                         <TextBlock Text="Select a bundle to install a recommended set of tools. You can customize individual packages below."
-                                   FontSize="13" Foreground="#556677" TextWrapping="Wrap" />
+                                   FontSize="13" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" />
 
                         <Border Classes="card">
                             <StackPanel Spacing="12">
-                                <TextBlock Text="Bundle" FontSize="14" FontWeight="SemiBold" Foreground="#1A1A2E" />
+                                <TextBlock Text="Bundle" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" />
                                 <ComboBox ItemsSource="{Binding Bundles}"
                                           SelectedItem="{Binding SelectedBundle}"
                                           HorizontalAlignment="Stretch"
@@ -207,12 +207,12 @@
                             </StackPanel>
                         </Border>
 
-                        <TextBlock Text="Packages" FontSize="15" FontWeight="SemiBold" Foreground="#1A1A2E" Margin="0,4,0,0" />
+                        <TextBlock Text="Packages" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" Margin="0,4,0,0" />
 
                         <ItemsControl ItemsSource="{Binding SelectedPackages}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="vm:WizardPackageItem">
-                                    <Border Background="#FFFFFF" CornerRadius="6" Padding="16,12" Margin="0,0,0,6"
+                                    <Border Background="{DynamicResource CardBackground}" CornerRadius="6" Padding="16,12" Margin="0,0,0,6"
                                             BorderBrush="{Binding IsSelected, Converter={StaticResource BoolToBorderBrushConverter}}"
                                             BorderThickness="{Binding IsSelected, Converter={StaticResource BoolToBorderThicknessConverter}}">
                                         <Grid ColumnDefinitions="Auto,*,Auto">
@@ -223,7 +223,7 @@
                                                       Margin="0,0,12,0" />
                                             <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
                                                 <StackPanel Orientation="Horizontal" Spacing="8">
-                                                    <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" Foreground="#1A1A2E" />
+                                                    <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" />
                                                     <Border CornerRadius="8" Padding="8,2"
                                                             Background="{Binding Inclusion, Converter={StaticResource InclusionBrushConverter}}">
                                                         <TextBlock Text="{Binding Inclusion}" FontSize="10" Foreground="#FFFFFF" />
@@ -238,11 +238,11 @@
                                                                    Foreground="#E65100" />
                                                     </Border>
                                                 </StackPanel>
-                                                <TextBlock Text="{Binding Description}" FontSize="11" Foreground="#889AAB" />
+                                                <TextBlock Text="{Binding Description}" FontSize="11" Foreground="{DynamicResource TextMuted}" />
                                             </StackPanel>
                                             <TextBlock Grid.Column="2"
                                                        Text="{Binding SizeDisplay}"
-                                                       FontSize="12" Foreground="#889AAB"
+                                                       FontSize="12" Foreground="{DynamicResource TextMuted}"
                                                        VerticalAlignment="Center"
                                                        Margin="12,0,0,0" />
                                         </Grid>
@@ -256,14 +256,14 @@
                     <StackPanel IsVisible="{Binding CurrentStep, Converter={StaticResource StringEqualConverter}, ConverterParameter=3}"
                                 Spacing="20" MaxWidth="560" HorizontalAlignment="Center">
                         <TextBlock Text="Install Location"
-                                   FontSize="22" FontWeight="Bold" Foreground="#1A1A2E" />
+                                   FontSize="22" FontWeight="Bold" Foreground="{DynamicResource TextPrimary}" />
                         <TextBlock Text="Choose where to install your FRC development tools."
-                                   FontSize="13" Foreground="#556677" TextWrapping="Wrap" />
+                                   FontSize="13" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" />
 
                         <Border Classes="card">
                             <StackPanel Spacing="16">
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="Install Directory" FontSize="13" FontWeight="SemiBold" Foreground="#1A1A2E" />
+                                    <TextBlock Text="Install Directory" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" />
                                     <Grid ColumnDefinitions="*,Auto">
                                         <TextBox Grid.Column="0"
                                                  Text="{Binding InstallPath}"
@@ -277,16 +277,16 @@
                                                 Command="{Binding BrowseInstallPathCommand}" />
                                     </Grid>
                                     <TextBlock Text="Recommended: Use a short path without spaces."
-                                               FontSize="11" Foreground="#889AAB" Margin="0,4,0,0" />
+                                               FontSize="11" Foreground="{DynamicResource TextMuted}" Margin="0,4,0,0" />
                                 </StackPanel>
 
-                                <Border Height="1" Background="#E0E4EA" />
+                                <Border Height="1" Background="{DynamicResource CardBorder}" />
 
                                 <Grid ColumnDefinitions="*,Auto">
                                     <StackPanel Grid.Column="0" Spacing="2">
-                                        <TextBlock Text="Required Disk Space" FontSize="13" FontWeight="SemiBold" Foreground="#1A1A2E" />
+                                        <TextBlock Text="Required Disk Space" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" />
                                         <TextBlock Text="{Binding SelectedPackageCount, StringFormat='{}{0} packages selected'}"
-                                                   FontSize="11" Foreground="#889AAB" />
+                                                   FontSize="11" Foreground="{DynamicResource TextMuted}" />
                                     </StackPanel>
                                     <TextBlock Grid.Column="1"
                                                Text="{Binding TotalDownloadSize}"
@@ -301,33 +301,33 @@
                     <StackPanel IsVisible="{Binding CurrentStep, Converter={StaticResource StringEqualConverter}, ConverterParameter=4}"
                                 Spacing="20" MaxWidth="560" HorizontalAlignment="Center">
                         <TextBlock Text="Review"
-                                   FontSize="22" FontWeight="Bold" Foreground="#1A1A2E" />
+                                   FontSize="22" FontWeight="Bold" Foreground="{DynamicResource TextPrimary}" />
                         <TextBlock Text="Review your selections before installing."
-                                   FontSize="13" Foreground="#556677" TextWrapping="Wrap" />
+                                   FontSize="13" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" />
 
                         <Border Classes="card">
                             <StackPanel Spacing="12">
                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0">
                                     <TextBlock Grid.Row="0" Grid.Column="0"
-                                               Text="Program:" FontSize="13" FontWeight="SemiBold" Foreground="#556677"
+                                               Text="Program:" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondary}"
                                                Margin="0,0,16,8" />
                                     <TextBlock Grid.Row="0" Grid.Column="1"
-                                               Text="{Binding SelectedProgram}" FontSize="13" Foreground="#1A1A2E" Margin="0,0,0,8" />
+                                               Text="{Binding SelectedProgram}" FontSize="13" Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,8" />
 
                                     <TextBlock Grid.Row="1" Grid.Column="0"
-                                               Text="Bundle:" FontSize="13" FontWeight="SemiBold" Foreground="#556677"
+                                               Text="Bundle:" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondary}"
                                                Margin="0,0,16,8" />
                                     <TextBlock Grid.Row="1" Grid.Column="1"
-                                               Text="{Binding SelectedBundle}" FontSize="13" Foreground="#1A1A2E" Margin="0,0,0,8" />
+                                               Text="{Binding SelectedBundle}" FontSize="13" Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,8" />
 
                                     <TextBlock Grid.Row="2" Grid.Column="0"
-                                               Text="Location:" FontSize="13" FontWeight="SemiBold" Foreground="#556677"
+                                               Text="Location:" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondary}"
                                                Margin="0,0,16,8" />
                                     <TextBlock Grid.Row="2" Grid.Column="1"
-                                               Text="{Binding InstallPath}" FontSize="13" Foreground="#1A1A2E" Margin="0,0,0,8" />
+                                               Text="{Binding InstallPath}" FontSize="13" Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,8" />
 
                                     <TextBlock Grid.Row="3" Grid.Column="0"
-                                               Text="Download:" FontSize="13" FontWeight="SemiBold" Foreground="#556677"
+                                               Text="Download:" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondary}"
                                                Margin="0,0,16,0" />
                                     <TextBlock Grid.Row="3" Grid.Column="1"
                                                Text="{Binding TotalDownloadSize}" FontSize="13" FontWeight="Bold" Foreground="#5B8DEF" />
@@ -335,7 +335,7 @@
                             </StackPanel>
                         </Border>
 
-                        <TextBlock Text="Packages to Install" FontSize="15" FontWeight="SemiBold" Foreground="#1A1A2E" />
+                        <TextBlock Text="Packages to Install" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" />
                         <ItemsControl ItemsSource="{Binding SelectedPackages}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="vm:WizardPackageItem">
@@ -344,11 +344,11 @@
                                             <TextBlock Grid.Column="0" Text="&#x2713;" FontSize="13" Foreground="#4CAF50"
                                                        VerticalAlignment="Center" Margin="0,0,8,0" />
                                             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding Name}" FontSize="13" Foreground="#1A1A2E" />
+                                                <TextBlock Text="{Binding Name}" FontSize="13" Foreground="{DynamicResource TextPrimary}" />
                                                 <TextBlock Text="(requires admin)" FontSize="11" Foreground="#E65100"
                                                            IsVisible="{Binding RequiresAdmin}" />
                                             </StackPanel>
-                                            <TextBlock Grid.Column="3" Text="{Binding SizeDisplay}" FontSize="12" Foreground="#889AAB"
+                                            <TextBlock Grid.Column="3" Text="{Binding SizeDisplay}" FontSize="12" Foreground="{DynamicResource TextMuted}"
                                                        VerticalAlignment="Center" Margin="12,0,0,0" />
                                         </Grid>
                                     </Border>
@@ -361,17 +361,17 @@
                     <StackPanel IsVisible="{Binding CurrentStep, Converter={StaticResource StringEqualConverter}, ConverterParameter=5}"
                                 Spacing="24" MaxWidth="480" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <TextBlock Text="Installing..."
-                                   FontSize="22" FontWeight="Bold" Foreground="#1A1A2E"
+                                   FontSize="22" FontWeight="Bold" Foreground="{DynamicResource TextPrimary}"
                                    HorizontalAlignment="Center" />
                         <TextBlock Text="{Binding InstallStatus}"
-                                   FontSize="13" Foreground="#556677"
+                                   FontSize="13" Foreground="{DynamicResource TextSecondary}"
                                    HorizontalAlignment="Center" />
                         <ProgressBar Value="{Binding InstallProgress}"
                                      Minimum="0" Maximum="100"
                                      Height="8"
                                      Foreground="#5B8DEF" />
                         <TextBlock Text="This may take several minutes depending on your internet connection."
-                                   FontSize="11" Foreground="#889AAB"
+                                   FontSize="11" Foreground="{DynamicResource TextMuted}"
                                    HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" />
                     </StackPanel>
                 </Panel>

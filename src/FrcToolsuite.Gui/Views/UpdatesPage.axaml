@@ -15,10 +15,10 @@
                 <TextBlock Text="Available Updates"
                            FontSize="22"
                            FontWeight="Bold"
-                           Foreground="#1A1A2E" />
+                           Foreground="{DynamicResource TextPrimary}" />
                 <TextBlock Text="{Binding AvailableUpdates.Count, StringFormat='{}{0} updates available'}"
                            FontSize="13"
-                           Foreground="#888899"
+                           Foreground="{DynamicResource TextMuted}"
                            Margin="0,4,0,0" />
             </StackPanel>
             <Button Grid.Column="1"
@@ -37,12 +37,12 @@
             <ItemsControl ItemsSource="{Binding AvailableUpdates}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="vm:UpdateablePackageViewModel">
-                        <Border Background="#FFFFFF"
+                        <Border Background="{DynamicResource CardBackground}"
                                 CornerRadius="8"
                                 Padding="20"
                                 Margin="0,0,0,10"
                                 BoxShadow="0 1 2 0 #10000000"
-                                BorderBrush="#E0E4EA"
+                                BorderBrush="{DynamicResource CardBorder}"
                                 BorderThickness="1">
                             <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="48,*,Auto">
                                 <!-- Icon -->
@@ -50,7 +50,7 @@
                                         Grid.RowSpan="2"
                                         Width="40" Height="40"
                                         CornerRadius="8"
-                                        Background="#EEF1F8"
+                                        Background="{DynamicResource IconCircleBackground}"
                                         VerticalAlignment="Top">
                                     <TextBlock Text="{Binding Icon}"
                                                FontSize="20"
@@ -63,21 +63,21 @@
                                     <TextBlock Text="{Binding Name}"
                                                FontSize="14"
                                                FontWeight="SemiBold"
-                                               Foreground="#1A1A2E" />
+                                               Foreground="{DynamicResource TextPrimary}" />
                                     <StackPanel Orientation="Horizontal" Spacing="6">
                                         <TextBlock Text="{Binding CurrentVersion}"
                                                    FontSize="11"
-                                                   Foreground="#99AABB" />
+                                                   Foreground="{DynamicResource TextMuted}" />
                                         <TextBlock Text="&#x2192;"
                                                    FontSize="11"
-                                                   Foreground="#99AABB" />
+                                                   Foreground="{DynamicResource TextMuted}" />
                                         <TextBlock Text="{Binding NewVersion}"
                                                    FontSize="11"
                                                    Foreground="#5B8DEF"
                                                    FontWeight="SemiBold" />
                                         <TextBlock Text="{Binding Size, StringFormat='({0})'}"
                                                    FontSize="11"
-                                                   Foreground="#99AABB" />
+                                                   Foreground="{DynamicResource TextMuted}" />
                                     </StackPanel>
                                 </StackPanel>
 
@@ -96,7 +96,7 @@
                                 <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
                                            Text="{Binding ChangelogSummary}"
                                            FontSize="12"
-                                           Foreground="#667788"
+                                           Foreground="{DynamicResource TextSecondary}"
                                            TextWrapping="Wrap"
                                            Margin="8,8,0,0" />
                             </Grid>

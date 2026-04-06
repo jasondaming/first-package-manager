@@ -16,10 +16,10 @@
                     <TextBlock Text="{Binding Title}"
                                FontSize="22"
                                FontWeight="Bold"
-                               Foreground="#1A1A2E" />
+                               Foreground="{DynamicResource TextPrimary}" />
                     <TextBlock Text="{Binding Description}"
                                FontSize="13"
-                               Foreground="#888899"
+                               Foreground="{DynamicResource TextMuted}"
                                TextWrapping="Wrap"
                                Margin="0,4,0,0" />
                 </StackPanel>
@@ -95,18 +95,18 @@
 
         <!-- Loading indicator -->
         <Border DockPanel.Dock="Top"
-                Background="#FFFFFF"
+                Background="{DynamicResource CardBackground}"
                 CornerRadius="8"
                 Padding="20,16"
                 Margin="0,0,0,12"
                 BoxShadow="0 1 2 0 #10000000"
-                BorderBrush="#E0E4EA"
+                BorderBrush="{DynamicResource CardBorder}"
                 BorderThickness="1"
                 IsVisible="{Binding IsChecking}">
             <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
                 <TextBlock Text="Checking..."
                            FontSize="14"
-                           Foreground="#556677"
+                           Foreground="{DynamicResource TextSecondary}"
                            VerticalAlignment="Center" />
             </StackPanel>
         </Border>
@@ -116,12 +116,12 @@
             <ItemsControl ItemsSource="{Binding Issues}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="vm:HealthCheckItemViewModel">
-                        <Border Background="#FFFFFF"
+                        <Border Background="{DynamicResource CardBackground}"
                                 CornerRadius="8"
                                 Padding="16"
                                 Margin="0,0,0,8"
                                 BoxShadow="0 1 2 0 #10000000"
-                                BorderBrush="#E0E4EA"
+                                BorderBrush="{DynamicResource CardBorder}"
                                 BorderThickness="1">
                             <Grid ColumnDefinitions="40,*,Auto">
                                 <!-- Severity icon -->
@@ -149,11 +149,11 @@
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="8,0">
                                     <TextBlock Text="{Binding Description}"
                                                FontSize="13"
-                                               Foreground="#1A1A2E"
+                                               Foreground="{DynamicResource TextPrimary}"
                                                TextWrapping="Wrap" />
                                     <TextBlock Text="{Binding PackageId, StringFormat='Package: {0}'}"
                                                FontSize="11"
-                                               Foreground="#888899"
+                                               Foreground="{DynamicResource TextMuted}"
                                                IsVisible="{Binding PackageId, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                                                Margin="0,4,0,0" />
                                 </StackPanel>

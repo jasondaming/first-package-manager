@@ -29,25 +29,25 @@
             <Setter Property="BorderBrush" Value="Transparent" />
         </Style>
         <Style Selector="Button.nav-item:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="#2A2A4A" />
+            <Setter Property="Background" Value="{DynamicResource SidebarHover}" />
             <Setter Property="Foreground" Value="#FFFFFF" />
         </Style>
 
         <!-- Active override: applied alongside nav-item -->
         <Style Selector="Button.nav-item.active">
-            <Setter Property="Background" Value="#2A2A4A" />
+            <Setter Property="Background" Value="{DynamicResource SidebarHover}" />
             <Setter Property="Foreground" Value="#FFFFFF" />
             <Setter Property="BorderBrush" Value="#5B8DEF" />
         </Style>
         <Style Selector="Button.nav-item.active /template/ ContentPresenter">
-            <Setter Property="Background" Value="#2A2A4A" />
+            <Setter Property="Background" Value="{DynamicResource SidebarHover}" />
             <Setter Property="Foreground" Value="#FFFFFF" />
         </Style>
 
         <!-- Category chip style -->
         <Style Selector="Button.chip">
-            <Setter Property="Background" Value="#E8EDF2" />
-            <Setter Property="Foreground" Value="#444444" />
+            <Setter Property="Background" Value="{DynamicResource ChipBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource ChipForeground}" />
             <Setter Property="CornerRadius" Value="14" />
             <Setter Property="Padding" Value="14,6" />
             <Setter Property="FontSize" Value="12" />
@@ -76,7 +76,7 @@
         <!-- Normal shell (hidden during first run) -->
         <DockPanel IsVisible="{Binding !ShowFirstRunWizard}">
         <!-- Top Bar -->
-        <Border DockPanel.Dock="Top" Background="#1E1E3A" Height="48">
+        <Border DockPanel.Dock="Top" Background="{DynamicResource SidebarTopBar}" Height="48">
             <Grid ColumnDefinitions="200,*,Auto">
                 <!-- App Title in sidebar header area -->
                 <StackPanel Grid.Column="0"
@@ -116,7 +116,7 @@
         </Border>
 
         <!-- Sidebar -->
-        <Border DockPanel.Dock="Left" Width="200" Background="#1A1A2E">
+        <Border DockPanel.Dock="Left" Width="200" Background="{DynamicResource SidebarBackground}">
             <ScrollViewer>
                 <StackPanel Margin="0,8">
                     <!-- Home -->
@@ -164,7 +164,7 @@
                     </Button>
 
                     <!-- Separator -->
-                    <Border Height="1" Background="#2A2A4A" Margin="16,12" />
+                    <Border Height="1" Background="{DynamicResource SidebarDivider}" Margin="16,12" />
 
                     <!-- Profiles -->
                     <Button Classes="nav-item"
@@ -200,7 +200,7 @@
                     </Button>
 
                     <!-- Separator -->
-                    <Border Height="1" Background="#2A2A4A" Margin="16,12" />
+                    <Border Height="1" Background="{DynamicResource SidebarDivider}" Margin="16,12" />
 
                     <!-- Settings -->
                     <Button Classes="nav-item"
@@ -217,7 +217,7 @@
         </Border>
 
         <!-- Content Area -->
-        <Border Background="#F5F6FA">
+        <Border Background="{DynamicResource ContentBackground}">
             <ContentControl Content="{Binding CurrentPageViewModel}" Margin="0">
                 <ContentControl.DataTemplates>
                     <DataTemplate DataType="vm:HomePageViewModel">

@@ -13,17 +13,34 @@
             <TextBlock Text="Settings"
                        FontSize="22"
                        FontWeight="Bold"
-                       Foreground="#1A1A2E"
+                       Foreground="{DynamicResource TextPrimary}"
                        Margin="0,0,0,8" />
 
-            <!-- Install Path -->
-            <Border Background="#FFFFFF" CornerRadius="8" Padding="20"
-                    BoxShadow="0 1 2 0 #10000000" BorderBrush="#E0E4EA" BorderThickness="1">
+            <!-- Appearance -->
+            <Border Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="20"
+                    BoxShadow="0 1 2 0 #10000000" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
                 <StackPanel Spacing="12">
-                    <TextBlock Text="Installation" FontSize="15" FontWeight="SemiBold" Foreground="#1A1A2E" />
+                    <TextBlock Text="Appearance" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" />
 
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Install Path" FontSize="12" Foreground="#556677" />
+                        <TextBlock Text="Theme" FontSize="12" Foreground="{DynamicResource TextSecondary}" />
+                        <ComboBox ItemsSource="{Binding ThemeOptions}"
+                                  SelectedItem="{Binding SelectedTheme}"
+                                  MinWidth="160"
+                                  FontSize="13"
+                                  HorizontalAlignment="Left" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Install Path -->
+            <Border Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="20"
+                    BoxShadow="0 1 2 0 #10000000" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Installation" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" />
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Install Path" FontSize="12" Foreground="{DynamicResource TextSecondary}" />
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBox Grid.Column="0"
                                      Text="{Binding InstallPath}"
@@ -39,7 +56,7 @@
                     </StackPanel>
 
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Max Concurrent Downloads" FontSize="12" Foreground="#556677" />
+                        <TextBlock Text="Max Concurrent Downloads" FontSize="12" Foreground="{DynamicResource TextSecondary}" />
                         <NumericUpDown Value="{Binding MaxConcurrentDownloads}"
                                        Minimum="1" Maximum="10"
                                        FontSize="13"
@@ -50,10 +67,10 @@
             </Border>
 
             <!-- Updates -->
-            <Border Background="#FFFFFF" CornerRadius="8" Padding="20"
-                    BoxShadow="0 1 2 0 #10000000" BorderBrush="#E0E4EA" BorderThickness="1">
+            <Border Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="20"
+                    BoxShadow="0 1 2 0 #10000000" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
                 <StackPanel Spacing="12">
-                    <TextBlock Text="Updates" FontSize="15" FontWeight="SemiBold" Foreground="#1A1A2E" />
+                    <TextBlock Text="Updates" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" />
 
                     <CheckBox IsChecked="{Binding AutoCheckUpdates}" FontSize="13">
                         <TextBlock Text="Automatically check for updates" />
@@ -66,10 +83,10 @@
             </Border>
 
             <!-- Cache -->
-            <Border Background="#FFFFFF" CornerRadius="8" Padding="20"
-                    BoxShadow="0 1 2 0 #10000000" BorderBrush="#E0E4EA" BorderThickness="1">
+            <Border Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="20"
+                    BoxShadow="0 1 2 0 #10000000" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
                 <StackPanel Spacing="12">
-                    <TextBlock Text="Cache" FontSize="15" FontWeight="SemiBold" Foreground="#1A1A2E" />
+                    <TextBlock Text="Cache" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" />
 
                     <CheckBox IsChecked="{Binding KeepInstallerCache}" FontSize="13">
                         <TextBlock Text="Keep installer files in cache" />
@@ -86,10 +103,10 @@
             </Border>
 
             <!-- Startup -->
-            <Border Background="#FFFFFF" CornerRadius="8" Padding="20"
-                    BoxShadow="0 1 2 0 #10000000" BorderBrush="#E0E4EA" BorderThickness="1">
+            <Border Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="20"
+                    BoxShadow="0 1 2 0 #10000000" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
                 <StackPanel Spacing="12">
-                    <TextBlock Text="Startup" FontSize="15" FontWeight="SemiBold" Foreground="#1A1A2E" />
+                    <TextBlock Text="Startup" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" />
 
                     <CheckBox IsChecked="{Binding PreferAdvancedMode}" FontSize="13">
                         <TextBlock Text="Start in Advanced Mode (skip the first-run wizard)" />
@@ -98,13 +115,13 @@
             </Border>
 
             <!-- Network -->
-            <Border Background="#FFFFFF" CornerRadius="8" Padding="20"
-                    BoxShadow="0 1 2 0 #10000000" BorderBrush="#E0E4EA" BorderThickness="1">
+            <Border Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="20"
+                    BoxShadow="0 1 2 0 #10000000" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
                 <StackPanel Spacing="12">
-                    <TextBlock Text="Network" FontSize="15" FontWeight="SemiBold" Foreground="#1A1A2E" />
+                    <TextBlock Text="Network" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" />
 
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Proxy URL (optional)" FontSize="12" Foreground="#556677" />
+                        <TextBlock Text="Proxy URL (optional)" FontSize="12" Foreground="{DynamicResource TextSecondary}" />
                         <TextBox Text="{Binding ProxyUrl}"
                                  Watermark="http://proxy:8080"
                                  FontSize="13" />

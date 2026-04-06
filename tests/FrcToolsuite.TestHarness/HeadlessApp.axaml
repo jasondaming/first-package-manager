@@ -38,12 +38,58 @@
     </Style>
   </Application.Styles>
   <Application.Resources>
-    <conv:StringEqualConverter x:Key="StringEqualConverter" />
-    <conv:StringToBrushConverter x:Key="StringToBrushConverter" />
-    <conv:GreaterThanConverter x:Key="GreaterThanConverter" />
-    <conv:InclusionBrushConverter x:Key="InclusionBrushConverter" />
-    <conv:BoolToBorderBrushConverter x:Key="BoolToBorderBrushConverter" />
-    <conv:BoolToBorderThicknessConverter x:Key="BoolToBorderThicknessConverter" />
-    <conv:BoolToExpandIconConverter x:Key="BoolToExpandIconConverter" />
+    <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="SidebarBackground" Color="#1A1A2E" />
+          <SolidColorBrush x:Key="SidebarTopBar" Color="#1E1E3A" />
+          <SolidColorBrush x:Key="ContentBackground" Color="#F5F6FA" />
+          <SolidColorBrush x:Key="CardBackground" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="CardBorder" Color="#E0E4EA" />
+          <SolidColorBrush x:Key="TextPrimary" Color="#1A1A2E" />
+          <SolidColorBrush x:Key="TextSecondary" Color="#556677" />
+          <SolidColorBrush x:Key="TextMuted" Color="#889AAB" />
+          <SolidColorBrush x:Key="SearchBarBackground" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="SubtleBorder" Color="#F0F1F4" />
+          <SolidColorBrush x:Key="SubtleBackground" Color="#F8F9FB" />
+          <SolidColorBrush x:Key="BadgeBackground" Color="#EEF1F8" />
+          <SolidColorBrush x:Key="ChipBackground" Color="#E8EDF2" />
+          <SolidColorBrush x:Key="ChipForeground" Color="#444444" />
+          <SolidColorBrush x:Key="SidebarDivider" Color="#2A2A4A" />
+          <SolidColorBrush x:Key="SidebarHover" Color="#2A2A4A" />
+          <SolidColorBrush x:Key="ReleaseNotesBg" Color="#FAFBFC" />
+          <SolidColorBrush x:Key="ReleaseNotesBorder" Color="#E8ECF0" />
+          <SolidColorBrush x:Key="IconCircleBackground" Color="#EEF1F8" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="SidebarBackground" Color="#0D0D1A" />
+          <SolidColorBrush x:Key="SidebarTopBar" Color="#141428" />
+          <SolidColorBrush x:Key="ContentBackground" Color="#1A1A2E" />
+          <SolidColorBrush x:Key="CardBackground" Color="#242440" />
+          <SolidColorBrush x:Key="CardBorder" Color="#333355" />
+          <SolidColorBrush x:Key="TextPrimary" Color="#E8E8F0" />
+          <SolidColorBrush x:Key="TextSecondary" Color="#AABBCC" />
+          <SolidColorBrush x:Key="TextMuted" Color="#778899" />
+          <SolidColorBrush x:Key="SearchBarBackground" Color="#242440" />
+          <SolidColorBrush x:Key="SubtleBorder" Color="#333355" />
+          <SolidColorBrush x:Key="SubtleBackground" Color="#2A2A44" />
+          <SolidColorBrush x:Key="BadgeBackground" Color="#2A2A4A" />
+          <SolidColorBrush x:Key="ChipBackground" Color="#2A2A4A" />
+          <SolidColorBrush x:Key="ChipForeground" Color="#CCCCDD" />
+          <SolidColorBrush x:Key="SidebarDivider" Color="#1A1A33" />
+          <SolidColorBrush x:Key="SidebarHover" Color="#1A1A33" />
+          <SolidColorBrush x:Key="ReleaseNotesBg" Color="#2A2A44" />
+          <SolidColorBrush x:Key="ReleaseNotesBorder" Color="#333355" />
+          <SolidColorBrush x:Key="IconCircleBackground" Color="#2A2A4A" />
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+      <conv:StringEqualConverter x:Key="StringEqualConverter" />
+      <conv:StringToBrushConverter x:Key="StringToBrushConverter" />
+      <conv:GreaterThanConverter x:Key="GreaterThanConverter" />
+      <conv:InclusionBrushConverter x:Key="InclusionBrushConverter" />
+      <conv:BoolToBorderBrushConverter x:Key="BoolToBorderBrushConverter" />
+      <conv:BoolToBorderThicknessConverter x:Key="BoolToBorderThicknessConverter" />
+      <conv:BoolToExpandIconConverter x:Key="BoolToExpandIconConverter" />
+    </ResourceDictionary>
   </Application.Resources>
 </Application>

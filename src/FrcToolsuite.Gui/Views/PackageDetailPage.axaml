@@ -22,11 +22,11 @@
                     Command="{Binding GoBackCommand}" />
 
             <!-- Package header -->
-            <Border Background="#FFFFFF"
+            <Border Background="{DynamicResource CardBackground}"
                     CornerRadius="10"
                     Padding="24"
                     BoxShadow="0 1 4 0 #18000000"
-                    BorderBrush="#E0E4EA"
+                    BorderBrush="{DynamicResource CardBorder}"
                     BorderThickness="1">
                 <Grid ColumnDefinitions="64,*,Auto">
                     <!-- Icon -->
@@ -49,18 +49,18 @@
                         <TextBlock Text="{Binding Name}"
                                    FontSize="22"
                                    FontWeight="Bold"
-                                   Foreground="#1A1A2E" />
+                                   Foreground="{DynamicResource TextPrimary}" />
                         <StackPanel Orientation="Horizontal" Spacing="16">
                             <TextBlock Text="{Binding Publisher}"
                                        FontSize="13"
-                                       Foreground="#888899" />
+                                       Foreground="{DynamicResource TextMuted}" />
                             <TextBlock Text="{Binding Version}"
                                        FontSize="13"
-                                       Foreground="#99AABB" />
+                                       Foreground="{DynamicResource TextMuted}" />
                         </StackPanel>
                         <!-- Badges -->
                         <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
-                            <Border Background="#EEF1F8" CornerRadius="10" Padding="10,4">
+                            <Border Background="{DynamicResource BadgeBackground}" CornerRadius="10" Padding="10,4">
                                 <TextBlock Text="{Binding Category}" FontSize="11" Foreground="#5B8DEF" FontWeight="SemiBold" />
                             </Border>
                             <Border Background="#F5F0FF" CornerRadius="10" Padding="10,4">
@@ -95,37 +95,37 @@
             </Border>
 
             <!-- Description -->
-            <Border Background="#FFFFFF"
+            <Border Background="{DynamicResource CardBackground}"
                     CornerRadius="8"
                     Padding="24"
                     BoxShadow="0 1 2 0 #10000000"
-                    BorderBrush="#E0E4EA"
+                    BorderBrush="{DynamicResource CardBorder}"
                     BorderThickness="1">
                 <StackPanel Spacing="10">
                     <TextBlock Text="Description"
                                FontSize="15"
                                FontWeight="SemiBold"
-                               Foreground="#1A1A2E" />
+                               Foreground="{DynamicResource TextPrimary}" />
                     <TextBlock Text="{Binding Description}"
                                FontSize="13"
-                               Foreground="#556677"
+                               Foreground="{DynamicResource TextSecondary}"
                                TextWrapping="Wrap"
                                LineHeight="22" />
                 </StackPanel>
             </Border>
 
             <!-- Dependencies -->
-            <Border Background="#FFFFFF"
+            <Border Background="{DynamicResource CardBackground}"
                     CornerRadius="8"
                     Padding="24"
                     BoxShadow="0 1 2 0 #10000000"
-                    BorderBrush="#E0E4EA"
+                    BorderBrush="{DynamicResource CardBorder}"
                     BorderThickness="1">
                 <StackPanel Spacing="10">
                     <TextBlock Text="Dependencies"
                                FontSize="15"
                                FontWeight="SemiBold"
-                               Foreground="#1A1A2E" />
+                               Foreground="{DynamicResource TextPrimary}" />
                     <ItemsControl ItemsSource="{Binding Dependencies}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -136,7 +136,7 @@
                                             VerticalAlignment="Center" />
                                     <TextBlock Text="{Binding}"
                                                FontSize="13"
-                                               Foreground="#556677" />
+                                               Foreground="{DynamicResource TextSecondary}" />
                                 </StackPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -145,26 +145,26 @@
             </Border>
 
             <!-- Release Notes -->
-            <Border Background="#FFFFFF"
+            <Border Background="{DynamicResource CardBackground}"
                     CornerRadius="8"
                     Padding="24"
                     Margin="0,0,0,20"
                     BoxShadow="0 1 2 0 #10000000"
-                    BorderBrush="#E0E4EA"
+                    BorderBrush="{DynamicResource CardBorder}"
                     BorderThickness="1">
                 <StackPanel Spacing="10">
                     <TextBlock Text="Release Notes"
                                FontSize="15"
                                FontWeight="SemiBold"
-                               Foreground="#1A1A2E" />
-                    <Border Background="#FAFBFC"
+                               Foreground="{DynamicResource TextPrimary}" />
+                    <Border Background="{DynamicResource ReleaseNotesBg}"
                             CornerRadius="6"
                             Padding="16,12"
-                            BorderBrush="#E8ECF0"
+                            BorderBrush="{DynamicResource ReleaseNotesBorder}"
                             BorderThickness="1">
                         <TextBlock Text="{Binding ReleaseNotes}"
                                    FontSize="12"
-                                   Foreground="#556677"
+                                   Foreground="{DynamicResource TextSecondary}"
                                    TextWrapping="Wrap"
                                    LineHeight="20"
                                    FontFamily="Consolas, Courier New, monospace" />

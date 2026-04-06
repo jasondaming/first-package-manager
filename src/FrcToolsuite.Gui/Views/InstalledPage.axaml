@@ -15,9 +15,9 @@
                 <TextBlock Text="Installed Packages"
                            FontSize="22"
                            FontWeight="Bold"
-                           Foreground="#1A1A2E" />
+                           Foreground="{DynamicResource TextPrimary}" />
                 <TextBlock FontSize="13"
-                           Foreground="#888899"
+                           Foreground="{DynamicResource TextMuted}"
                            Margin="0,4,0,0">
                     <Run Text="{Binding InstalledPackages.Count, StringFormat='{}{0} packages'}" />
                     <Run Text=" - " />
@@ -32,19 +32,19 @@
             <ItemsControl ItemsSource="{Binding InstalledPackages}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="vm:InstalledPackageViewModel">
-                        <Border Background="#FFFFFF"
+                        <Border Background="{DynamicResource CardBackground}"
                                 CornerRadius="8"
                                 Padding="16"
                                 Margin="0,0,0,8"
                                 BoxShadow="0 1 2 0 #10000000"
-                                BorderBrush="#E0E4EA"
+                                BorderBrush="{DynamicResource CardBorder}"
                                 BorderThickness="1">
                             <Grid ColumnDefinitions="48,*,Auto,Auto,Auto">
                                 <!-- Icon -->
                                 <Border Grid.Column="0"
                                         Width="40" Height="40"
                                         CornerRadius="8"
-                                        Background="#EEF1F8"
+                                        Background="{DynamicResource IconCircleBackground}"
                                         VerticalAlignment="Center">
                                     <TextBlock Text="{Binding Icon}"
                                                FontSize="20"
@@ -57,17 +57,17 @@
                                     <TextBlock Text="{Binding Name}"
                                                FontSize="14"
                                                FontWeight="SemiBold"
-                                               Foreground="#1A1A2E" />
+                                               Foreground="{DynamicResource TextPrimary}" />
                                     <TextBlock Text="{Binding Publisher}"
                                                FontSize="11"
-                                               Foreground="#888899" />
+                                               Foreground="{DynamicResource TextMuted}" />
                                 </StackPanel>
 
                                 <!-- Version -->
                                 <TextBlock Grid.Column="2"
                                            Text="{Binding Version}"
                                            FontSize="12"
-                                           Foreground="#99AABB"
+                                           Foreground="{DynamicResource TextMuted}"
                                            VerticalAlignment="Center"
                                            Margin="0,0,20,0" />
 
@@ -75,7 +75,7 @@
                                 <TextBlock Grid.Column="3"
                                            Text="{Binding Size}"
                                            FontSize="12"
-                                           Foreground="#99AABB"
+                                           Foreground="{DynamicResource TextMuted}"
                                            VerticalAlignment="Center"
                                            Margin="0,0,20,0" />
 

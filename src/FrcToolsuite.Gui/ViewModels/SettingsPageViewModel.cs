@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Text.Json;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -30,6 +31,16 @@ public partial class SettingsPageViewModel : ObservableObject, IStateExportable
 
     [ObservableProperty]
     private bool _preferAdvancedMode;
+
+    [ObservableProperty]
+    private string _selectedTheme = "System";
+
+    public ObservableCollection<string> ThemeOptions { get; } = new() { "System", "Light", "Dark" };
+
+    partial void OnSelectedThemeChanged(string value)
+    {
+        App.SetTheme(value);
+    }
 
     [RelayCommand]
     private async Task BrowseInstallPathAsync()
@@ -74,6 +85,7 @@ public partial class SettingsPageViewModel : ObservableObject, IStateExportable
         MaxConcurrentDownloads = 3;
         KeepInstallerCache = true;
         PreferAdvancedMode = false;
+        SelectedTheme = "System";
     }
 
     public string ExportStateJson()
@@ -86,7 +98,8 @@ public partial class SettingsPageViewModel : ObservableObject, IStateExportable
             ProxyUrl,
             MaxConcurrentDownloads,
             KeepInstallerCache,
-            PreferAdvancedMode
+            PreferAdvancedMode,
+            SelectedTheme
         };
         return JsonSerializer.Serialize(state, new JsonSerializerOptions { WriteIndented = true });
     }
