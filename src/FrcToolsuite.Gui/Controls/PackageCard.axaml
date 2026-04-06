@@ -36,12 +36,26 @@
             <!-- Name, publisher, and category badge -->
             <StackPanel Grid.Row="0" Grid.Column="1" Spacing="3">
                 <Grid ColumnDefinitions="*,Auto">
-                    <TextBlock Grid.Column="0"
-                               Text="{Binding Name}"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               Foreground="#1A1A2E"
-                               TextTrimming="CharacterEllipsis" />
+                    <Button Grid.Column="0"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Padding="0"
+                            Cursor="Hand"
+                            HorizontalAlignment="Left"
+                            Command="{Binding $parent[ItemsControl].((vm:BrowsePageViewModel)DataContext).ViewDetailCommand}"
+                            CommandParameter="{Binding}">
+                        <TextBlock Text="{Binding Name}"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Foreground="#5B8DEF"
+                                   TextTrimming="CharacterEllipsis">
+                            <TextBlock.Styles>
+                                <Style Selector="TextBlock:pointerover">
+                                    <Setter Property="TextDecorations" Value="Underline" />
+                                </Style>
+                            </TextBlock.Styles>
+                        </TextBlock>
+                    </Button>
                     <!-- Category badge -->
                     <Border Grid.Column="1"
                             CornerRadius="8"

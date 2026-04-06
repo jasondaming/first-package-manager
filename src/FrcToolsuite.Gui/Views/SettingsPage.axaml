@@ -85,6 +85,18 @@
                 </StackPanel>
             </Border>
 
+            <!-- Startup -->
+            <Border Background="#FFFFFF" CornerRadius="8" Padding="20"
+                    BoxShadow="0 1 2 0 #10000000" BorderBrush="#E0E4EA" BorderThickness="1">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Startup" FontSize="15" FontWeight="SemiBold" Foreground="#1A1A2E" />
+
+                    <CheckBox IsChecked="{Binding PreferAdvancedMode}" FontSize="13">
+                        <TextBlock Text="Start in Advanced Mode (skip the first-run wizard)" />
+                    </CheckBox>
+                </StackPanel>
+            </Border>
+
             <!-- Network -->
             <Border Background="#FFFFFF" CornerRadius="8" Padding="20"
                     BoxShadow="0 1 2 0 #10000000" BorderBrush="#E0E4EA" BorderThickness="1">

@@ -28,6 +28,9 @@ public partial class SettingsPageViewModel : ObservableObject, IStateExportable
     [ObservableProperty]
     private bool _keepInstallerCache = true;
 
+    [ObservableProperty]
+    private bool _preferAdvancedMode;
+
     [RelayCommand]
     private async Task BrowseInstallPathAsync()
     {
@@ -70,6 +73,7 @@ public partial class SettingsPageViewModel : ObservableObject, IStateExportable
         ProxyUrl = string.Empty;
         MaxConcurrentDownloads = 3;
         KeepInstallerCache = true;
+        PreferAdvancedMode = false;
     }
 
     public string ExportStateJson()
@@ -81,7 +85,8 @@ public partial class SettingsPageViewModel : ObservableObject, IStateExportable
             UseBetaChannel,
             ProxyUrl,
             MaxConcurrentDownloads,
-            KeepInstallerCache
+            KeepInstallerCache,
+            PreferAdvancedMode
         };
         return JsonSerializer.Serialize(state, new JsonSerializerOptions { WriteIndented = true });
     }

@@ -162,6 +162,7 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
 {
     private readonly IRegistryClient? _registry;
     private readonly IPackageManager? _packageManager;
+    private readonly Action<PackageViewModel>? _viewDetailCallback;
 
     [ObservableProperty]
     private string _searchQuery = string.Empty;
@@ -185,14 +186,15 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
     private ObservableCollection<PackageViewModel> _filteredPackages = new();
 
     public BrowsePageViewModel()
-        : this(null, null)
+        : this(null, null, null)
     {
     }
 
-    public BrowsePageViewModel(IRegistryClient? registry, IPackageManager? packageManager = null)
+    public BrowsePageViewModel(IRegistryClient? registry, IPackageManager? packageManager = null, Action<PackageViewModel>? viewDetailCallback = null)
     {
         _registry = registry;
         _packageManager = packageManager;
+        _viewDetailCallback = viewDetailCallback;
 
         if (_registry != null)
         {
@@ -204,6 +206,15 @@ public partial class BrowsePageViewModel : ObservableObject, IStateExportable
         }
 
         FilteredPackages = new ObservableCollection<PackageViewModel>(Packages);
+    }
+
+    [RelayCommand]
+    private void ViewDetail(PackageViewModel? package)
+    {
+        if (package is not null)
+        {
+            _viewDetailCallback?.Invoke(package);
+        }
     }
 
     public async Task LoadPackagesAsync()

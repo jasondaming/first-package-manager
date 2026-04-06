@@ -55,7 +55,8 @@ public static class ServiceConfiguration
                 sp.GetRequiredService<IPackageManager>(),
                 sp.GetRequiredService<IRegistryClient>(),
                 sp.GetRequiredService<IHealthChecker>(),
-                sp.GetRequiredService<IOfflineCacheManager>()));
+                sp.GetRequiredService<IOfflineCacheManager>(),
+                sp.GetRequiredService<ISettingsProvider>()));
         services.AddTransient<HomePageViewModel>(sp =>
             new HomePageViewModel(
                 sp.GetRequiredService<IPackageManager>(),

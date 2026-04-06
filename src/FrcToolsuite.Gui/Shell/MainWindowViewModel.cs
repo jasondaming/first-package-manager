@@ -3,6 +3,7 @@ using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FrcToolsuite.Core;
+using FrcToolsuite.Core.Configuration;
 using FrcToolsuite.Core.Health;
 using FrcToolsuite.Core.Offline;
 using FrcToolsuite.Core.Packages;
@@ -48,10 +49,10 @@ public partial class MainWindowViewModel : ObservableObject, IStateExportable
     {
     }
 
-    public MainWindowViewModel(IPackageManager? packageManager, IRegistryClient? registry, IHealthChecker? healthChecker = null, IOfflineCacheManager? offlineCacheManager = null)
+    public MainWindowViewModel(IPackageManager? packageManager, IRegistryClient? registry, IHealthChecker? healthChecker = null, IOfflineCacheManager? offlineCacheManager = null, ISettingsProvider? settingsProvider = null)
     {
         HomePage = new HomePageViewModel(packageManager, registry, NavigateTo);
-        BrowsePage = new BrowsePageViewModel(registry, packageManager);
+        BrowsePage = new BrowsePageViewModel(registry, packageManager, NavigateToPackageDetail);
         InstalledPage = new InstalledPageViewModel(packageManager);
         UpdatesPage = new UpdatesPageViewModel(packageManager);
         PackageDetailPage = new PackageDetailPageViewModel(NavigateTo);
@@ -62,7 +63,42 @@ public partial class MainWindowViewModel : ObservableObject, IStateExportable
         CurrentPageViewModel = HomePage;
 
         // Wizard is the default experience; "Advanced Setup" switches to the full app
-        ShowFirstRunWizard = true;
+        // Check settings: if PreferAdvancedMode is true, skip the wizard
+        if (settingsProvider is not null)
+        {
+            _ = LoadStartupPreferenceAsync(settingsProvider);
+        }
+        else
+        {
+            ShowFirstRunWizard = true;
+        }
+    }
+
+    private async Task LoadStartupPreferenceAsync(ISettingsProvider settingsProvider)
+    {
+        try
+        {
+            var settings = await settingsProvider.LoadAsync();
+            ShowFirstRunWizard = !settings.PreferAdvancedMode;
+        }
+        catch
+        {
+            ShowFirstRunWizard = true;
+        }
+    }
+
+    private void NavigateToPackageDetail(PackageViewModel package)
+    {
+        PackageDetailPage.Name = package.Name;
+        PackageDetailPage.Publisher = package.Publisher;
+        PackageDetailPage.Version = package.Version;
+        PackageDetailPage.Description = package.Description;
+        PackageDetailPage.Category = package.Category;
+        PackageDetailPage.Size = package.Size;
+        PackageDetailPage.IconLetter = package.IconLetter;
+        PackageDetailPage.IconColor = package.IconColor;
+        PackageDetailPage.IsInstalled = package.IsInstalled;
+        NavigateTo("PackageDetail");
     }
 
     private static bool HasPreviousInstall()

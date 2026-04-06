@@ -12,6 +12,12 @@ public class RegistryClient : IRegistryClient
             ".frctoolsuite",
             "cache");
 
+    private static readonly string[] DefaultRegistryUrls = new[]
+    {
+        "https://frcmaven.wpi.edu/ui/native/vendordeps/installer-index.json",  // WPI hosted (preferred)
+        "https://raw.githubusercontent.com/jasondaming/vendor-json-repo/main/installer-index.json",  // GitHub fallback
+    };
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
@@ -19,25 +25,66 @@ public class RegistryClient : IRegistryClient
     };
 
     private readonly HttpClient _httpClient;
-    private readonly string _registryUrl;
+    private readonly string[] _registryUrls;
     private readonly string _cacheDir;
     private readonly string _indexCachePath;
     private readonly string _etagCachePath;
     private readonly string _packagesCacheDir;
 
     private RegistryIndex? _cachedIndex;
+    private string? _lastSuccessfulBaseUrl;
 
     public bool IsOffline { get; private set; }
 
     public RegistryClient(HttpClient httpClient, string? registryUrl = null, string? cacheDir = null)
+        : this(httpClient, registryUrl != null ? new[] { registryUrl } : null, cacheDir)
+    {
+    }
+
+    public RegistryClient(HttpClient httpClient, string[]? registryUrls, string? cacheDir)
     {
         _httpClient = httpClient;
-        _registryUrl = registryUrl
-            ?? "https://raw.githubusercontent.com/jasondaming/vendor-json-repo/main/installer-index.json";
+        _registryUrls = registryUrls ?? DefaultRegistryUrls;
         _cacheDir = cacheDir ?? DefaultCacheDir;
         _indexCachePath = Path.Combine(_cacheDir, "registry-index.json");
         _etagCachePath = Path.Combine(_cacheDir, "registry-etag.txt");
         _packagesCacheDir = Path.Combine(_cacheDir, "packages");
+    }
+
+    /// <summary>
+    /// Orders registry URLs so the last successful base URL is tried first.
+    /// </summary>
+    private IEnumerable<string> GetOrderedUrls()
+    {
+        if (_lastSuccessfulBaseUrl is not null)
+        {
+            var preferred = _registryUrls
+                .FirstOrDefault(u => GetBaseUrl(u) == _lastSuccessfulBaseUrl);
+            if (preferred is not null)
+            {
+                yield return preferred;
+                foreach (var url in _registryUrls)
+                {
+                    if (url != preferred)
+                    {
+                        yield return url;
+                    }
+                }
+
+                yield break;
+            }
+        }
+
+        foreach (var url in _registryUrls)
+        {
+            yield return url;
+        }
+    }
+
+    private static string GetBaseUrl(string registryUrl)
+    {
+        var lastSlash = registryUrl.LastIndexOf('/');
+        return lastSlash >= 0 ? registryUrl[..lastSlash] : registryUrl;
     }
 
     public async Task<RegistryIndex> FetchRegistryAsync(bool forceRefresh = false, CancellationToken ct = default)
@@ -49,61 +96,81 @@ public class RegistryClient : IRegistryClient
 
         EnsureCacheDirectory();
 
-        try
+        HttpRequestException? lastException = null;
+
+        foreach (var registryUrl in GetOrderedUrls())
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, _registryUrl);
-
-            if (!forceRefresh && File.Exists(_etagCachePath))
+            try
             {
-                var etag = await File.ReadAllTextAsync(_etagCachePath, ct).ConfigureAwait(false);
-                if (!string.IsNullOrWhiteSpace(etag))
-                {
-                    request.Headers.IfNoneMatch.Add(new EntityTagHeaderValue(etag));
-                }
-            }
-
-            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
-
-            if (response.StatusCode == HttpStatusCode.NotModified)
-            {
-                IsOffline = false;
-                _cachedIndex = await LoadCachedIndexAsync(ct).ConfigureAwait(false);
-                if (_cachedIndex is not null)
-                {
-                    return _cachedIndex;
-                }
-            }
-
-            response.EnsureSuccessStatusCode();
-            IsOffline = false;
-
-            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-            _cachedIndex = JsonSerializer.Deserialize<RegistryIndex>(json, JsonOptions)
-                ?? throw new InvalidOperationException("Failed to deserialize registry index.");
-
-            await File.WriteAllTextAsync(_indexCachePath, json, ct).ConfigureAwait(false);
-
-            if (response.Headers.ETag is not null)
-            {
-                await File.WriteAllTextAsync(_etagCachePath, response.Headers.ETag.ToString(), ct)
+                var result = await TryFetchRegistryFromUrlAsync(registryUrl, forceRefresh, ct)
                     .ConfigureAwait(false);
+                if (result is not null)
+                {
+                    _lastSuccessfulBaseUrl = GetBaseUrl(registryUrl);
+                    return result;
+                }
             }
+            catch (HttpRequestException ex)
+            {
+                lastException = ex;
+                // Try next URL
+            }
+        }
 
+        // All URLs failed -- fall back to local cache
+        IsOffline = true;
+
+        var cached = await LoadCachedIndexAsync(ct).ConfigureAwait(false);
+        if (cached is not null)
+        {
+            _cachedIndex = cached;
             return _cachedIndex;
         }
-        catch (HttpRequestException)
-        {
-            IsOffline = true;
 
-            var cached = await LoadCachedIndexAsync(ct).ConfigureAwait(false);
-            if (cached is not null)
+        throw lastException ?? new HttpRequestException("All registry URLs failed and no cached index is available.");
+    }
+
+    private async Task<RegistryIndex?> TryFetchRegistryFromUrlAsync(string registryUrl, bool forceRefresh, CancellationToken ct)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, registryUrl);
+
+        if (!forceRefresh && File.Exists(_etagCachePath))
+        {
+            var etag = await File.ReadAllTextAsync(_etagCachePath, ct).ConfigureAwait(false);
+            if (!string.IsNullOrWhiteSpace(etag))
             {
-                _cachedIndex = cached;
+                request.Headers.IfNoneMatch.Add(new EntityTagHeaderValue(etag));
+            }
+        }
+
+        using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+
+        if (response.StatusCode == HttpStatusCode.NotModified)
+        {
+            IsOffline = false;
+            _cachedIndex = await LoadCachedIndexAsync(ct).ConfigureAwait(false);
+            if (_cachedIndex is not null)
+            {
                 return _cachedIndex;
             }
-
-            throw;
         }
+
+        response.EnsureSuccessStatusCode();
+        IsOffline = false;
+
+        var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        _cachedIndex = JsonSerializer.Deserialize<RegistryIndex>(json, JsonOptions)
+            ?? throw new InvalidOperationException("Failed to deserialize registry index.");
+
+        await File.WriteAllTextAsync(_indexCachePath, json, ct).ConfigureAwait(false);
+
+        if (response.Headers.ETag is not null)
+        {
+            await File.WriteAllTextAsync(_etagCachePath, response.Headers.ETag.ToString(), ct)
+                .ConfigureAwait(false);
+        }
+
+        return _cachedIndex;
     }
 
     public async Task<PackageManifest> GetPackageAsync(string packageId, CancellationToken ct = default)
@@ -119,32 +186,43 @@ public class RegistryClient : IRegistryClient
             p => string.Equals(p.Id, packageId, StringComparison.OrdinalIgnoreCase))
             ?? throw new KeyNotFoundException($"Package '{packageId}' not found in registry index.");
 
-        try
+        // Build candidate URLs: the manifest URL as-is, plus rebased on each registry base URL
+        var candidateUrls = BuildCandidateUrls(summary.ManifestUrl);
+
+        HttpRequestException? lastException = null;
+
+        foreach (var url in candidateUrls)
         {
-            using var response = await _httpClient.GetAsync(summary.ManifestUrl, ct).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
-
-            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-            var manifest = JsonSerializer.Deserialize<PackageManifest>(json, JsonOptions)
-                ?? throw new InvalidOperationException($"Failed to deserialize manifest for '{packageId}'.");
-
-            await File.WriteAllTextAsync(cachedPath, json, ct).ConfigureAwait(false);
-            return manifest;
-        }
-        catch (HttpRequestException)
-        {
-            IsOffline = true;
-
-            if (File.Exists(cachedPath))
+            try
             {
-                var json = await File.ReadAllTextAsync(cachedPath, ct).ConfigureAwait(false);
-                return JsonSerializer.Deserialize<PackageManifest>(json, JsonOptions)
-                    ?? throw new InvalidOperationException(
-                        $"Failed to deserialize cached manifest for '{packageId}'.");
-            }
+                using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
 
-            throw;
+                var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                var manifest = JsonSerializer.Deserialize<PackageManifest>(json, JsonOptions)
+                    ?? throw new InvalidOperationException($"Failed to deserialize manifest for '{packageId}'.");
+
+                await File.WriteAllTextAsync(cachedPath, json, ct).ConfigureAwait(false);
+                return manifest;
+            }
+            catch (HttpRequestException ex)
+            {
+                lastException = ex;
+            }
         }
+
+        // All URLs failed -- fall back to cache
+        IsOffline = true;
+
+        if (File.Exists(cachedPath))
+        {
+            var json = await File.ReadAllTextAsync(cachedPath, ct).ConfigureAwait(false);
+            return JsonSerializer.Deserialize<PackageManifest>(json, JsonOptions)
+                ?? throw new InvalidOperationException(
+                    $"Failed to deserialize cached manifest for '{packageId}'.");
+        }
+
+        throw lastException ?? new HttpRequestException($"Failed to fetch manifest for '{packageId}'.");
     }
 
     public async Task<IReadOnlyList<PackageSummary>> SearchAsync(
@@ -185,32 +263,94 @@ public class RegistryClient : IRegistryClient
         var index = await FetchRegistryAsync(ct: ct).ConfigureAwait(false);
         _ = index; // Ensures registry is loaded; bundles have their own URL pattern.
 
-        var bundleUrl = _registryUrl.Replace("index.json", $"bundles/{bundleId}.json");
-
-        try
+        // Build candidate bundle URLs from all registry base URLs
+        var candidateUrls = new List<string>();
+        if (_lastSuccessfulBaseUrl is not null)
         {
-            using var response = await _httpClient.GetAsync(bundleUrl, ct).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
-
-            var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-            return JsonSerializer.Deserialize<BundleDefinition>(json, JsonOptions)
-                ?? throw new InvalidOperationException($"Failed to deserialize bundle '{bundleId}'.");
+            candidateUrls.Add($"{_lastSuccessfulBaseUrl}/bundles/{bundleId}.json");
         }
-        catch (HttpRequestException)
-        {
-            IsOffline = true;
 
-            var localPath = Path.Combine(_cacheDir, "bundles", $"{bundleId}.json");
-            if (File.Exists(localPath))
+        foreach (var registryUrl in _registryUrls)
+        {
+            var bundleUrl = $"{GetBaseUrl(registryUrl)}/bundles/{bundleId}.json";
+            if (!candidateUrls.Contains(bundleUrl))
             {
-                var json = await File.ReadAllTextAsync(localPath, ct).ConfigureAwait(false);
-                return JsonSerializer.Deserialize<BundleDefinition>(json, JsonOptions)
-                    ?? throw new InvalidOperationException(
-                        $"Failed to deserialize cached bundle '{bundleId}'.");
+                candidateUrls.Add(bundleUrl);
             }
-
-            throw;
         }
+
+        HttpRequestException? lastException = null;
+
+        foreach (var bundleUrl in candidateUrls)
+        {
+            try
+            {
+                using var response = await _httpClient.GetAsync(bundleUrl, ct).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
+
+                var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                return JsonSerializer.Deserialize<BundleDefinition>(json, JsonOptions)
+                    ?? throw new InvalidOperationException($"Failed to deserialize bundle '{bundleId}'.");
+            }
+            catch (HttpRequestException ex)
+            {
+                lastException = ex;
+            }
+        }
+
+        // All URLs failed -- fall back to cache
+        IsOffline = true;
+
+        var localPath = Path.Combine(_cacheDir, "bundles", $"{bundleId}.json");
+        if (File.Exists(localPath))
+        {
+            var json = await File.ReadAllTextAsync(localPath, ct).ConfigureAwait(false);
+            return JsonSerializer.Deserialize<BundleDefinition>(json, JsonOptions)
+                ?? throw new InvalidOperationException(
+                    $"Failed to deserialize cached bundle '{bundleId}'.");
+        }
+
+        throw lastException ?? new HttpRequestException($"Failed to fetch bundle '{bundleId}'.");
+    }
+
+    /// <summary>
+    /// Builds a list of candidate URLs for a resource, trying the last successful base URL first,
+    /// then the original URL, then rebased on all other registry base URLs.
+    /// </summary>
+    private List<string> BuildCandidateUrls(string originalUrl)
+    {
+        var candidates = new List<string>();
+
+        // If we have a last successful base URL, try rebasing the resource path onto it first
+        if (_lastSuccessfulBaseUrl is not null)
+        {
+            var uri = new Uri(originalUrl);
+            var rebased = $"{_lastSuccessfulBaseUrl}{uri.AbsolutePath}";
+            if (!candidates.Contains(rebased))
+            {
+                candidates.Add(rebased);
+            }
+        }
+
+        // Always try the original URL from the manifest
+        if (!candidates.Contains(originalUrl))
+        {
+            candidates.Add(originalUrl);
+        }
+
+        // Also try rebasing onto each registry base URL
+        foreach (var registryUrl in _registryUrls)
+        {
+            var baseUrl = GetBaseUrl(registryUrl);
+            var uri = new Uri(originalUrl);
+            var rebased = $"{baseUrl}{uri.AbsolutePath}";
+            if (!candidates.Contains(rebased))
+            {
+                candidates.Add(rebased);
+            }
+        }
+
+        return candidates;
     }
 
     private async Task<RegistryIndex?> LoadCachedIndexAsync(CancellationToken ct)

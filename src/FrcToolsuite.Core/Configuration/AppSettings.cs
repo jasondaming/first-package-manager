@@ -29,4 +29,7 @@ public class AppSettings
 
     [JsonPropertyName("selectedSeason")]
     public int SelectedSeason { get; set; }
+
+    [JsonPropertyName("preferAdvancedMode")]
+    public bool PreferAdvancedMode { get; set; }
 }
