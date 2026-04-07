@@ -4,146 +4,126 @@
 
 Downloads that work from as many school environments as possible and are fast.
 
-## Current State — How WPILib Downloads Work Today
+## Current State — Why Current Downloads Are Fast
 
-The current ecosystem uses a mix of sources:
+| Component | Source | Why It's Fast |
+|-----------|--------|--------------|
+| WPILib installer ISOs | **Cloudflare CDN** | Global edge caching |
+| JDK, AdvantageScope, Elastic, extensions | **GitHub Releases** | GitHub's own CDN (Fastly) |
+| VS Code | **Microsoft CDN** | Azure CDN, global |
+| Maven artifacts | **frcmaven.wpi.edu** | Fine for small JARs/POMs |
 
-| Component | Source | Speed | School Firewall Risk |
-|-----------|--------|-------|---------------------|
-| Maven artifacts (WPILib libs, GradleRIO) | frcmaven.wpi.edu (Artifactory) | Fast | **Low** — WPI domain |
-| VS Code | update.code.visualstudio.com | Fast | Low — Microsoft CDN |
-| VS Code extensions | GitHub Releases + open-vsx.org | Fast | **Medium** — GitHub blocked in some schools |
-| JDK (Adoptium) | GitHub Releases | Fast | **Medium** — GitHub |
-| AdvantageScope | GitHub Releases | Fast | **Medium** — GitHub |
-| Elastic Dashboard | GitHub Releases | Fast | **Medium** — GitHub |
-| Vendor JSONs | GitHub raw content | Fast | **Medium** — GitHub |
-| Gradle wrapper | frcmaven.wpi.edu | Fast | **Low** — WPI domain |
+**Key insight from Peter**: frcmaven.wpi.edu had slow download reports when tested for large binary distribution (beta ISOs). It's fine for JSON/small files, but large binaries need CDN distribution. WPILib already moved main downloads to Cloudflare for this reason.
 
-**Key insight**: frcmaven.wpi.edu is already fast and rarely blocked (it's a `.edu` domain). Most download reliability issues come from GitHub being blocked by school firewalls.
+**Austin is reaching out to JFrog** about boosting Artifactory speeds or using their CDN.
 
-## The Problem
+## The Two Problems
 
-The new package manager needs to fetch:
-1. **Registry index** (installer-index.json) — currently on GitHub
-2. **Package manifests** — currently on GitHub  
-3. **Package artifacts** (JDK, VS Code, tools, vendor libs) — various sources
+1. **School firewalls** block GitHub → JDK, tools, vendor JSON downloads fail
+2. **Speed** → frcmaven can't handle large binary distribution at scale
 
-Schools that block GitHub (or rate-limit it) will have trouble with #1, #2, and any artifact hosted on GitHub Releases.
+These require different solutions:
+- **Firewall problem** → need alternative domains that aren't blocked
+- **Speed problem** → need CDN, not just a different server
 
-## Proposal — Three Tiers of WPI Support
+## Revised Proposal — Registry + CDN Strategy
 
-### Tier 1: Minimal (Registry Mirror Only)
+### Layer 1: Registry (small JSON files) — frcmaven.wpi.edu
 
-**What WPI provides**: Host the `installer-index.json` and package manifest JSONs on frcmaven.wpi.edu alongside existing vendordep data.
+**What**: Host `installer-index.json`, package manifests, and bundle definitions on frcmaven.
 
-**Effort**: Low — add a directory to existing Artifactory instance, CI job pushes from vendor-json-repo on merge.
+**Why**: Small files (<1 MB total), frcmaven handles this fine, `.edu` domain bypasses firewalls.
 
-**What this solves**: Registry discovery works even when GitHub is blocked. Package artifacts still download from their original sources (GitHub Releases, Microsoft CDN, vendor Maven repos).
+**Effort**: Low — CI job copies JSON files to Artifactory on merge.
 
-**School firewall impact**: 
-- Registry: ✅ Always works (WPI domain)
-- JDK, AdvantageScope, Elastic, extensions: Still from GitHub (may be blocked)
-- VS Code: Microsoft CDN (works)
-- Maven artifacts: frcmaven.wpi.edu (works)
-
-**Implementation**:
-```
-frcmaven.wpi.edu/artifactory/installer/
-  installer-index.json           # Registry index
-  packages/wpilib/jdk-2026.json  # Individual manifests
-  bundles/frc-java-starter.json  # Bundle definitions
-```
-CI pipeline: On vendor-json-repo merge → push to Artifactory via REST API.
-
----
-
-### Tier 2: Moderate (Registry + Artifact Proxy)
-
-**What WPI provides**: Everything in Tier 1, plus proxy/cache WPILib-owned artifacts through frcmaven.wpi.edu.
-
-**Effort**: Medium — set up Artifactory remote repositories that proxy GitHub Releases for WPILib-owned tools.
-
-**What this solves**: All WPILib-controlled downloads go through frcmaven.wpi.edu. Only third-party vendor artifacts (CTRE Phoenix Tuner, REV Hardware Client) still come from external sources.
-
-**School firewall impact**:
-- Registry: ✅ Works
-- JDK, AdvantageScope, Elastic, VS Code extensions: ✅ Works (proxied through WPI)
-- VS Code itself: ✅ Works (Microsoft CDN)
-- WPILib Maven artifacts: ✅ Works (already on frcmaven)
-- Vendor Maven artifacts: ✅ Works (many already proxied via frcmaven)
-- Vendor standalone tools (Phoenix Tuner, REV HW Client): ⚠️ Still from vendor servers
-
-**Implementation**:
 ```
 frcmaven.wpi.edu/artifactory/installer/
   installer-index.json
-  packages/...
-  bundles/...
-  
-frcmaven.wpi.edu/artifactory/installer-artifacts/
-  wpilib/jdk/17.0.16+8/
-    OpenJDK17U-jdk_x64_windows_hotspot_17.0.16_8.zip
-  wpilib/advantagescope/26.0.0/
-    advantagescope-26.0.0-win-x64.zip
-  wpilib/elastic/2026.1.1/
-    elastic-2026.1.1-win-x64.zip
+  packages/wpilib/jdk-2026.json
+  bundles/frc-java-starter.json
 ```
-Artifactory "Remote Repository" type — proxies and caches from GitHub Releases. First request fetches from GitHub, subsequent requests served from cache.
 
----
+### Layer 2: Artifacts (large binaries) — CDN with fallback chain
 
-### Tier 3: Full (Single-Domain Experience)
+**What**: Each package manifest lists multiple download URLs. The package manager tries them in order until one works.
 
-**What WPI provides**: Everything goes through frcmaven.wpi.edu. All artifacts mirrored, including vendor tools.
+**Strategy**: Put the fastest/most-accessible CDN first, fall back to others.
 
-**Effort**: Higher — need vendor cooperation to allow artifact mirroring, plus storage costs for ~2-5 GB of artifacts per season per platform.
+```json
+{
+  "url": "https://cdn.wpilib.org/packages/jdk/17.0.16/OpenJDK17U-jdk_x64_windows.zip",
+  "mirrors": [
+    "https://frcmaven.wpi.edu/artifactory/installer-artifacts/jdk/17.0.16/OpenJDK17U-jdk_x64_windows.zip",
+    "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.16%2B8/OpenJDK17U-jdk_x64_windows_hotspot_17.0.16_8.zip"
+  ]
+}
+```
 
-**What this solves**: Every download from a single `.edu` domain. Maximum school firewall compatibility. Potentially faster (Artifactory has built-in CDN support).
+**CDN options** (not mutually exclusive — can use multiple):
 
-**School firewall impact**: ✅ Everything works from a single domain.
+| Option | Cost | Speed | Firewall Bypass | Effort |
+|--------|------|-------|-----------------|--------|
+| **Cloudflare (existing)** | Free tier or current plan | Excellent | Good — cloudflare domains rarely blocked | Low — WPILib already uses it |
+| **JFrog CDN** | Free if JFrog agrees (Austin outreach) | Good | Good — JFrog domains | Depends on JFrog response |
+| **GitHub Releases** (current) | Free | Good | Medium — blocked in some schools | Already working |
+| **Cloudflare R2** | Very cheap ($0.015/GB) | Excellent | Good | Medium — new setup |
+| **AWS CloudFront + S3** | ~$0.085/GB | Excellent | Good | Medium — new setup |
 
-**Implementation**: Same as Tier 2, plus:
-- Vendor coordination: CTRE, REV, PathPlanner, etc. grant permission to mirror
-- Or vendors push their artifacts to frcmaven directly (some already do for Maven JARs)
-- Storage: ~5 GB per platform × 5 platforms = ~25 GB per season (manageable)
+### Layer 3: The Fallback Chain in the Package Manager
 
-**Additional option**: CloudFlare or AWS CloudFront CDN in front of frcmaven for global edge caching.
+The package manager already supports this. `RegistryClient` tries multiple URLs. `DownloadManager` supports `mirrors[]`. What we need:
 
----
+1. **Primary URL**: CDN (Cloudflare or JFrog) — fastest, works most places
+2. **Mirror 1**: frcmaven.wpi.edu — `.edu` domain, good for firewalled schools
+3. **Mirror 2**: GitHub Releases — works everywhere GitHub isn't blocked
+4. **Local cache**: If all fail, use previously downloaded version
 
-## Recommendation
+The package manager tries #1, falls to #2 if it fails, falls to #3, then local cache. First successful URL is remembered for future downloads in that session.
 
-**Start with Tier 1 now** (minimal effort, solves the registry problem), **plan for Tier 2 by Championships**.
+## Recommended Path
 
-Tier 1 can be set up in an afternoon — it's just copying JSON files to an Artifactory directory with a CI job. The package manager already has fallback URL support, so it tries frcmaven first and falls back to GitHub.
+### Now (pre-Championships demo)
+- **Registry on frcmaven**: Just the JSON files. CI pushes on merge. ✅ Already works with our fallback code.
+- **Artifacts from existing sources**: GitHub Releases + original URLs. Works for demo.
 
-Tier 2 is the sweet spot for 2027 season. Artifactory's remote repository feature means WPI doesn't need to manually manage artifacts — Artifactory proxies and caches automatically.
+### For 2027 Beta
+- **CDN for artifacts**: Depends on JFrog response and Cloudflare capacity.
+  - If JFrog CDN: artifacts served from JFrog edge network
+  - If Cloudflare: upload artifacts to Cloudflare R2 or Pages, CI pushes on release
+  - Either way: `cdn.wpilib.org` CNAME pointing to the CDN
+- **Manifest URLs updated**: Primary URL points to CDN, mirrors include frcmaven + GitHub
 
-Tier 3 is nice-to-have but requires vendor buy-in and more storage. Could be a 2028 goal.
+### For 2027 Season
+- **Custom domain**: `cdn.wpilib.org` or `packages.wpilib.org` — CNAME to whatever CDN
+- **All WPILib artifacts on CDN**: JDK, VS Code extensions, tools, AdvantageScope, Elastic
+- **Vendor artifacts**: Vendors keep their own hosting, but can opt-in to CDN mirroring
 
-## What the Package Manager Already Has
+## Storage & Bandwidth
 
-The `RegistryClient` currently tries multiple URLs in order:
-1. `frcmaven.wpi.edu/...` (primary)
-2. `github.com/jasondaming/vendor-json-repo/...` (fallback)
+| What | Size per Season |
+|------|----------------|
+| Registry JSON files | ~500 KB |
+| WPILib artifacts (all platforms) | ~3 GB |
+| + Vendor tools (Phoenix Tuner, REV HW Client) | ~1.5 GB |
+| **Total** | **~5 GB** |
 
-It remembers which URL last succeeded and tries it first next time. If all URLs fail, it uses the local cache. This means **Tier 1 works today** — we just need the files hosted on frcmaven.
+Bandwidth estimate: ~5,000 teams × ~1 GB average install = **~5 TB per season peak**
 
-## Storage & Bandwidth Estimates
+Cloudflare R2 cost for this: ~$75/season (negligible)
+Cloudflare free tier: May cover it entirely if under bandwidth limits
 
-| What | Size | Frequency |
-|------|------|-----------|
-| Registry index + manifests + bundles | ~500 KB | Updated per-release (~monthly) |
-| WPILib artifacts (Tier 2) | ~3 GB per platform | Per-season (annual) |
-| All artifacts including vendors (Tier 3) | ~8 GB per platform | Per-season + mid-season updates |
-| Bandwidth per team install | ~500 MB - 2 GB | ~5,000 teams × 1-3 installs/season |
+## Questions
 
-Estimated peak bandwidth: ~5-15 TB per season. frcmaven already handles this scale for Maven artifact resolution.
+1. **Austin/JFrog**: What did JFrog say? Free CDN tier available?
+2. **Cloudflare**: Is the existing Cloudflare account/plan sufficient for artifact hosting, or just the installer ISO?
+3. **Custom domain**: Can we get `cdn.wpilib.org` or `packages.wpilib.org` as a CNAME?
+4. **CI pipeline**: Who manages the "push to CDN on release" automation?
 
-## Questions for WPI
+## What's Already Built
 
-1. Can we add an `installer/` directory to the existing Artifactory instance? (Tier 1)
-2. Is there capacity for proxying GitHub Release artifacts? (Tier 2)  
-3. What's the current Artifactory storage/bandwidth capacity?
-4. Is there interest in CloudFlare/CDN fronting?
-5. Who has admin access to configure this?
+The package manager has:
+- ✅ Multiple fallback URLs (tries frcmaven → GitHub → local cache)
+- ✅ `mirrors[]` in package manifest schema
+- ✅ SHA-256 verification on all downloads
+- ✅ HTTP resume for interrupted downloads
+- ✅ Remembers last successful URL per session
