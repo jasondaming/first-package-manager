@@ -164,6 +164,12 @@ public partial class UsbModePageViewModel : ObservableObject, IStateExportable
             {
                 DetectedDrives.Add($"{drive.Name} ({FormatBytes(drive.AvailableFreeSpace)} free)");
             }
+
+            // Auto-select the first detected drive
+            if (drives.Count > 0 && string.IsNullOrWhiteSpace(UsbPath))
+            {
+                UsbPath = drives[0].Name;
+            }
         }
         catch
         {
@@ -173,6 +179,21 @@ public partial class UsbModePageViewModel : ObservableObject, IStateExportable
         if (DetectedDrives.Count == 0)
         {
             DetectedDrives.Add("No USB drives detected - type a path below");
+        }
+    }
+
+    [RelayCommand]
+    private void SelectDrive(string driveDisplay)
+    {
+        // Extract drive letter from "D:\ (15.2 GB free)" format
+        var spaceIndex = driveDisplay.IndexOf(' ');
+        if (spaceIndex > 0)
+        {
+            UsbPath = driveDisplay[..spaceIndex];
+        }
+        else
+        {
+            UsbPath = driveDisplay;
         }
     }
 

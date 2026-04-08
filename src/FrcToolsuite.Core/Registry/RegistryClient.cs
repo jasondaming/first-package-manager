@@ -158,7 +158,7 @@ public class RegistryClient : IRegistryClient
         response.EnsureSuccessStatusCode();
         IsOffline = false;
 
-        var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        var json = await ReadJsonResponseAsync(response, ct).ConfigureAwait(false);
         _cachedIndex = JsonSerializer.Deserialize<RegistryIndex>(json, JsonOptions)
             ?? throw new InvalidOperationException("Failed to deserialize registry index.");
 
@@ -198,7 +198,7 @@ public class RegistryClient : IRegistryClient
                 using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
 
-                var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                var json = await ReadJsonResponseAsync(response, ct).ConfigureAwait(false);
                 var manifest = JsonSerializer.Deserialize<PackageManifest>(json, JsonOptions)
                     ?? throw new InvalidOperationException($"Failed to deserialize manifest for '{packageId}'.");
 
@@ -288,7 +288,7 @@ public class RegistryClient : IRegistryClient
                 using var response = await _httpClient.GetAsync(bundleUrl, ct).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
 
-                var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                var json = await ReadJsonResponseAsync(response, ct).ConfigureAwait(false);
                 return JsonSerializer.Deserialize<BundleDefinition>(json, JsonOptions)
                     ?? throw new InvalidOperationException($"Failed to deserialize bundle '{bundleId}'.");
             }
@@ -362,6 +362,22 @@ public class RegistryClient : IRegistryClient
 
         var json = await File.ReadAllTextAsync(_indexCachePath, ct).ConfigureAwait(false);
         return JsonSerializer.Deserialize<RegistryIndex>(json, JsonOptions);
+    }
+
+    /// <summary>
+    /// Validates that a response body looks like JSON before deserializing.
+    /// Servers may return HTML error pages even with 200 status codes.
+    /// </summary>
+    private static async Task<string> ReadJsonResponseAsync(HttpResponseMessage response, CancellationToken ct)
+    {
+        var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        var trimmed = content.TrimStart();
+        if (trimmed.Length > 0 && trimmed[0] != '{' && trimmed[0] != '[')
+        {
+            throw new HttpRequestException(
+                $"Expected JSON response but got non-JSON content (starts with '{trimmed[..Math.Min(20, trimmed.Length)]}...')");
+        }
+        return content;
     }
 
     private void EnsureCacheDirectory()

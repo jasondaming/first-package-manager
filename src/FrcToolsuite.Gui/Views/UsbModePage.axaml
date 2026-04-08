@@ -72,21 +72,33 @@
                                     CornerRadius="4" />
                         </Grid>
 
-                        <!-- Detected drives list -->
+                        <!-- Detected drives (clickable) -->
                         <ItemsControl ItemsSource="{Binding DetectedDrives}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding}"
-                                               FontSize="12"
-                                               Foreground="{DynamicResource TextSecondary}"
-                                               Margin="0,2" />
+                                    <Button Content="{Binding}"
+                                            Command="{Binding $parent[ItemsControl].((vm:UsbModePageViewModel)DataContext).SelectDriveCommand}"
+                                            CommandParameter="{Binding}"
+                                            FontSize="12"
+                                            Padding="12,6"
+                                            Margin="0,0,8,4"
+                                            CornerRadius="6"
+                                            Background="{DynamicResource SubtleBackground}"
+                                            BorderBrush="{DynamicResource CardBorder}"
+                                            BorderThickness="1"
+                                            Cursor="Hand" />
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <!-- Path text box -->
+                        <!-- Path (auto-filled or manual entry) -->
                         <TextBox Text="{Binding UsbPath}"
-                                 Watermark="Enter USB drive path (e.g. E:\ or /media/usb)"
+                                 Watermark="Or type a path manually"
                                  FontSize="13" />
                     </StackPanel>
                 </Border>
