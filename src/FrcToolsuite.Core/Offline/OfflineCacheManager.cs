@@ -107,10 +107,20 @@ public class OfflineCacheManager : IOfflineCacheManager
                         }
                     }
 
+                    // Don't verify placeholder SHA-256 hashes
+                    var sha256 = artifact.Sha256;
+                    if (sha256 != null && (sha256.StartsWith("placeholder", StringComparison.OrdinalIgnoreCase)
+                        || sha256.Length != 64))
+                    {
+                        sha256 = null;
+                    }
+
+                    Directory.CreateDirectory(Path.GetDirectoryName(artifactPath)!);
+
                     var request = new DownloadRequest(
                         artifact.Url,
                         artifactPath,
-                        ExpectedSha256: artifact.Sha256,
+                        ExpectedSha256: sha256,
                         ExpectedSize: artifact.Size,
                         Mirrors: artifact.Mirrors.Count > 0 ? artifact.Mirrors.ToArray() : null);
 
