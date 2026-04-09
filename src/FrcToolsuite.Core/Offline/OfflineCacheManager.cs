@@ -144,13 +144,48 @@ public class OfflineCacheManager : IOfflineCacheManager
                 totalBytesTransferred, 0));
         }
 
-        // Copy the running executable to the target if possible
+        // Copy the running executable and any sibling platform binaries
         var exePath = Environment.ProcessPath;
         if (!string.IsNullOrEmpty(exePath) && File.Exists(exePath))
         {
             var exeTargetPath = Path.Combine(targetPath, FrcPackagesDir, Path.GetFileName(exePath));
             File.Copy(exePath, exeTargetPath, overwrite: true);
         }
+
+        // Check for pre-published platform binaries next to the running exe
+        var exeDir = Path.GetDirectoryName(exePath ?? "");
+        if (exeDir != null)
+        {
+            // Look for platform-specific directories (e.g., cli-mac-arm64/, cli-linux-x64/)
+            var parentDir = Path.GetDirectoryName(exeDir);
+            if (parentDir != null)
+            {
+                foreach (var platformDir in Directory.GetDirectories(parentDir, "cli-*"))
+                {
+                    var platformName = Path.GetFileName(platformDir);
+                    var targetPlatformDir = Path.Combine(targetPath, FrcPackagesDir, platformName);
+                    Directory.CreateDirectory(targetPlatformDir);
+
+                    foreach (var file in Directory.GetFiles(platformDir))
+                    {
+                        File.Copy(file, Path.Combine(targetPlatformDir, Path.GetFileName(file)), overwrite: true);
+                    }
+                }
+            }
+        }
+
+        // Write a README for USB users
+        var readmePath = Path.Combine(targetPath, FrcPackagesDir, "README.txt");
+        await File.WriteAllTextAsync(readmePath, """
+            FIRST Package Manager — Offline Installation
+            =============================================
+
+            Windows:  Double-click FrcToolsuite.Cli.exe or FrcToolsuite.Gui.exe
+            macOS:    Open Terminal, run: chmod +x cli-mac-arm64/FrcToolsuite.Cli && ./cli-mac-arm64/FrcToolsuite.Cli install --offline
+            Linux:    Open Terminal, run: chmod +x cli-linux-x64/FrcToolsuite.Cli && ./cli-linux-x64/FrcToolsuite.Cli install --offline
+
+            The packages in the 'cache' folder will be used for offline installation.
+            """, ct).ConfigureAwait(false);
 
         // Write portable marker
         var portableInfo = new
