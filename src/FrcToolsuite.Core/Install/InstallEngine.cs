@@ -1,11 +1,12 @@
 using System.Diagnostics;
+using System.Globalization;
+using System.IO.Compression;
+using System.Text;
 using System.Text.Json;
 using FrcToolsuite.Core.Packages;
 using FrcToolsuite.Core.Platform;
 using FrcToolsuite.Core.Registry;
-using ICSharpCode.SharpZipLib.GZip;
 using ICSharpCode.SharpZipLib.Tar;
-using ICSharpCode.SharpZipLib.Zip;
 
 namespace FrcToolsuite.Core.Install;
 
@@ -115,7 +116,7 @@ public class InstallEngine : IInstallEngine
         {
             PackageId = package.PackageId,
             Version = package.Version,
-            Season = package.Season.ToString(),
+            Season = package.Season.ToString(CultureInfo.InvariantCulture),
             InstalledAt = package.InstalledAt.UtcDateTime,
             InstallPath = package.InstallPath,
             InstalledFiles = package.InstalledFiles,
@@ -199,19 +200,19 @@ public class InstallEngine : IInstallEngine
         return "zip";
     }
 
-    private static Task<IReadOnlyList<string>> ExtractZipAsync(
+    private static async Task<IReadOnlyList<string>> ExtractZipAsync(
         string archivePath,
         string destinationPath,
         CancellationToken ct)
     {
         var extractedFiles = new List<string>();
 
-        using var zipFile = new ZipFile(archivePath);
-        foreach (ZipEntry entry in zipFile)
+        using var zipFile = new ZipArchive(File.OpenRead(archivePath), ZipArchiveMode.Read, false);
+        foreach (ZipArchiveEntry entry in zipFile.Entries)
         {
             ct.ThrowIfCancellationRequested();
 
-            if (!entry.IsFile)
+            if (entry.Name == "")
             {
                 continue;
             }
@@ -224,30 +225,27 @@ public class InstallEngine : IInstallEngine
                 Directory.CreateDirectory(dir);
             }
 
-            using var entryStream = zipFile.GetInputStream(entry);
+            using var entryStream = entry.Open();
             using var outputStream = File.Create(fullPath);
-            entryStream.CopyTo(outputStream);
+            await entryStream.CopyToAsync(outputStream, ct);
 
             extractedFiles.Add(entryPath);
         }
 
-        return Task.FromResult<IReadOnlyList<string>>(extractedFiles);
+        return extractedFiles;
     }
 
-    private static Task<IReadOnlyList<string>> ExtractTarGzAsync(
+    private static async Task<IReadOnlyList<string>> ExtractTarGzAsync(
         string archivePath,
         string destinationPath,
         CancellationToken ct)
     {
         var extractedFiles = new List<string>();
 
-        using var fileStream = File.OpenRead(archivePath);
-        using var gzipStream = new GZipInputStream(fileStream);
-        using var tarArchive = TarArchive.CreateInputTarArchive(gzipStream, System.Text.Encoding.UTF8);
+        using var gzipStream = new GZipStream(File.OpenRead(archivePath), CompressionMode.Decompress);
 
         // We need to extract manually to track files
-        using var tarInputStream = new TarInputStream(
-            new GZipInputStream(File.OpenRead(archivePath)), System.Text.Encoding.UTF8);
+        using var tarInputStream = new TarInputStream(gzipStream, Encoding.ASCII);
 
         TarEntry? tarEntry;
         while ((tarEntry = tarInputStream.GetNextEntry()) != null)
@@ -268,12 +266,12 @@ public class InstallEngine : IInstallEngine
             }
 
             using var outputStream = File.Create(fullPath);
-            tarInputStream.CopyEntryContents(outputStream);
+            await tarInputStream.CopyEntryContentsAsync(outputStream, ct);
 
             extractedFiles.Add(entryPath);
         }
 
-        return Task.FromResult<IReadOnlyList<string>>(extractedFiles);
+        return extractedFiles;
     }
 
     private static void RemoveEmptyDirectories(string rootDir)

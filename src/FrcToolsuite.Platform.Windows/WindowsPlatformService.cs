@@ -12,14 +12,14 @@ namespace FrcToolsuite.Platform.Windows;
 /// Uses Registry for environment variables, VBScript for shortcut creation,
 /// and P/Invoke for broadcasting setting changes.
 /// </summary>
-public class WindowsPlatformService : IPlatformService
+public partial class WindowsPlatformService : IPlatformService
 {
     private const int HWND_BROADCAST = 0xFFFF;
     private const int WM_SETTINGCHANGE = 0x001A;
     private const int SMTO_ABORTIFHUNG = 0x0002;
 
-    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-    private static extern IntPtr SendMessageTimeout(
+    [LibraryImport("user32.dll", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+    private static partial IntPtr SendMessageTimeout(
         IntPtr hWnd,
         uint msg,
         UIntPtr wParam,

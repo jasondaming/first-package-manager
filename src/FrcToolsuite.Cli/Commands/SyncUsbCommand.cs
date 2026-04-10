@@ -23,7 +23,7 @@ public static class SyncUsbCommand
                 return 1;
             }
 
-            IReadOnlyList<string>? packageIds = null;
+            List<string>? packageIds = null;
 
             if (!string.IsNullOrEmpty(bundleName))
             {

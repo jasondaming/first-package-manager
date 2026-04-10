@@ -11,6 +11,9 @@ insert_final_newline = true
 [*.cs]
 charset = utf-8-bom
 
+# CS1591: Missing XML comment for publicly visible type or member
+dotnet_diagnostic.CS1591.severity = none
+
 # Allman style braces
 csharp_new_line_before_open_brace = all
 csharp_new_line_before_else = true
