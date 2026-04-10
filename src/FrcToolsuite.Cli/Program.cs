@@ -47,11 +47,95 @@ public static class Program
             "--offline",
             description: "Operate in offline mode (use cached data only)");
 
+        var silentOption = new Option<bool>(
+            "--silent",
+            description: "Suppress all console output (for unattended/scripted installs)");
+
+        var logOption = new Option<string?>(
+            "--log",
+            description: "Write log to file (useful with --silent)");
+
+        var configOption = new Option<string?>(
+            "--config",
+            description: "Install from a JSON config file (unattended setup)");
+
         rootCommand.AddGlobalOption(programOption);
         rootCommand.AddGlobalOption(yearOption);
         rootCommand.AddGlobalOption(jsonOption);
         rootCommand.AddGlobalOption(verboseOption);
         rootCommand.AddGlobalOption(offlineOption);
+        rootCommand.AddGlobalOption(silentOption);
+        rootCommand.AddGlobalOption(logOption);
+        rootCommand.AddGlobalOption(configOption);
+
+        // Setup silent/log before any command runs
+        // (parsed manually since System.CommandLine middleware is complex)
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (args[i] == "--silent")
+            {
+                ConsoleHelper.Silent = true;
+            }
+
+            if (args[i] == "--log" && i + 1 < args.Length)
+            {
+                ConsoleHelper.SetLogFile(args[i + 1]);
+            }
+
+            if (args[i] == "--config" && i + 1 < args.Length)
+            {
+                // Config-based install: read JSON, extract packages, inject as args
+                var configPath = args[i + 1];
+                if (File.Exists(configPath))
+                {
+                    try
+                    {
+                        var json = File.ReadAllText(configPath);
+                        var config = System.Text.Json.JsonSerializer.Deserialize<InstallConfig>(json,
+                            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                        if (config != null)
+                        {
+                            ConsoleHelper.WriteInfo($"Loading config from {configPath}");
+                            var pm = services.GetRequiredService<IPackageManager>();
+                            int exitCode;
+                            if (!string.IsNullOrEmpty(config.Bundle))
+                            {
+                                exitCode = await InstallCommand.ExecuteAsync(pm, config.Bundle, isBundle: true, autoConfirm: true);
+                            }
+                            else if (config.Packages is { Count: > 0 })
+                            {
+                                exitCode = 0;
+                                foreach (var pkg in config.Packages)
+                                {
+                                    var pkgResult = await InstallCommand.ExecuteAsync(pm, pkg, isBundle: false, autoConfirm: true);
+                                    if (pkgResult != 0) exitCode = pkgResult;
+                                }
+                            }
+                            else
+                            {
+                                ConsoleHelper.WriteError("Config file has no bundle or packages specified.");
+                                exitCode = 1;
+                            }
+
+                            ConsoleHelper.CloseLog();
+                            return exitCode;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ConsoleHelper.WriteError($"Failed to read config: {ex.Message}");
+                        ConsoleHelper.CloseLog();
+                        return 1;
+                    }
+                }
+                else
+                {
+                    ConsoleHelper.WriteError($"Config file not found: {configPath}");
+                    ConsoleHelper.CloseLog();
+                    return 1;
+                }
+            }
+        }
 
         // install
         var installCommand = new Command("install", "Install a package or bundle");
@@ -250,7 +334,9 @@ public static class Program
         rootCommand.AddCommand(configCommand);
         rootCommand.AddCommand(selfUpdateCommand);
 
-        return await rootCommand.InvokeAsync(args);
+        var result = await rootCommand.InvokeAsync(args);
+        ConsoleHelper.CloseLog();
+        return result;
     }
 
     private static ServiceProvider BuildServiceProvider()
@@ -340,4 +426,16 @@ public static class Program
 
         return services.BuildServiceProvider();
     }
+}
+
+/// <summary>
+/// JSON config file for unattended installs.
+/// Example: { "bundle": "frc-java-starter-2026", "installDir": "C:\\frc" }
+/// Or:      { "packages": ["wpilib.jdk", "wpilib.vscode", "ctre.phoenix6"] }
+/// </summary>
+public class InstallConfig
+{
+    public string? Bundle { get; set; }
+    public List<string>? Packages { get; set; }
+    public string? InstallDir { get; set; }
 }

@@ -2,8 +2,30 @@ namespace FrcToolsuite.Cli.Output;
 
 public static class ConsoleHelper
 {
+    public static bool Silent { get; set; }
+
+    private static StreamWriter? _logWriter;
+
+    public static void SetLogFile(string path)
+    {
+        _logWriter = new StreamWriter(path, append: false) { AutoFlush = true };
+    }
+
+    public static void CloseLog()
+    {
+        _logWriter?.Dispose();
+        _logWriter = null;
+    }
+
+    private static void Log(string message)
+    {
+        _logWriter?.WriteLine($"[{DateTime.Now:HH:mm:ss}] {message}");
+    }
+
     public static void WriteSuccess(string message)
     {
+        Log($"[OK] {message}");
+        if (Silent) return;
         var prev = Console.ForegroundColor;
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine(message);
@@ -12,6 +34,8 @@ public static class ConsoleHelper
 
     public static void WriteError(string message)
     {
+        Log($"[ERROR] {message}");
+        if (Silent) return;
         var prev = Console.ForegroundColor;
         Console.ForegroundColor = ConsoleColor.Red;
         Console.Error.WriteLine(message);
@@ -20,6 +44,8 @@ public static class ConsoleHelper
 
     public static void WriteWarning(string message)
     {
+        Log($"[WARN] {message}");
+        if (Silent) return;
         var prev = Console.ForegroundColor;
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine(message);
@@ -28,6 +54,8 @@ public static class ConsoleHelper
 
     public static void WriteInfo(string message)
     {
+        Log(message);
+        if (Silent) return;
         Console.WriteLine(message);
     }
 
@@ -42,7 +70,7 @@ public static class ConsoleHelper
 
     public static void WriteTable(string[] headers, List<string[]> rows)
     {
-        if (headers.Length == 0) return;
+        if (Silent || headers.Length == 0) return;
 
         var columnWidths = new int[headers.Length];
         for (int i = 0; i < headers.Length; i++)
@@ -86,6 +114,7 @@ public static class ConsoleHelper
 
     public static void WriteProgressBar(string label, long current, long total, int barWidth = 30)
     {
+        if (Silent) return;
         if (total <= 0)
         {
             Console.Write($"\r{label}: {FormatSize(current)}...");

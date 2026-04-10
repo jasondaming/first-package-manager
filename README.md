@@ -48,7 +48,7 @@ Download the latest release from [GitHub Releases](https://github.com/jasondamin
 
 ### Build from Source
 
-Requires .NET 8 SDK.
+Requires .NET 10 SDK.
 
 ```bash
 git clone https://github.com/jasondaming/first-package-manager.git
@@ -266,6 +266,64 @@ Available settings:
 ### `frc self-update`
 
 Check for and install updates to the package manager itself.
+
+## Unattended / Scripted Installation
+
+For IT administrators deploying to lab machines via SCCM, Intune, Group Policy, or imaging scripts.
+
+### Silent mode
+
+```bash
+# Install with zero console output, log to file
+frc install --bundle frc-java-starter-2026 --yes --silent --log C:\frc-install.log
+
+# Exit codes: 0=success, 1=failure
+echo %ERRORLEVEL%
+```
+
+### Config file-based install
+
+Create `install-config.json`:
+```json
+{
+  "bundle": "frc-java-starter-2026"
+}
+```
+
+Or specify individual packages:
+```json
+{
+  "packages": ["wpilib.jdk", "wpilib.vscode", "wpilib.gradlerio", "ctre.phoenix6"]
+}
+```
+
+Run unattended:
+```bash
+frc --config install-config.json --silent --log install.log
+```
+
+### Global options for scripting
+
+| Option | Description |
+|--------|-------------|
+| `--silent` | Suppress all console output |
+| `--log <path>` | Write timestamped log to file |
+| `--config <path>` | Install from JSON config file (implies --yes) |
+| `--yes` / `-Y` | Skip confirmation prompts |
+| `--offline` | Use cached data only (no network) |
+
+### Example: Imaging day script
+
+```batch
+@echo off
+REM Deploy FRC tools to lab machines
+frc install --bundle frc-java-starter-2026 --yes --silent --log C:\frc-install-%COMPUTERNAME%.log
+if %ERRORLEVEL% NEQ 0 (
+    echo FAILED - check log at C:\frc-install-%COMPUTERNAME%.log
+    exit /b 1
+)
+echo SUCCESS
+```
 
 ## Available Packages (2026 Season)
 
