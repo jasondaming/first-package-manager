@@ -195,6 +195,78 @@
                                            FontSize="12" Foreground="{DynamicResource TextMuted}" TextWrapping="Wrap" />
                             </StackPanel>
                         </Border>
+
+                        <!-- Previous Year Installations Warning -->
+                        <Border Background="#FFF8E1" CornerRadius="8" Padding="20"
+                                BorderBrush="#FFE082" BorderThickness="1"
+                                HorizontalAlignment="Center" MinWidth="320" MaxWidth="480">
+                            <Border.IsVisible>
+                                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                    <Binding Path="HasPreviousYears" />
+                                    <Binding Path="!PreviousYearsDismissed" />
+                                </MultiBinding>
+                            </Border.IsVisible>
+                            <StackPanel Spacing="12">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="&#x26A0;&#xFE0F;" FontSize="18" VerticalAlignment="Center" />
+                                    <TextBlock Text="Previous Installation Found"
+                                               FontSize="14" FontWeight="Bold" Foreground="#F57F17"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+
+                                <TextBlock Text="We recommend removing old installations to free disk space and avoid version conflicts."
+                                           FontSize="12" Foreground="#795548" TextWrapping="Wrap" />
+
+                                <ItemsControl ItemsSource="{Binding PreviousYears}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="vm:PreviousYearItem">
+                                            <Border Background="#FFFDE7" CornerRadius="4" Padding="10,8" Margin="0,0,0,4"
+                                                    BorderBrush="#FFE082" BorderThickness="1">
+                                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                                                    <TextBlock Grid.Row="0" Grid.Column="0"
+                                                               FontSize="13" FontWeight="SemiBold" Foreground="#5D4037"
+                                                               VerticalAlignment="Center">
+                                                        <TextBlock.Text>
+                                                            <MultiBinding StringFormat="WPILib {0} ({1})">
+                                                                <Binding Path="Year" />
+                                                                <Binding Path="SizeDisplay" />
+                                                            </MultiBinding>
+                                                        </TextBlock.Text>
+                                                    </TextBlock>
+                                                    <Button Grid.Row="0" Grid.Column="1"
+                                                            Content="Remove"
+                                                            FontSize="11" Padding="12,4"
+                                                            CornerRadius="4"
+                                                            Background="#EF6C00" Foreground="White"
+                                                            BorderThickness="0"
+                                                            Command="{Binding $parent[ItemsControl].((vm:FirstRunWizardViewModel)DataContext).UninstallYearCommand}"
+                                                            CommandParameter="{Binding}"
+                                                            IsVisible="{Binding !IsRemoved}"
+                                                            IsEnabled="{Binding !IsRemoving}" />
+                                                    <TextBlock Grid.Row="0" Grid.Column="1"
+                                                               Text="&#x2713; Removed" FontSize="12"
+                                                               Foreground="#2E7D32" FontWeight="SemiBold"
+                                                               VerticalAlignment="Center"
+                                                               IsVisible="{Binding IsRemoved}" />
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                                               Text="{Binding StatusText}" FontSize="11"
+                                                               Foreground="#8D6E63" Margin="0,2,0,0"
+                                                               IsVisible="{Binding IsRemoving}" />
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <Button Content="Keep All"
+                                        FontSize="11" Padding="12,4"
+                                        CornerRadius="4"
+                                        Background="Transparent" Foreground="#8D6E63"
+                                        BorderThickness="0"
+                                        HorizontalAlignment="Right"
+                                        Command="{Binding DismissPreviousYearsCommand}" />
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
 
                     <!-- Step 2: Choose Setup (Use Cases + Vendor Selection) -->

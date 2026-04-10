@@ -7,6 +7,7 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FrcToolsuite.Core;
+using FrcToolsuite.Core.Install;
 using FrcToolsuite.Core.Packages;
 
 namespace FrcToolsuite.Gui.ViewModels;
@@ -127,6 +128,35 @@ public partial class VendorSubItem : ObservableObject
     };
 }
 
+public partial class PreviousYearItem : ObservableObject
+{
+    [ObservableProperty]
+    private int _year;
+
+    [ObservableProperty]
+    private string _path = string.Empty;
+
+    [ObservableProperty]
+    private long _sizeBytes;
+
+    [ObservableProperty]
+    private bool _isRemoved;
+
+    [ObservableProperty]
+    private bool _isRemoving;
+
+    [ObservableProperty]
+    private string _statusText = string.Empty;
+
+    public string SizeDisplay => SizeBytes switch
+    {
+        >= 1_000_000_000 => $"{SizeBytes / 1_000_000_000.0:F1} GB",
+        >= 1_000_000 => $"{SizeBytes / 1_000_000.0:F0} MB",
+        >= 1_000 => $"{SizeBytes / 1_000.0:F0} KB",
+        _ => $"{SizeBytes} B"
+    };
+}
+
 public partial class FirstRunWizardViewModel : ObservableObject, IStateExportable
 {
     private readonly IPackageManager? _packageManager;
@@ -167,6 +197,14 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
 
     [ObservableProperty]
     private bool _installComplete;
+
+    [ObservableProperty]
+    private bool _hasPreviousYears;
+
+    [ObservableProperty]
+    private bool _previousYearsDismissed;
+
+    public ObservableCollection<PreviousYearItem> PreviousYears { get; } = new();
 
     public string InstallPath
     {
@@ -233,6 +271,7 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
         _dismissWizard = dismissWizard;
         LoadUseCases();
         LoadVendorPackages();
+        DetectPreviousYears();
         UpdateStepState();
     }
 
@@ -463,6 +502,67 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
         SelectedPackages.Add(item);
     }
 
+    private void DetectPreviousYears()
+    {
+        PreviousYears.Clear();
+        var detected = LegacyYearDetector.DetectPreviousYears();
+        foreach (var install in detected)
+        {
+            PreviousYears.Add(new PreviousYearItem
+            {
+                Year = install.Year,
+                Path = install.Path,
+                SizeBytes = install.SizeBytes
+            });
+        }
+
+        HasPreviousYears = PreviousYears.Count > 0;
+        PreviousYearsDismissed = false;
+    }
+
+    [RelayCommand]
+    private async Task UninstallYearAsync(PreviousYearItem item)
+    {
+        if (item.IsRemoving || item.IsRemoved)
+        {
+            return;
+        }
+
+        item.IsRemoving = true;
+        item.StatusText = "Removing...";
+
+        try
+        {
+            var progress = new Progress<string>(message =>
+            {
+                item.StatusText = message;
+            });
+
+            await LegacyYearDetector.UninstallYearAsync(item.Year, progress);
+
+            item.IsRemoved = true;
+            item.IsRemoving = false;
+            item.StatusText = "Removed";
+
+            // Update HasPreviousYears if all are removed
+            if (PreviousYears.All(y => y.IsRemoved))
+            {
+                HasPreviousYears = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            item.IsRemoving = false;
+            item.StatusText = $"Failed: {ex.Message}";
+        }
+    }
+
+    [RelayCommand]
+    private void DismissPreviousYears()
+    {
+        PreviousYearsDismissed = true;
+    }
+
     [RelayCommand]
     private void SelectUseCase(string useCaseId)
     {
@@ -612,6 +712,18 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
             TotalDownloadSize,
             SelectedUseCase,
             SelectedVendorCount,
+            HasPreviousYears,
+            PreviousYearsDismissed,
+            PreviousYears = PreviousYears.Select(y => new
+            {
+                y.Year,
+                y.Path,
+                y.SizeBytes,
+                y.SizeDisplay,
+                y.IsRemoved,
+                y.IsRemoving,
+                y.StatusText
+            }).ToArray(),
             UseCases = UseCases.Select(u => new
             {
                 u.Id,

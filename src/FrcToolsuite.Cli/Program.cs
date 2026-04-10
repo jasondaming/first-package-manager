@@ -322,6 +322,20 @@ public static class Program
             Environment.ExitCode = await SelfUpdateCommand.ExecuteAsync(updater);
         });
 
+        // uninstall-year
+        var uninstallYearCommand = new Command("uninstall-year", "Remove a previous WPILib year installation");
+        var uninstallYearArg = new Argument<int?>("year", () => null, "Year to uninstall (e.g. 2025)");
+        var uninstallYearAllOption = new Option<bool>("--all-previous", "Remove all years except the current year");
+        var uninstallYearYesOption = new Option<bool>("--yes", "Skip confirmation prompt");
+        uninstallYearYesOption.AddAlias("-Y");
+        uninstallYearCommand.AddArgument(uninstallYearArg);
+        uninstallYearCommand.AddOption(uninstallYearAllOption);
+        uninstallYearCommand.AddOption(uninstallYearYesOption);
+        uninstallYearCommand.SetHandler(async (yearArg, allPrevious, yes) =>
+        {
+            Environment.ExitCode = await UninstallYearCommand.ExecuteAsync(yearArg, allPrevious, yes);
+        }, uninstallYearArg, uninstallYearAllOption, uninstallYearYesOption);
+
         // Add all subcommands to root
         rootCommand.AddCommand(installCommand);
         rootCommand.AddCommand(updateCommand);
@@ -333,6 +347,7 @@ public static class Program
         rootCommand.AddCommand(profileCommand);
         rootCommand.AddCommand(configCommand);
         rootCommand.AddCommand(selfUpdateCommand);
+        rootCommand.AddCommand(uninstallYearCommand);
 
         var result = await rootCommand.InvokeAsync(args);
         ConsoleHelper.CloseLog();

@@ -129,6 +129,69 @@
                 </StackPanel>
             </Border>
 
+            <!-- Manage Installations -->
+            <Border Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="20"
+                    BoxShadow="0 1 2 0 #10000000" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Manage Installations" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" />
+                    <TextBlock Text="Previous WPILib year installations detected on this system. Removing old installations frees disk space and avoids version conflicts."
+                               FontSize="12" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap"
+                               IsVisible="{Binding HasPreviousYears}" />
+                    <TextBlock Text="No previous WPILib year installations detected."
+                               FontSize="12" Foreground="{DynamicResource TextMuted}"
+                               IsVisible="{Binding !HasPreviousYears}" />
+
+                    <ItemsControl ItemsSource="{Binding PreviousYears}" IsVisible="{Binding HasPreviousYears}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="vm:PreviousYearItem">
+                                <Border Background="{DynamicResource ContentBackground}" CornerRadius="6"
+                                        Padding="14,10" Margin="0,0,0,4"
+                                        BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+                                    <Grid ColumnDefinitions="*,Auto,Auto" RowDefinitions="Auto,Auto">
+                                        <TextBlock Grid.Row="0" Grid.Column="0"
+                                                   FontSize="13" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextPrimary}"
+                                                   VerticalAlignment="Center">
+                                            <TextBlock.Text>
+                                                <MultiBinding StringFormat="WPILib {0}">
+                                                    <Binding Path="Year" />
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                                   Text="{Binding SizeDisplay}"
+                                                   FontSize="12" Foreground="{DynamicResource TextMuted}"
+                                                   VerticalAlignment="Center" Margin="12,0,12,0" />
+                                        <Button Grid.Row="0" Grid.Column="2"
+                                                Content="Remove"
+                                                FontSize="11" Padding="14,6"
+                                                CornerRadius="4"
+                                                Classes="danger"
+                                                Command="{Binding $parent[ItemsControl].((vm:SettingsPageViewModel)DataContext).UninstallYearCommand}"
+                                                CommandParameter="{Binding}"
+                                                IsVisible="{Binding !IsRemoved}"
+                                                IsEnabled="{Binding !IsRemoving}" />
+                                        <TextBlock Grid.Row="0" Grid.Column="2"
+                                                   Text="&#x2713; Removed" FontSize="12"
+                                                   Foreground="#4CAF50" FontWeight="SemiBold"
+                                                   VerticalAlignment="Center"
+                                                   IsVisible="{Binding IsRemoved}" />
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+                                                   Text="{Binding StatusText}" FontSize="11"
+                                                   Foreground="{DynamicResource TextMuted}" Margin="0,2,0,0"
+                                                   IsVisible="{Binding IsRemoving}" />
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+                                                   Text="{Binding Path}" FontSize="10"
+                                                   Foreground="{DynamicResource TextMuted}" Margin="0,2,0,0"
+                                                   IsVisible="{Binding !IsRemoving}" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
             <!-- Actions -->
             <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,20">
                 <Button Content="Reset to Defaults"
