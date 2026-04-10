@@ -13,4 +13,6 @@
   <Project Path="src/FrcToolsuite.Platform.Linux/FrcToolsuite.Platform.Linux.csproj" />
   <Project Path="src/FrcToolsuite.Platform.macOS/FrcToolsuite.Platform.macOS.csproj" />
   <Project Path="src/FrcToolsuite.Platform.Windows/FrcToolsuite.Platform.Windows.csproj" />
+  <Project Path="tests/FrcToolsuite.Core.Tests/FrcToolsuite.Core.Tests.csproj" />
+  <Project Path="tests/FrcToolsuite.TestHarness/FrcToolsuite.TestHarness.csproj" />
 </Solution>

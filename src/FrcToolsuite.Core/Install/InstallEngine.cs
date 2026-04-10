@@ -217,7 +217,7 @@ public class InstallEngine : IInstallEngine
                 continue;
             }
 
-            var entryPath = entry.Name;
+            var entryPath = entry.FullName;
             var fullPath = SafeJoinPath(destinationPath, entryPath);
             var dir = Path.GetDirectoryName(fullPath);
             if (dir != null)
