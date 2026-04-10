@@ -558,6 +558,18 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
     }
 
     [RelayCommand]
+    private async Task UninstallAllPreviousYearsAsync()
+    {
+        foreach (var item in PreviousYears)
+        {
+            if (!item.IsRemoved && !item.IsRemoving)
+            {
+                await UninstallYearAsync(item);
+            }
+        }
+    }
+
+    [RelayCommand]
     private void DismissPreviousYears()
     {
         PreviousYearsDismissed = true;

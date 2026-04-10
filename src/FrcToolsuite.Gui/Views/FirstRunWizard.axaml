@@ -258,13 +258,17 @@
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
 
-                                <Button Content="Keep All"
-                                        FontSize="11" Padding="12,4"
-                                        CornerRadius="4"
-                                        Background="Transparent" Foreground="#8D6E63"
-                                        BorderThickness="0"
-                                        HorizontalAlignment="Right"
-                                        Command="{Binding DismissPreviousYearsCommand}" />
+                                <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+                                    <Button Content="Remove All Previous Versions"
+                                            Classes="danger"
+                                            FontSize="11" Padding="14,5"
+                                            CornerRadius="4"
+                                            Command="{Binding UninstallAllPreviousYearsCommand}" />
+                                    <Button Content="Keep All"
+                                            Classes="ghost-link"
+                                            FontSize="11" Padding="12,4"
+                                            Command="{Binding DismissPreviousYearsCommand}" />
+                                </StackPanel>
                             </StackPanel>
                         </Border>
                     </StackPanel>
