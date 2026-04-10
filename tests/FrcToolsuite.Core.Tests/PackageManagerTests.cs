@@ -275,6 +275,16 @@ internal class FakeInstallEngine : IInstallEngine
         return Task.CompletedTask;
     }
 
+    public Task InstallMavenBundleAsync(
+        string mavenZipPath,
+        string mavenCacheDir,
+        string? vendordepJsonPath,
+        string? vendordepJsonUrl,
+        CancellationToken ct = default)
+    {
+        return Task.CompletedTask;
+    }
+
     public Task RemoveInstalledFilesAsync(
         InstalledPackage package,
         CancellationToken ct = default)

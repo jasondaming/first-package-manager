@@ -232,6 +232,9 @@ public class MavenArtifacts
     [JsonPropertyName("vendordepJson")]
     public string? VendordepJson { get; set; }
 
+    [JsonPropertyName("mavenBundleUrl")]
+    public string? MavenBundleUrl { get; set; }
+
     [JsonPropertyName("repositories")]
     public List<string> Repositories { get; set; } = [];
 

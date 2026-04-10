@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
+using FrcToolsuite.Core.Download;
 using FrcToolsuite.Core.Packages;
 using FrcToolsuite.Core.Platform;
 using FrcToolsuite.Core.Registry;
@@ -104,6 +105,13 @@ public class InstallEngine : IInstallEngine
                         }
                     }
                     break;
+
+                case "fix-maven-metadata":
+                    if (resolvedParams.TryGetValue("mavenDir", out var mavenDir))
+                    {
+                        await MavenMetadataFixer.FixMetadataAsync(mavenDir, ct);
+                    }
+                    break;
             }
         }
     }
@@ -128,6 +136,35 @@ public class InstallEngine : IInstallEngine
 
         var json = JsonSerializer.Serialize(manifest, new JsonSerializerOptions { WriteIndented = true });
         await File.WriteAllTextAsync(manifestPath, json, ct);
+    }
+
+    public async Task InstallMavenBundleAsync(
+        string mavenZipPath,
+        string mavenCacheDir,
+        string? vendordepJsonPath,
+        string? vendordepJsonUrl,
+        CancellationToken ct = default)
+    {
+        // 1. Extract maven zip to cache dir (merging with existing files)
+        Directory.CreateDirectory(mavenCacheDir);
+        await ExtractZipMergingAsync(mavenZipPath, mavenCacheDir, ct);
+
+        // 2. Download vendordep JSON if URL provided
+        if (!string.IsNullOrEmpty(vendordepJsonUrl) && !string.IsNullOrEmpty(vendordepJsonPath))
+        {
+            var dir = Path.GetDirectoryName(vendordepJsonPath);
+            if (dir != null)
+            {
+                Directory.CreateDirectory(dir);
+            }
+
+            using var httpClient = new HttpClient();
+            var json = await httpClient.GetStringAsync(vendordepJsonUrl, ct);
+            await File.WriteAllTextAsync(vendordepJsonPath, json, ct);
+        }
+
+        // 3. Run MavenMetadataFixer to generate maven-metadata.xml files
+        await MavenMetadataFixer.FixMetadataAsync(mavenCacheDir, ct);
     }
 
     public async Task RemoveInstalledFilesAsync(
@@ -182,6 +219,38 @@ public class InstallEngine : IInstallEngine
                 $"Path traversal detected: '{relativePath}' escapes install directory '{baseDir}'");
         }
         return fullPath;
+    }
+
+    /// <summary>
+    /// Extracts a zip archive into a destination directory, merging with existing
+    /// files (overwriting files with the same name but not deleting other files).
+    /// </summary>
+    private static async Task ExtractZipMergingAsync(
+        string archivePath,
+        string destinationPath,
+        CancellationToken ct)
+    {
+        using var zipFile = new ZipArchive(File.OpenRead(archivePath), ZipArchiveMode.Read, false);
+        foreach (ZipArchiveEntry entry in zipFile.Entries)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            if (entry.Name == "")
+            {
+                continue;
+            }
+
+            var fullPath = SafeJoinPath(destinationPath, entry.FullName);
+            var dir = Path.GetDirectoryName(fullPath);
+            if (dir != null)
+            {
+                Directory.CreateDirectory(dir);
+            }
+
+            using var entryStream = entry.Open();
+            using var outputStream = File.Create(fullPath);
+            await entryStream.CopyToAsync(outputStream, ct);
+        }
     }
 
     private static string InferArchiveType(string path)

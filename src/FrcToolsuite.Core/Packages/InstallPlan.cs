@@ -19,6 +19,28 @@ public class InstallStep
     public string? ArtifactUrl { get; set; }
     public long DownloadSize { get; set; }
     public bool RequiresAdmin { get; set; }
+
+    /// <summary>
+    /// The directory where Maven artifacts should be cached for offline Gradle builds.
+    /// When set, the install step will extract a Maven bundle zip into this directory
+    /// and run the metadata fixer.
+    /// </summary>
+    public string? MavenCacheDir { get; set; }
+
+    /// <summary>
+    /// URL to a pre-bundled zip of Maven artifacts for this package.
+    /// </summary>
+    public string? MavenBundleUrl { get; set; }
+
+    /// <summary>
+    /// URL of the vendordep JSON file to download and place in the WPILib vendordeps directory.
+    /// </summary>
+    public string? VendordepJsonUrl { get; set; }
+
+    /// <summary>
+    /// Local path where the vendordep JSON should be saved.
+    /// </summary>
+    public string? VendordepJsonPath { get; set; }
 }
 
 public enum InstallAction

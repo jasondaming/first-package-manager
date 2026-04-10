@@ -300,6 +300,48 @@ public class PackageManager : IPackageManager
                 await _installEngine.RunPostInstallAsync(platformActions, installDir, ct);
             }
 
+            // Maven bundle installation
+            if (!string.IsNullOrEmpty(step.MavenBundleUrl) && !string.IsNullOrEmpty(step.MavenCacheDir))
+            {
+                var mavenDownloadPath = Path.Combine(
+                    settings.CacheDirectory,
+                    $"{step.PackageId}-{step.Version}-maven.zip");
+
+                var mavenResult = await _downloadManager.DownloadAsync(
+                    new DownloadRequest(step.MavenBundleUrl, mavenDownloadPath),
+                    null, ct);
+
+                if (mavenResult.Success)
+                {
+                    await _installEngine.InstallMavenBundleAsync(
+                        mavenResult.FilePath,
+                        step.MavenCacheDir,
+                        step.VendordepJsonPath,
+                        step.VendordepJsonUrl,
+                        ct);
+                }
+            }
+            else if (!string.IsNullOrEmpty(step.VendordepJsonUrl) &&
+                     !string.IsNullOrEmpty(step.VendordepJsonPath))
+            {
+                // No Maven bundle, but vendordep JSON still needs downloading
+                var vendordepDir = Path.GetDirectoryName(step.VendordepJsonPath);
+                if (vendordepDir != null)
+                {
+                    Directory.CreateDirectory(vendordepDir);
+                }
+
+                using var httpClient = new HttpClient();
+                var json = await httpClient.GetStringAsync(step.VendordepJsonUrl, ct);
+                await File.WriteAllTextAsync(step.VendordepJsonPath, json, ct);
+
+                // Run metadata fixer on the Maven cache if it exists
+                if (!string.IsNullOrEmpty(step.MavenCacheDir) && Directory.Exists(step.MavenCacheDir))
+                {
+                    await Install.MavenMetadataFixer.FixMetadataAsync(step.MavenCacheDir, ct);
+                }
+            }
+
             // Record
             var installedPackage = new InstalledPackage(
                 step.PackageId,
@@ -398,7 +440,7 @@ public class PackageManager : IPackageManager
             downloadSize = artifact.Size;
         }
 
-        return new InstallStep
+        var step = new InstallStep
         {
             PackageId = manifest.Id,
             Version = manifest.Version,
@@ -407,5 +449,43 @@ public class PackageManager : IPackageManager
             DownloadSize = downloadSize,
             RequiresAdmin = manifest.Install?.RequiresAdmin ?? false
         };
+
+        // Populate Maven bundle info if present
+        if (manifest.MavenArtifacts != null)
+        {
+            var wpiLibBase = GetWpiLibBaseDir();
+            var mavenCacheDir = Path.Combine(wpiLibBase, manifest.Season.ToString(), "maven");
+            var vendordepsDir = Path.Combine(wpiLibBase, manifest.Season.ToString(), "vendordeps");
+
+            step.MavenBundleUrl = manifest.MavenArtifacts.MavenBundleUrl;
+            step.MavenCacheDir = mavenCacheDir;
+            step.VendordepJsonUrl = manifest.MavenArtifacts.VendordepJson;
+
+            if (!string.IsNullOrEmpty(manifest.MavenArtifacts.VendordepJson))
+            {
+                var vendordepFileName = Path.GetFileName(
+                    new Uri(manifest.MavenArtifacts.VendordepJson).LocalPath);
+                step.VendordepJsonPath = Path.Combine(vendordepsDir, vendordepFileName);
+            }
+        }
+
+        return step;
+    }
+
+    /// <summary>
+    /// Returns the WPILib base directory for the current platform.
+    /// Windows: C:\Users\Public\wpilib
+    /// macOS/Linux: ~/wpilib
+    /// </summary>
+    internal static string GetWpiLibBaseDir()
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            return Path.Combine("C:\\Users\\Public", "wpilib");
+        }
+
+        return Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            "wpilib");
     }
 }

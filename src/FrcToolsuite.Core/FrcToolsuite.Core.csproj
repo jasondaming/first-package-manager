@@ -2,4 +2,7 @@
   <ItemGroup>
     <PackageReference Include="SharpZipLib" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="FrcToolsuite.Core.Tests" />
+  </ItemGroup>
 </Project>
