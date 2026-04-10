@@ -28,7 +28,7 @@
                 BorderBrush="{DynamicResource CardBorder}"
                 BorderThickness="1">
             <TextBox Text="{Binding SearchQuery}"
-                     Watermark="Search packages..."
+                     PlaceholderText="Search packages..."
                      BorderThickness="0"
                      Background="Transparent"
                      FontSize="14"

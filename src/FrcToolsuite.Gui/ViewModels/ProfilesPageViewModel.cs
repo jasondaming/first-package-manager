@@ -87,11 +87,11 @@ public partial class ProfilesPageViewModel : ObservableObject, IStateExportable
             if (packages.Count == 0)
             {
                 // Use mock data for test harness
-                packages.AddRange(new[]
-                {
+                packages.AddRange(
+                [
                     "wpilib.jdk", "wpilib.vscode", "wpilib.gradlerio",
                     "ctre.phoenix6", "rev.revlib", "wpilib.advantagescope"
-                });
+                ]);
             }
 
             var profile = new TeamProfile

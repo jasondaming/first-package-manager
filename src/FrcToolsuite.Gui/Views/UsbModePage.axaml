@@ -98,7 +98,7 @@
 
                         <!-- Path (auto-filled or manual entry) -->
                         <TextBox Text="{Binding UsbPath}"
-                                 Watermark="Or type a path manually"
+                                 PlaceholderText="Or type a path manually"
                                  FontSize="13" />
                     </StackPanel>
                 </Border>

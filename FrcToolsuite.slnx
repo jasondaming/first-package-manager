@@ -1,0 +1,16 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Project Path="src/FrcToolsuite.Cli/FrcToolsuite.Cli.csproj" />
+  <Project Path="src/FrcToolsuite.Core/FrcToolsuite.Core.csproj" />
+  <Project Path="src/FrcToolsuite.Gui/FrcToolsuite.Gui.csproj" />
+  <Project Path="src/FrcToolsuite.Platform.Linux/FrcToolsuite.Platform.Linux.csproj" />
+  <Project Path="src/FrcToolsuite.Platform.macOS/FrcToolsuite.Platform.macOS.csproj" />
+  <Project Path="src/FrcToolsuite.Platform.Windows/FrcToolsuite.Platform.Windows.csproj" />
+</Solution>

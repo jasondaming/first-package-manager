@@ -123,7 +123,7 @@
                     <StackPanel Spacing="4">
                         <TextBlock Text="Proxy URL (optional)" FontSize="12" Foreground="{DynamicResource TextSecondary}" />
                         <TextBox Text="{Binding ProxyUrl}"
-                                 Watermark="http://proxy:8080"
+                                 PlaceholderText="http://proxy:8080"
                                  FontSize="13" />
                     </StackPanel>
                 </StackPanel>
