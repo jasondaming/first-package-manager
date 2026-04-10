@@ -29,7 +29,7 @@ public partial class MainWindowViewModel : ObservableObject, IStateExportable
     [ObservableProperty]
     private bool _showFirstRunWizard;
 
-    public ObservableCollection<string> Programs { get; } = new() { "FRC", "FTC" };
+    public ObservableCollection<string> Programs { get; } = new() { "FRC", "FTC", "Both" };
 
     public ObservableCollection<string> Seasons { get; } = new() { "2026", "2025", "2024" };
 

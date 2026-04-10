@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -36,6 +37,87 @@ public partial class WizardPackageItem : ObservableObject
     [ObservableProperty]
     private bool _requiresAdmin;
 
+    [ObservableProperty]
+    private bool _isAlreadyInstalled;
+
+    [ObservableProperty]
+    private string _statusText = string.Empty;
+
+    [ObservableProperty]
+    private double _downloadProgress;
+
+    public string SizeDisplay => Size switch
+    {
+        >= 1_000_000_000 => $"{Size / 1_000_000_000.0:F1} GB",
+        >= 1_000_000 => $"{Size / 1_000_000.0:F0} MB",
+        >= 1_000 => $"{Size / 1_000.0:F0} KB",
+        _ => $"{Size} B"
+    };
+}
+
+public partial class UseCaseItem : ObservableObject
+{
+    [ObservableProperty]
+    private string _id = string.Empty;
+
+    [ObservableProperty]
+    private string _title = string.Empty;
+
+    [ObservableProperty]
+    private string _description = string.Empty;
+
+    [ObservableProperty]
+    private string _icon = string.Empty;
+
+    [ObservableProperty]
+    private bool _isSelected;
+}
+
+public partial class VendorPackageItem : ObservableObject
+{
+    [ObservableProperty]
+    private string _id = string.Empty;
+
+    [ObservableProperty]
+    private string _name = string.Empty;
+
+    [ObservableProperty]
+    private string _description = string.Empty;
+
+    [ObservableProperty]
+    private bool _isSelected;
+
+    [ObservableProperty]
+    private long _size;
+
+    [ObservableProperty]
+    private bool _isAlreadyInstalled;
+
+    public ObservableCollection<VendorSubItem> SubItems { get; } = new();
+
+    public string SizeDisplay => Size switch
+    {
+        >= 1_000_000_000 => $"{Size / 1_000_000_000.0:F1} GB",
+        >= 1_000_000 => $"{Size / 1_000_000.0:F0} MB",
+        >= 1_000 => $"{Size / 1_000.0:F0} KB",
+        _ => $"{Size} B"
+    };
+}
+
+public partial class VendorSubItem : ObservableObject
+{
+    [ObservableProperty]
+    private string _id = string.Empty;
+
+    [ObservableProperty]
+    private string _name = string.Empty;
+
+    [ObservableProperty]
+    private bool _isSelected;
+
+    [ObservableProperty]
+    private long _size;
+
     public string SizeDisplay => Size switch
     {
         >= 1_000_000_000 => $"{Size / 1_000_000_000.0:F1} GB",
@@ -54,16 +136,10 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
     private int _currentStep = 1;
 
     [ObservableProperty]
-    private int _totalSteps = 5;
+    private int _totalSteps = 4;
 
     [ObservableProperty]
     private string _selectedProgram = "FRC";
-
-    [ObservableProperty]
-    private string _selectedBundle = "FRC Java Starter Kit";
-
-    [ObservableProperty]
-    private string _installPath = @"C:\frc";
 
     [ObservableProperty]
     private string _stepTitle = "Welcome";
@@ -89,22 +165,52 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
     [ObservableProperty]
     private bool _canSkipWizard = true;
 
-    public ObservableCollection<string> Programs { get; } = new() { "FRC", "FTC" };
+    [ObservableProperty]
+    private bool _installComplete;
 
-    public ObservableCollection<string> Bundles { get; } = new()
+    public string InstallPath
     {
-        "FRC Java Starter Kit",
-        "FRC C++ Starter Kit",
-        "CSA USB Toolkit"
-    };
+        get
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return @"C:\Users\Public\wpilib\2026";
+            }
+            else
+            {
+                var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                return Path.Combine(home, "wpilib", "2026");
+            }
+        }
+    }
 
+    public ObservableCollection<string> Programs { get; } = new() { "FRC", "FTC", "Both" };
+
+    public ObservableCollection<UseCaseItem> UseCases { get; } = new();
+
+    public ObservableCollection<VendorPackageItem> VendorPackages { get; } = new();
+
+    // Kept for review step and install progress tracking
     public ObservableCollection<WizardPackageItem> SelectedPackages { get; } = new();
+
+    public string SelectedUseCase => UseCases.FirstOrDefault(u => u.IsSelected)?.Id ?? "team-dev";
 
     public string TotalDownloadSize
     {
         get
         {
-            var total = SelectedPackages.Where(p => p.IsSelected).Sum(p => p.Size);
+            long total = 0;
+            // WPILib core base size (JDK + VS Code + GradleRIO + Tools)
+            total += 714_000_000;
+            // Add vendor packages
+            foreach (var vp in VendorPackages.Where(v => v.IsSelected))
+            {
+                total += vp.Size;
+                foreach (var sub in vp.SubItems.Where(s => s.IsSelected))
+                {
+                    total += sub.Size;
+                }
+            }
             return total switch
             {
                 >= 1_000_000_000 => $"{total / 1_000_000_000.0:F1} GB",
@@ -114,7 +220,7 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
         }
     }
 
-    public int SelectedPackageCount => SelectedPackages.Count(p => p.IsSelected);
+    public int SelectedVendorCount => VendorPackages.Count(v => v.IsSelected);
 
     public FirstRunWizardViewModel()
         : this(null, null)
@@ -125,132 +231,246 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
     {
         _packageManager = packageManager;
         _dismissWizard = dismissWizard;
-        UpdateBundlesForProgram();
-        LoadBundlePackages();
+        LoadUseCases();
+        LoadVendorPackages();
         UpdateStepState();
     }
 
     partial void OnCurrentStepChanged(int value)
     {
         UpdateStepState();
+        if (value == 3)
+        {
+            BuildReviewPackageList();
+        }
     }
 
     partial void OnSelectedProgramChanged(string value)
     {
-        UpdateBundlesForProgram();
-        LoadBundlePackages();
-    }
-
-    partial void OnSelectedBundleChanged(string value)
-    {
-        LoadBundlePackages();
+        // Vendor packages are the same for FRC/FTC/Both in this simplified flow
     }
 
     private void UpdateStepState()
     {
         CanGoBack = CurrentStep > 1 && !IsInstalling;
-        CanGoNext = CurrentStep < 4 && !IsInstalling;
-        ShowInstallButton = CurrentStep == 4;
-        CanSkipWizard = !IsInstalling && CurrentStep < 5;
+        CanGoNext = CurrentStep < 3 && !IsInstalling;
+        ShowInstallButton = CurrentStep == 3;
+        CanSkipWizard = !IsInstalling && CurrentStep < 4;
 
         StepTitle = CurrentStep switch
         {
             1 => "Welcome",
-            2 => "Bundle Selection",
-            3 => "Install Location",
-            4 => "Review",
-            5 => "Installing",
+            2 => "Choose Setup",
+            3 => "Review",
+            4 => "Installing",
             _ => "Welcome"
         };
     }
 
-    private void UpdateBundlesForProgram()
+    private void LoadUseCases()
     {
-        Bundles.Clear();
-        if (SelectedProgram == "FRC")
+        UseCases.Clear();
+        UseCases.Add(new UseCaseItem
         {
-            Bundles.Add("FRC Java Starter Kit");
-            Bundles.Add("FRC C++ Starter Kit");
-            Bundles.Add("CSA USB Toolkit");
-        }
-        else
+            Id = "team-dev",
+            Title = "Team Development",
+            Description = "Full development environment with VS Code, build tools, and libraries. This is what most teams need.",
+            Icon = "\U0001F4BB",
+            IsSelected = true
+        });
+        UseCases.Add(new UseCaseItem
         {
-            Bundles.Add("FTC Starter Kit");
-        }
+            Id = "driver-station",
+            Title = "Driver Station Computer",
+            Description = "Minimal install for a dedicated Driver Station machine.",
+            Icon = "\U0001F3AE",
+            IsSelected = false
+        });
+        UseCases.Add(new UseCaseItem
+        {
+            Id = "usb-offline",
+            Title = "Create USB Offline Stick",
+            Description = "Download everything to a USB drive for offline installs at events.",
+            Icon = "\U0001F4BE",
+            IsSelected = false
+        });
+        UseCases.Add(new UseCaseItem
+        {
+            Id = "csa-volunteer",
+            Title = "CSA / Event Volunteer",
+            Description = "Diagnostic and support toolkit for CSAs and event volunteers.",
+            Icon = "\U0001F6E0",
+            IsSelected = false
+        });
 
-        if (Bundles.Count > 0 && !Bundles.Contains(SelectedBundle))
+        foreach (var uc in UseCases)
         {
-            SelectedBundle = Bundles[0];
+            uc.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(UseCaseItem.IsSelected) && uc.IsSelected)
+                {
+                    // Ensure only one use case is selected at a time
+                    foreach (var other in UseCases)
+                    {
+                        if (other != uc && other.IsSelected)
+                        {
+                            other.IsSelected = false;
+                        }
+                    }
+                    OnPropertyChanged(nameof(SelectedUseCase));
+                }
+            };
         }
     }
 
-    private void LoadBundlePackages()
+    private void LoadVendorPackages()
+    {
+        VendorPackages.Clear();
+
+        var ctre = new VendorPackageItem
+        {
+            Id = "ctre.phoenix6",
+            Name = "CTRE Phoenix 6",
+            Description = "Vendor library for CTRE motor controllers and sensors",
+            Size = 85_000_000,
+            IsSelected = false
+        };
+        ctre.SubItems.Add(new VendorSubItem
+        {
+            Id = "ctre.phoenix-tuner-x",
+            Name = "Phoenix Tuner X",
+            Size = 120_000_000,
+            IsSelected = false
+        });
+
+        var rev = new VendorPackageItem
+        {
+            Id = "rev.revlib",
+            Name = "REV",
+            Description = "Vendor library for REV motor controllers and sensors",
+            Size = 45_000_000,
+            IsSelected = false
+        };
+        rev.SubItems.Add(new VendorSubItem
+        {
+            Id = "rev.hardware-client",
+            Name = "REV Hardware Client",
+            Size = 95_000_000,
+            IsSelected = false
+        });
+
+        var pathplanner = new VendorPackageItem
+        {
+            Id = "pathplanner.pathplannerlib",
+            Name = "PathPlannerLib",
+            Description = "Autonomous path planning library",
+            Size = 12_000_000,
+            IsSelected = false
+        };
+
+        var photon = new VendorPackageItem
+        {
+            Id = "photonvision.photonlib",
+            Name = "PhotonVision",
+            Description = "Vision processing library for AprilTag detection",
+            Size = 18_000_000,
+            IsSelected = false
+        };
+
+        var yagsl = new VendorPackageItem
+        {
+            Id = "yagsl.yagsl",
+            Name = "YAGSL",
+            Description = "Yet Another Generic Swerve Library",
+            Size = 8_000_000,
+            IsSelected = false
+        };
+
+        var advantagekit = new VendorPackageItem
+        {
+            Id = "advantagekit.advantagekit",
+            Name = "AdvantageKit",
+            Description = "Log-replay framework for robot code testing",
+            Size = 15_000_000,
+            IsSelected = false
+        };
+
+        VendorPackages.Add(ctre);
+        VendorPackages.Add(rev);
+        VendorPackages.Add(pathplanner);
+        VendorPackages.Add(photon);
+        VendorPackages.Add(yagsl);
+        VendorPackages.Add(advantagekit);
+
+        foreach (var vp in VendorPackages)
+        {
+            vp.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(VendorPackageItem.IsSelected))
+                {
+                    OnPropertyChanged(nameof(TotalDownloadSize));
+                    OnPropertyChanged(nameof(SelectedVendorCount));
+                }
+            };
+            foreach (var sub in vp.SubItems)
+            {
+                sub.PropertyChanged += (_, e) =>
+                {
+                    if (e.PropertyName == nameof(VendorSubItem.IsSelected))
+                    {
+                        OnPropertyChanged(nameof(TotalDownloadSize));
+                    }
+                };
+            }
+        }
+    }
+
+    private void BuildReviewPackageList()
     {
         SelectedPackages.Clear();
 
-        if (SelectedBundle == "FRC Java Starter Kit")
+        // WPILib core (always included, shown as informational)
+        AddReviewPackage("wpilib.jdk", "JDK 17", "Eclipse Adoptium JDK 17", 189_000_000, true);
+        AddReviewPackage("wpilib.vscode", "VS Code", "Visual Studio Code editor", 105_000_000, true);
+        AddReviewPackage("wpilib.gradlerio", "GradleRIO", "Gradle build system and WPILib plugins", 140_000_000, true);
+        AddReviewPackage("wpilib.tools", "WPILib Tools", "Glass, Shuffleboard, SysId, and more", 280_000_000, true);
+
+        // Selected vendor packages
+        foreach (var vp in VendorPackages.Where(v => v.IsSelected))
         {
-            AddPackage("wpilib.jdk", "JDK 17", "Eclipse Adoptium JDK 17 for Java development", "Required", 189_000_000);
-            AddPackage("wpilib.vscode", "VS Code", "Visual Studio Code editor", "Required", 105_000_000);
-            AddPackage("wpilib.vscode-wpilib", "WPILib Extension", "WPILib VS Code extension", "Required", 25_000_000);
-            AddPackage("wpilib.gradle-wrapper", "Gradle", "Gradle build system", "Required", 140_000_000);
-            AddPackage("wpilib.tools", "WPILib Tools", "Glass, Shuffleboard, SysId, and more", "Default", 250_000_000);
-            AddPackage("wpilib.advantagescope", "AdvantageScope", "Robot telemetry viewer", "Default", 120_000_000);
-            AddPackage("ctre.phoenix-framework", "CTRE Phoenix", "Vendor library for CTRE hardware", "Optional", 85_000_000);
-            AddPackage("rev.revlib", "REVLib", "Vendor library for REV hardware", "Optional", 45_000_000);
-            AddPackage("pathplanner.pathplannerlib", "PathPlannerLib", "Autonomous path planning library", "Optional", 12_000_000);
-        }
-        else if (SelectedBundle == "FRC C++ Starter Kit")
-        {
-            AddPackage("wpilib.vscode", "VS Code", "Visual Studio Code editor", "Required", 105_000_000);
-            AddPackage("wpilib.vscode-wpilib", "WPILib Extension", "WPILib VS Code extension", "Required", 25_000_000);
-            AddPackage("wpilib.gradle-wrapper", "Gradle", "Gradle build system", "Required", 140_000_000);
-            AddPackage("wpilib.tools", "WPILib Tools", "Glass, Shuffleboard, SysId, and more", "Default", 250_000_000);
-            AddPackage("wpilib.advantagescope", "AdvantageScope", "Robot telemetry viewer", "Default", 120_000_000);
-            AddPackage("ctre.phoenix-framework", "CTRE Phoenix", "Vendor library for CTRE hardware", "Optional", 85_000_000);
-            AddPackage("rev.revlib", "REVLib", "Vendor library for REV hardware", "Optional", 45_000_000);
-            AddPackage("pathplanner.pathplannerlib", "PathPlannerLib", "Autonomous path planning library", "Optional", 12_000_000);
-        }
-        else if (SelectedBundle == "CSA USB Toolkit")
-        {
-            AddPackage("wpilib.jdk", "JDK 17", "Eclipse Adoptium JDK 17 for Java development", "Required", 189_000_000);
-            AddPackage("wpilib.tools", "WPILib Tools", "Glass, OutlineViewer, and diagnostic tools", "Required", 250_000_000);
-            AddPackage("wpilib.advantagescope", "AdvantageScope", "Log viewer for diagnosing robot issues", "Required", 120_000_000);
-            AddPackage("ctre.phoenix-framework", "CTRE Phoenix", "Phoenix Tuner for CTRE diagnostics", "Default", 85_000_000);
-            AddPackage("rev.revlib", "REVLib", "REV Hardware Client support", "Default", 45_000_000);
-        }
-        else if (SelectedBundle == "FTC Starter Kit")
-        {
-            AddPackage("wpilib.jdk", "JDK 17", "Eclipse Adoptium JDK 17 for Java development", "Required", 189_000_000);
-            AddPackage("wpilib.gradle-wrapper", "Gradle", "Gradle build system", "Required", 140_000_000);
+            AddReviewPackage(vp.Id, vp.Name, vp.Description, vp.Size, false);
+            foreach (var sub in vp.SubItems.Where(s => s.IsSelected))
+            {
+                AddReviewPackage(sub.Id, sub.Name, "", sub.Size, false);
+            }
         }
 
         OnPropertyChanged(nameof(TotalDownloadSize));
-        OnPropertyChanged(nameof(SelectedPackageCount));
     }
 
-    private void AddPackage(string id, string name, string description, string inclusion, long size, bool requiresAdmin = false)
+    private void AddReviewPackage(string id, string name, string description, long size, bool isCore)
     {
         var item = new WizardPackageItem
         {
             Id = id,
             Name = name,
             Description = description,
-            Inclusion = inclusion,
-            IsRequired = inclusion == "Required",
-            IsSelected = inclusion is "Required" or "Default",
+            Inclusion = isCore ? "Core" : "Vendor",
+            IsRequired = isCore,
+            IsSelected = true,
             Size = size,
-            RequiresAdmin = requiresAdmin,
-        };
-        item.PropertyChanged += (_, e) =>
-        {
-            if (e.PropertyName == nameof(WizardPackageItem.IsSelected))
-            {
-                OnPropertyChanged(nameof(TotalDownloadSize));
-                OnPropertyChanged(nameof(SelectedPackageCount));
-            }
         };
         SelectedPackages.Add(item);
+    }
+
+    [RelayCommand]
+    private void SelectUseCase(string useCaseId)
+    {
+        foreach (var uc in UseCases)
+        {
+            uc.IsSelected = uc.Id == useCaseId;
+        }
+        OnPropertyChanged(nameof(SelectedUseCase));
     }
 
     [RelayCommand]
@@ -280,8 +500,9 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
     [RelayCommand]
     private async Task BeginInstallAsync()
     {
-        CurrentStep = 5;
+        CurrentStep = 4;
         IsInstalling = true;
+        InstallComplete = false;
         InstallProgress = 0;
         InstallStatus = "Preparing downloads...";
         UpdateStepState();
@@ -293,33 +514,48 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
     {
         if (_packageManager == null)
         {
-            InstallStatus = "Package manager is not available (running in design mode).";
+            // Design mode / test harness: simulate progress
+            var packages = SelectedPackages.ToList();
+            for (int i = 0; i < packages.Count; i++)
+            {
+                var pkg = packages[i];
+                pkg.StatusText = $"Downloading... 0 MB / {pkg.SizeDisplay}";
+                InstallStatus = $"Downloading {pkg.Name}...";
+                InstallProgress = (double)i / packages.Count * 100;
+                await Task.Delay(50);
+
+                pkg.StatusText = "Extracting...";
+                await Task.Delay(30);
+
+                pkg.StatusText = "Configuring...";
+                await Task.Delay(20);
+
+                pkg.StatusText = "Installed";
+                pkg.DownloadProgress = 100;
+            }
+
+            InstallProgress = 100;
+            InstallStatus = "Installation Complete!";
+            InstallComplete = true;
+            IsInstalling = false;
             return;
         }
 
         try
         {
-            var bundleId = SelectedBundle switch
-            {
-                "FRC Java Starter Kit" => "frc-java-starter-2026",
-                "FRC C++ Starter Kit" => "frc-cpp-starter-2026",
-                "CSA USB Toolkit" => "csa-usb-toolkit-2026",
-                "FTC Starter Kit" => "ftc-starter-2026",
-                _ => "frc-java-starter-2026"
-            };
-
-            var selectedIds = SelectedPackages
-                .Where(p => p.IsSelected && !p.IsRequired)
-                .Select(p => p.Id)
+            var selectedIds = VendorPackages
+                .Where(v => v.IsSelected)
+                .Select(v => v.Id)
                 .ToList();
 
             InstallStatus = "Planning installation...";
-            var plan = await _packageManager.PlanBundleInstallAsync(bundleId, selectedIds);
+            var plan = await _packageManager.PlanBundleInstallAsync("frc-base-2026", selectedIds);
 
             if (plan.Steps.Count == 0)
             {
                 InstallProgress = 100;
                 InstallStatus = "Everything is already installed.";
+                InstallComplete = true;
                 IsInstalling = false;
                 _dismissWizard?.Invoke();
                 return;
@@ -346,7 +582,8 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
             await _packageManager.ExecutePlanAsync(plan, progress);
 
             InstallProgress = 100;
-            InstallStatus = "Installation complete!";
+            InstallStatus = "Installation Complete!";
+            InstallComplete = true;
             IsInstalling = false;
             _dismissWizard?.Invoke();
         }
@@ -357,24 +594,6 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
         }
     }
 
-    [RelayCommand]
-    private async Task BrowseInstallPathAsync()
-    {
-        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
-            && desktop.MainWindow?.StorageProvider is { } storage)
-        {
-            var result = await storage.OpenFolderPickerAsync(new FolderPickerOpenOptions
-            {
-                Title = "Select Install Directory",
-                AllowMultiple = false
-            });
-            if (result.Count > 0)
-            {
-                InstallPath = result[0].Path.LocalPath;
-            }
-        }
-    }
-
     public string ExportStateJson()
     {
         var state = new
@@ -382,7 +601,6 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
             CurrentStep,
             TotalSteps,
             SelectedProgram,
-            SelectedBundle,
             InstallPath,
             StepTitle,
             CanGoBack,
@@ -392,15 +610,36 @@ public partial class FirstRunWizardViewModel : ObservableObject, IStateExportabl
             InstallProgress,
             CanSkipWizard,
             TotalDownloadSize,
-            SelectedPackageCount,
-            Packages = SelectedPackages.Select(p => new
+            SelectedUseCase,
+            SelectedVendorCount,
+            UseCases = UseCases.Select(u => new
+            {
+                u.Id,
+                u.Title,
+                u.Description,
+                u.IsSelected
+            }).ToArray(),
+            VendorPackages = VendorPackages.Select(v => new
+            {
+                v.Id,
+                v.Name,
+                v.IsSelected,
+                v.SizeDisplay,
+                SubItems = v.SubItems.Select(s => new
+                {
+                    s.Id,
+                    s.Name,
+                    s.IsSelected,
+                    s.SizeDisplay
+                }).ToArray()
+            }).ToArray(),
+            ReviewPackages = SelectedPackages.Select(p => new
             {
                 p.Id,
                 p.Name,
                 p.Inclusion,
                 p.IsSelected,
                 p.IsRequired,
-                p.RequiresAdmin,
                 p.SizeDisplay
             }).ToArray()
         };
