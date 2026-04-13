@@ -69,6 +69,13 @@ public static class PageFactory
             var view = new FirstRunWizard { DataContext = vm };
             return (view, vm);
         },
+        ["FirstRunWizardStep2"] = () =>
+        {
+            var vm = new FirstRunWizardViewModel();
+            vm.GoNextCommand.Execute(null);
+            var view = new FirstRunWizard { DataContext = vm };
+            return (view, vm);
+        },
         ["MainWindow"] = () =>
         {
             var vm = new MainWindowViewModel();

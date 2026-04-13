@@ -106,6 +106,27 @@
       <Setter Property="BorderBrush" Value="#99AABB" />
       <Setter Property="BorderThickness" Value="2" />
     </Style>
+
+    <!-- Selector button: invisible Button wrapper that delegates ALL visual
+         feedback to the inner element. Use when wrapping a custom card/Border
+         that handles its own hover/selected states. -->
+    <Style Selector="Button.selector">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    </Style>
+    <Style Selector="Button.selector /template/ ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="Button.selector:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="Button.selector:pressed /template/ ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
   </Application.Styles>
   <Application.Resources>
     <ResourceDictionary>

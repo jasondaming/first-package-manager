@@ -46,18 +46,66 @@
             <Setter Property="BorderThickness" Value="1" />
         </Style>
 
-        <!-- Use case card -->
+        <!-- Selector button: wraps a Border in a Button with no visual chrome of its own.
+             Kills Fluent theme's hover/pressed background overlay so the inner Border
+             renders its hover and selected states cleanly. -->
+        <Style Selector="Button.selector">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        </Style>
+        <Style Selector="Button.selector /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style Selector="Button.selector:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="Button.selector:pressed /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+
+        <!-- Use case card (default state) -->
         <Style Selector="Border.usecase-card">
             <Setter Property="Background" Value="{DynamicResource CardBackground}" />
-            <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="Padding" Value="16" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="18" />
             <Setter Property="BorderBrush" Value="{DynamicResource CardBorder}" />
             <Setter Property="BorderThickness" Value="1.5" />
-            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.15" />
+                    <BrushTransition Property="Background" Duration="0:0:0.15" />
+                </Transitions>
+            </Setter>
         </Style>
+
+        <!-- Hover state: subtle accent border, no background change -->
+        <Style Selector="Button.selector:pointerover Border.usecase-card">
+            <Setter Property="BorderBrush" Value="#9EB8F0" />
+        </Style>
+
+        <!-- Selected state: clear filled accent, light text -->
         <Style Selector="Border.usecase-selected">
-            <Setter Property="BorderBrush" Value="#5B8DEF" />
-            <Setter Property="Background" Value="#F0F5FF" />
+            <Setter Property="Background" Value="#5B8DEF" />
+            <Setter Property="BorderBrush" Value="#3A6BD0" />
+        </Style>
+        <Style Selector="Border.usecase-selected TextBlock.usecase-title">
+            <Setter Property="Foreground" Value="#FFFFFF" />
+        </Style>
+        <Style Selector="Border.usecase-selected TextBlock.usecase-desc">
+            <Setter Property="Foreground" Value="#DCE7FA" />
+        </Style>
+        <Style Selector="Border.usecase-selected TextBlock.usecase-icon">
+            <Setter Property="Foreground" Value="#FFFFFF" />
+        </Style>
+
+        <!-- Selected + hovered: darker blue so hover is still visible on selected items -->
+        <Style Selector="Button.selector:pointerover Border.usecase-selected">
+            <Setter Property="Background" Value="#4A7CE0" />
+            <Setter Property="BorderBrush" Value="#3A6BD0" />
         </Style>
 
         <!-- Primary button -->
@@ -291,21 +339,23 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="vm:UseCaseItem">
-                                    <Button Command="{Binding $parent[ItemsControl].((vm:FirstRunWizardViewModel)DataContext).SelectUseCaseCommand}"
+                                    <Button Classes="selector"
+                                            Command="{Binding $parent[ItemsControl].((vm:FirstRunWizardViewModel)DataContext).SelectUseCaseCommand}"
                                             CommandParameter="{Binding Id}"
-                                            Background="Transparent" BorderThickness="0" Padding="0" Margin="0,0,8,8"
-                                            Cursor="Hand"
-                                            HorizontalContentAlignment="Stretch">
+                                            Margin="0,0,8,8">
                                         <Border Classes="usecase-card"
                                                 Classes.usecase-selected="{Binding IsSelected}"
                                                 Width="330" MinHeight="70">
                                             <Grid ColumnDefinitions="Auto,*">
-                                                <TextBlock Grid.Column="0" Text="{Binding Icon}" FontSize="28"
+                                                <TextBlock Grid.Column="0" Classes="usecase-icon"
+                                                           Text="{Binding Icon}" FontSize="28"
                                                            VerticalAlignment="Center" Margin="0,0,14,0" />
                                                 <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold"
+                                                    <TextBlock Classes="usecase-title"
+                                                               Text="{Binding Title}" FontSize="13" FontWeight="SemiBold"
                                                                Foreground="{DynamicResource TextPrimary}" />
-                                                    <TextBlock Text="{Binding Description}" FontSize="11"
+                                                    <TextBlock Classes="usecase-desc"
+                                                               Text="{Binding Description}" FontSize="11"
                                                                Foreground="{DynamicResource TextMuted}"
                                                                TextWrapping="Wrap" />
                                                 </StackPanel>
