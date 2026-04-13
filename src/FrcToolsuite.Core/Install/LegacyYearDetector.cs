@@ -257,44 +257,63 @@ public static class LegacyYearDetector
                 return;
             }
 
-            var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-            var publicDesktop = @"C:\Users\Public\Desktop";
-
-            var desktopPaths = new[] { desktopPath, publicDesktop };
-
-            foreach (var desktop in desktopPaths)
+            var yearStr = year.ToString();
+            var locations = new[]
             {
-                if (!Directory.Exists(desktop))
+                Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
+                @"C:\Users\Public\Desktop",
+                Environment.GetFolderPath(Environment.SpecialFolder.StartMenu),
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu),
+                Environment.GetFolderPath(Environment.SpecialFolder.Programs),
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonPrograms),
+            };
+
+            foreach (var location in locations)
+            {
+                if (string.IsNullOrEmpty(location) || !Directory.Exists(location))
                 {
                     continue;
                 }
 
                 try
                 {
-                    foreach (var shortcut in Directory.GetFiles(desktop, "*.lnk"))
+                    // Delete .lnk files containing the year
+                    foreach (var shortcut in Directory.GetFiles(location, "*.lnk"))
                     {
                         try
                         {
-                            // Check if the shortcut name references this year
                             var fileName = System.IO.Path.GetFileNameWithoutExtension(shortcut);
-                            if (fileName.Contains(year.ToString(), StringComparison.OrdinalIgnoreCase))
+                            if (fileName.Contains(yearStr, StringComparison.OrdinalIgnoreCase))
                             {
                                 File.Delete(shortcut);
                             }
                         }
-                        catch (IOException)
+                        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
                         {
-                            // Best effort cleanup
+                            // Best effort
                         }
-                        catch (UnauthorizedAccessException)
+                    }
+
+                    // Delete folders containing the year (e.g. "2025 WPILib Tools")
+                    foreach (var dir in Directory.GetDirectories(location))
+                    {
+                        try
                         {
-                            // Skip shortcuts we can't delete
+                            var dirName = System.IO.Path.GetFileName(dir);
+                            if (dirName.Contains(yearStr, StringComparison.OrdinalIgnoreCase))
+                            {
+                                Directory.Delete(dir, recursive: true);
+                            }
+                        }
+                        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                        {
+                            // Best effort
                         }
                     }
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    // Can't enumerate desktop
+                    // Can't enumerate this location
                 }
             }
         });
