@@ -37,10 +37,7 @@
             <StackPanel Grid.Row="0" Grid.Column="1" Spacing="3">
                 <Grid ColumnDefinitions="*,Auto">
                     <Button Grid.Column="0"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            Padding="0"
-                            Cursor="Hand"
+                            Classes="selector"
                             HorizontalAlignment="Left"
                             Command="{Binding $parent[ItemsControl].((vm:BrowsePageViewModel)DataContext).ViewDetailCommand}"
                             CommandParameter="{Binding}">

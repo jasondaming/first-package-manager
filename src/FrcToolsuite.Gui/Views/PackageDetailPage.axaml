@@ -13,12 +13,10 @@
 
             <!-- Back button -->
             <Button Content="&#x2190; Back to Browse"
+                    Classes="selector"
                     FontSize="12"
                     Foreground="#5B8DEF"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Padding="0"
-                    Cursor="Hand"
+                    HorizontalAlignment="Left"
                     Command="{Binding GoBackCommand}" />
 
             <!-- Package header -->
