@@ -100,14 +100,7 @@ public static class LegacyYearDetector
         {
             if (Directory.Exists(yearPath))
             {
-                try
-                {
-                    Directory.Delete(yearPath, recursive: true);
-                }
-                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-                {
-                    remainingErrors.Add(ex.Message);
-                }
+                remainingErrors.AddRange(ForceDeleteDirectory(yearPath));
             }
         });
 
@@ -127,6 +120,57 @@ public static class LegacyYearDetector
         }
 
         progress?.Report($"Successfully removed WPILib {year}.");
+    }
+
+    /// <summary>
+    /// Forcefully delete a directory, clearing read-only attributes and retrying
+    /// on transient file locks. Returns any files that could not be deleted.
+    /// </summary>
+    private static List<string> ForceDeleteDirectory(string path)
+    {
+        var errors = new List<string>();
+
+        // First pass: clear read-only attributes on all files/directories
+        try
+        {
+            foreach (var file in Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories))
+            {
+                try
+                {
+                    var attrs = File.GetAttributes(file);
+                    if ((attrs & FileAttributes.ReadOnly) != 0)
+                    {
+                        File.SetAttributes(file, attrs & ~FileAttributes.ReadOnly);
+                    }
+                }
+                catch { /* best effort */ }
+            }
+        }
+        catch { /* best effort */ }
+
+        // Retry delete up to 3 times with small delays (handles transient locks
+        // from antivirus scans, Windows Search indexer, etc.)
+        for (int attempt = 0; attempt < 3; attempt++)
+        {
+            try
+            {
+                Directory.Delete(path, recursive: true);
+                return errors; // Success
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                if (attempt == 2)
+                {
+                    errors.Add(ex.Message);
+                }
+                else
+                {
+                    Thread.Sleep(500);
+                }
+            }
+        }
+
+        return errors;
     }
 
     private static List<string> GetWpilibBaseDirs()
