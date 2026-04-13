@@ -108,8 +108,8 @@ public static class LegacyYearDetector
         progress?.Report("Cleaning up shortcuts...");
         await CleanupShortcutsAsync(year);
 
-        // Clean up PATH entries for this year's JDK
-        progress?.Report("Cleaning up PATH entries...");
+        // Clean up environment variables (PATH entries, JAVA_HOME, etc.)
+        progress?.Report("Cleaning up environment variables...");
         await CleanupPathEntriesAsync(year);
 
         if (remainingErrors.Count > 0)
@@ -323,36 +323,104 @@ public static class LegacyYearDetector
     {
         await Task.Run(() =>
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                return;
+                CleanupWindowsEnvironment(year);
             }
-
-            try
+            else
             {
-                var yearStr = year.ToString();
-                var pathVar = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
-                if (string.IsNullOrEmpty(pathVar))
-                {
-                    return;
-                }
+                CleanupUnixShellProfiles(year);
+            }
+        });
+    }
 
+    private static void CleanupWindowsEnvironment(int year)
+    {
+        var yearStr = year.ToString();
+        var yearPathFragments = new[]
+        {
+            $"wpilib\\{yearStr}",
+            $"wpilib/{yearStr}",
+        };
+
+        // 1. Clean PATH entries
+        try
+        {
+            var pathVar = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
+            if (!string.IsNullOrEmpty(pathVar))
+            {
                 var entries = pathVar.Split(';', StringSplitOptions.RemoveEmptyEntries);
                 var filtered = entries.Where(e =>
-                    !e.Contains($"wpilib\\{yearStr}", StringComparison.OrdinalIgnoreCase) &&
-                    !e.Contains($"wpilib/{yearStr}", StringComparison.OrdinalIgnoreCase))
+                    !yearPathFragments.Any(f => e.Contains(f, StringComparison.OrdinalIgnoreCase)))
                     .ToArray();
 
                 if (filtered.Length < entries.Length)
                 {
-                    var newPath = string.Join(';', filtered);
-                    Environment.SetEnvironmentVariable("PATH", newPath, EnvironmentVariableTarget.User);
+                    Environment.SetEnvironmentVariable("PATH", string.Join(';', filtered),
+                        EnvironmentVariableTarget.User);
                 }
             }
-            catch (System.Security.SecurityException)
+        }
+        catch (System.Security.SecurityException) { /* skip */ }
+
+        // 2. Clean year-specific environment variables (JAVA_HOME, etc.)
+        // If JAVA_HOME points to this year's JDK, clear it
+        try
+        {
+            var commonVars = new[] { "JAVA_HOME", "WPILIB_HOME", "GRADLE_HOME" };
+            foreach (var varName in commonVars)
             {
-                // Can't modify PATH without appropriate permissions
+                var value = Environment.GetEnvironmentVariable(varName, EnvironmentVariableTarget.User);
+                if (!string.IsNullOrEmpty(value)
+                    && yearPathFragments.Any(f => value.Contains(f, StringComparison.OrdinalIgnoreCase)))
+                {
+                    Environment.SetEnvironmentVariable(varName, null, EnvironmentVariableTarget.User);
+                }
             }
-        });
+        }
+        catch (System.Security.SecurityException) { /* skip */ }
+    }
+
+    private static void CleanupUnixShellProfiles(int year)
+    {
+        // On Mac/Linux, we can't programmatically modify env vars persistently.
+        // Instead, edit shell profile files to remove our marker-tagged exports.
+        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var profiles = new[]
+        {
+            System.IO.Path.Combine(home, ".profile"),
+            System.IO.Path.Combine(home, ".bashrc"),
+            System.IO.Path.Combine(home, ".zshrc"),
+            System.IO.Path.Combine(home, ".bash_profile"),
+        };
+
+        var yearStr = year.ToString();
+        var yearMarkers = new[]
+        {
+            $"wpilib/{yearStr}",
+            $"# frc-toolsuite-{yearStr}",
+        };
+
+        foreach (var profile in profiles)
+        {
+            if (!File.Exists(profile)) continue;
+
+            try
+            {
+                var lines = File.ReadAllLines(profile).ToList();
+                var filtered = lines.Where(line =>
+                    !yearMarkers.Any(m => line.Contains(m, StringComparison.OrdinalIgnoreCase)))
+                    .ToList();
+
+                if (filtered.Count < lines.Count)
+                {
+                    File.WriteAllLines(profile, filtered);
+                }
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                // Best effort
+            }
+        }
     }
 }
