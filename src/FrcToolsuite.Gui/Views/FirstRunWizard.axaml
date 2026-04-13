@@ -235,10 +235,9 @@
                                                     </TextBlock>
                                                     <Button Grid.Row="0" Grid.Column="1"
                                                             Content="Remove"
+                                                            Classes="warning"
                                                             FontSize="11" Padding="12,4"
                                                             CornerRadius="4"
-                                                            Background="#EF6C00" Foreground="White"
-                                                            BorderThickness="0"
                                                             Command="{Binding $parent[ItemsControl].((vm:FirstRunWizardViewModel)DataContext).UninstallYearCommand}"
                                                             CommandParameter="{Binding}"
                                                             IsVisible="{Binding !IsRemoved}"
@@ -251,7 +250,7 @@
                                                     <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
                                                                Text="{Binding StatusText}" FontSize="11"
                                                                Foreground="#8D6E63" Margin="0,2,0,0"
-                                                               IsVisible="{Binding IsRemoving}" />
+                                                               IsVisible="{Binding StatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
                                                 </Grid>
                                             </Border>
                                         </DataTemplate>

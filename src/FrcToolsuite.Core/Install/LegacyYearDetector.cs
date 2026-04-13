@@ -95,11 +95,19 @@ public static class LegacyYearDetector
 
         // Remove any remaining files and the directory itself
         progress?.Report("Removing remaining files...");
+        var remainingErrors = new List<string>();
         await Task.Run(() =>
         {
             if (Directory.Exists(yearPath))
             {
-                Directory.Delete(yearPath, recursive: true);
+                try
+                {
+                    Directory.Delete(yearPath, recursive: true);
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    remainingErrors.Add(ex.Message);
+                }
             }
         });
 
@@ -110,6 +118,13 @@ public static class LegacyYearDetector
         // Clean up PATH entries for this year's JDK
         progress?.Report("Cleaning up PATH entries...");
         await CleanupPathEntriesAsync(year);
+
+        if (remainingErrors.Count > 0)
+        {
+            progress?.Report($"Partially removed WPILib {year}. Some files were locked — close VS Code and retry.");
+            throw new IOException(
+                $"Some files in WPILib {year} could not be deleted (likely locked by VS Code or another process). Close all programs using the WPILib directory and try again.");
+        }
 
         progress?.Report($"Successfully removed WPILib {year}.");
     }
