@@ -25,6 +25,8 @@
   <ItemGroup>
     <ProjectReference Include="..\FrcToolsuite.Core\FrcToolsuite.Core.csproj" />
     <ProjectReference Include="..\FrcToolsuite.Platform.Windows\FrcToolsuite.Platform.Windows.csproj" />
+    <ProjectReference Include="..\FrcToolsuite.Platform.macOS\FrcToolsuite.Platform.macOS.csproj" />
+    <ProjectReference Include="..\FrcToolsuite.Platform.Linux\FrcToolsuite.Platform.Linux.csproj" />
   </ItemGroup>
 
 </Project>

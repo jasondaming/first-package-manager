@@ -1,0 +1,125 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to build (e.g. v1.0.0) — for dry-run testing only, does not publish'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Publish
+        shell: bash
+        run: |
+          dotnet publish src/FrcToolsuite.Gui -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o out/gui
+          dotnet publish src/FrcToolsuite.Cli -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o out/cli
+          mkdir -p staging
+          cp out/gui/FrcToolsuite.Gui.exe staging/FrcToolsuite.Gui-win-x64.exe
+          cp out/cli/FrcToolsuite.Cli.exe staging/frc-win-x64.exe
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-windows
+          path: staging/
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Publish
+        run: |
+          dotnet publish src/FrcToolsuite.Gui -c Release -r osx-x64   --self-contained -p:PublishSingleFile=true -o out/gui-osx-x64
+          dotnet publish src/FrcToolsuite.Gui -c Release -r osx-arm64 --self-contained -p:PublishSingleFile=true -o out/gui-osx-arm64
+          dotnet publish src/FrcToolsuite.Cli -c Release -r osx-x64   --self-contained -p:PublishSingleFile=true -o out/cli-osx-x64
+          dotnet publish src/FrcToolsuite.Cli -c Release -r osx-arm64 --self-contained -p:PublishSingleFile=true -o out/cli-osx-arm64
+          mkdir -p staging
+          cp out/gui-osx-x64/FrcToolsuite.Gui   staging/FrcToolsuite.Gui-osx-x64
+          cp out/gui-osx-arm64/FrcToolsuite.Gui  staging/FrcToolsuite.Gui-osx-arm64
+          cp out/cli-osx-x64/FrcToolsuite.Cli    staging/frc-osx-x64
+          cp out/cli-osx-arm64/FrcToolsuite.Cli  staging/frc-osx-arm64
+          chmod +x staging/*
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-macos
+          path: staging/
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Publish
+        run: |
+          dotnet publish src/FrcToolsuite.Gui -c Release -r linux-x64   --self-contained -p:PublishSingleFile=true -o out/gui-linux-x64
+          dotnet publish src/FrcToolsuite.Gui -c Release -r linux-arm64 --self-contained -p:PublishSingleFile=true -o out/gui-linux-arm64
+          dotnet publish src/FrcToolsuite.Cli -c Release -r linux-x64   --self-contained -p:PublishSingleFile=true -o out/cli-linux-x64
+          dotnet publish src/FrcToolsuite.Cli -c Release -r linux-arm64 --self-contained -p:PublishSingleFile=true -o out/cli-linux-arm64
+          mkdir -p staging
+          cp out/gui-linux-x64/FrcToolsuite.Gui   staging/FrcToolsuite.Gui-linux-x64
+          cp out/gui-linux-arm64/FrcToolsuite.Gui  staging/FrcToolsuite.Gui-linux-arm64
+          cp out/cli-linux-x64/FrcToolsuite.Cli    staging/frc-linux-x64
+          cp out/cli-linux-arm64/FrcToolsuite.Cli  staging/frc-linux-arm64
+          chmod +x staging/*
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-linux
+          path: staging/
+
+  release:
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${{ github.ref_name }}"
+          gh release create "$VERSION" \
+            --title "FRC Toolsuite $VERSION" \
+            --generate-notes \
+            artifacts/release-windows/FrcToolsuite.Gui-win-x64.exe \
+            artifacts/release-windows/frc-win-x64.exe \
+            artifacts/release-macos/FrcToolsuite.Gui-osx-x64 \
+            artifacts/release-macos/FrcToolsuite.Gui-osx-arm64 \
+            artifacts/release-macos/frc-osx-x64 \
+            artifacts/release-macos/frc-osx-arm64 \
+            artifacts/release-linux/FrcToolsuite.Gui-linux-x64 \
+            artifacts/release-linux/FrcToolsuite.Gui-linux-arm64 \
+            artifacts/release-linux/frc-linux-x64 \
+            artifacts/release-linux/frc-linux-arm64

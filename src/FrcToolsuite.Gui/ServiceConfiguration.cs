@@ -27,6 +27,14 @@ public static class ServiceConfiguration
         {
             Platform.Windows.ServiceRegistration.AddPlatformServices(services);
         }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            Platform.macOS.ServiceRegistration.AddPlatformServices(services);
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            Platform.Linux.ServiceRegistration.AddPlatformServices(services);
+        }
         else
         {
             services.AddSingleton<IPlatformService, StubPlatformService>();
