@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using Microsoft.Extensions.DependencyInjection;
 using FrcToolsuite.Core.Configuration;
 using FrcToolsuite.Core.Download;
 using FrcToolsuite.Core.Health;
@@ -11,6 +10,7 @@ using FrcToolsuite.Core.Registry;
 using FrcToolsuite.Core.Update;
 using FrcToolsuite.Gui.Shell;
 using FrcToolsuite.Gui.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FrcToolsuite.Gui;
 

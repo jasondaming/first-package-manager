@@ -1,6 +1,5 @@
 using System.CommandLine;
 using System.Runtime.InteropServices;
-using Microsoft.Extensions.DependencyInjection;
 using FrcToolsuite.Cli.Commands;
 using FrcToolsuite.Cli.Output;
 using FrcToolsuite.Core.Configuration;
@@ -12,6 +11,7 @@ using FrcToolsuite.Core.Packages;
 using FrcToolsuite.Core.Platform;
 using FrcToolsuite.Core.Registry;
 using FrcToolsuite.Core.Update;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FrcToolsuite.Cli;
 
