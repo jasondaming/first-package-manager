@@ -121,7 +121,7 @@ public sealed class PackageVersion : IComparable<PackageVersion>, IEquatable<Pac
             return this.CompareTo(target) >= 0;
         }
 
-        if (constraint.StartsWith(">"))
+        if (constraint.StartsWith('>'))
         {
             var target = Parse(constraint[1..].Trim());
             return this.CompareTo(target) > 0;
@@ -133,13 +133,13 @@ public sealed class PackageVersion : IComparable<PackageVersion>, IEquatable<Pac
             return this.CompareTo(target) <= 0;
         }
 
-        if (constraint.StartsWith("<"))
+        if (constraint.StartsWith('<'))
         {
             var target = Parse(constraint[1..].Trim());
             return target.CompareTo(this) > 0;
         }
 
-        if (constraint.StartsWith("="))
+        if (constraint.StartsWith('='))
         {
             var target = Parse(constraint[1..].Trim());
             return this.CompareTo(target) == 0;
