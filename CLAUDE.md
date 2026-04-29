@@ -4,7 +4,7 @@
 
 ```bash
 # Restore and build the entire solution
-dotnet build FrcToolsuite.sln
+dotnet build FrcToolsuite.slnx
 
 # Build a specific project
 dotnet build src/FrcToolsuite.Core/FrcToolsuite.Core.csproj
@@ -27,7 +27,25 @@ dotnet run --project src/FrcToolsuite.Cli/FrcToolsuite.Cli.csproj -- --help
 dotnet run --project tests/FrcToolsuite.TestHarness/FrcToolsuite.TestHarness.csproj -- list
 dotnet run --project tests/FrcToolsuite.TestHarness/FrcToolsuite.TestHarness.csproj -- screenshot Home
 dotnet run --project tests/FrcToolsuite.TestHarness/FrcToolsuite.TestHarness.csproj -- state Home
+
+# Check formatting (must pass clean before committing)
+dotnet format FrcToolsuite.slnx --verify-no-changes --no-restore
+
+# Publish self-contained single-file binaries
+dotnet publish src/FrcToolsuite.Gui -c Release -r win-x64   --self-contained -p:PublishSingleFile=true -o publish/gui-win-x64
+dotnet publish src/FrcToolsuite.Gui -c Release -r osx-arm64 --self-contained -p:PublishSingleFile=true -o publish/gui-osx-arm64
+dotnet publish src/FrcToolsuite.Gui -c Release -r linux-x64 --self-contained -p:PublishSingleFile=true -o publish/gui-linux-x64
+dotnet publish src/FrcToolsuite.Cli -c Release -r win-x64   --self-contained -p:PublishSingleFile=true -o publish/cli-win-x64
+dotnet publish src/FrcToolsuite.Cli -c Release -r osx-arm64 --self-contained -p:PublishSingleFile=true -o publish/cli-osx-arm64
+dotnet publish src/FrcToolsuite.Cli -c Release -r linux-x64 --self-contained -p:PublishSingleFile=true -o publish/cli-linux-x64
 ```
+
+## CI / Release
+
+- **CI** (`.github/workflows/ci.yml`): runs on every push/PR to master. Builds and tests on Windows, Ubuntu, macOS. Runs `dotnet format --verify-no-changes` on Ubuntu. Captures UI screenshots on Ubuntu.
+- **Release** (`.github/workflows/release.yml`): triggers on `v*.*.*` tag push. Builds self-contained binaries for win-x64, osx-x64, osx-arm64, linux-x64, linux-arm64 and creates a GitHub Release. Use `workflow_dispatch` to do a dry-run build without publishing.
+
+To publish a release: `git tag v1.0.0 && git push origin v1.0.0`
 
 ## Architecture Overview
 
@@ -36,7 +54,7 @@ FrcToolsuite is a cross-platform package manager for FIRST Robotics (FRC/FTC) to
 ### Solution Structure
 
 ```
-FrcToolsuite.sln
+FrcToolsuite.slnx
   src/
     FrcToolsuite.Core          - Shared models, interfaces, version logic (no UI dependency)
     FrcToolsuite.Gui           - Avalonia desktop GUI (MVVM with CommunityToolkit.Mvvm)
@@ -52,13 +70,14 @@ FrcToolsuite.sln
 
 ### Key Patterns
 
-- **.NET 8** target framework across all projects (set in Directory.Build.props)
+- **.NET 10** target framework across all projects (set in Directory.Build.props)
 - **Allman braces**, 4-space indentation
 - **Nullable** reference types enabled, **TreatWarningsAsErrors** enabled
 - **MVVM** in GUI: ViewModels implement `IStateExportable` for testability
 - **PackageVersion** class: semver-like parsing with comparison operators and range checking
 - **Registry models**: JSON-serializable with `System.Text.Json` attributes (`[JsonPropertyName]`)
 - **Platform abstraction**: Core defines interfaces, Platform.* projects provide implementations via DI
+- **Cross-platform GUI**: `ServiceConfiguration.cs` selects the correct `IPlatformService` at runtime via `RuntimeInformation.IsOSPlatform`. GUI references all three Platform projects; CLI does the same.
 
 ### Core Domain Types
 

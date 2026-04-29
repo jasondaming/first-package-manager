@@ -43,8 +43,16 @@ FrcToolsuite.Gui.exe
 ### Download
 
 Download the latest release from [GitHub Releases](https://github.com/jasondaming/first-package-manager/releases):
-- `FrcToolsuite.Gui.exe` (37 MB) - Graphical application
-- `FrcToolsuite.Cli.exe` (33 MB) - Command-line tool (rename to `frc.exe`)
+
+| Platform | GUI | CLI |
+|----------|-----|-----|
+| Windows x64 | `FrcToolsuite.Gui-win-x64.exe` | `frc-win-x64.exe` |
+| macOS x64 | `FrcToolsuite.Gui-osx-x64` | `frc-osx-x64` |
+| macOS ARM64 (Apple Silicon) | `FrcToolsuite.Gui-osx-arm64` | `frc-osx-arm64` |
+| Linux x64 | `FrcToolsuite.Gui-linux-x64` | `frc-linux-x64` |
+| Linux ARM64 | `FrcToolsuite.Gui-linux-arm64` | `frc-linux-arm64` |
+
+On macOS/Linux, mark the binary executable after downloading: `chmod +x FrcToolsuite.Gui-*`
 
 ### Build from Source
 
@@ -61,9 +69,10 @@ dotnet run --project src/FrcToolsuite.Gui
 # Run the CLI
 dotnet run --project src/FrcToolsuite.Cli -- --help
 
-# Publish standalone executables
+# Publish standalone executables (substitute win-x64 with osx-arm64, osx-x64, linux-x64, linux-arm64)
 dotnet publish src/FrcToolsuite.Gui -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o publish/gui
 dotnet publish src/FrcToolsuite.Cli -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o publish/cli
+# GitHub Actions release workflow handles all platforms automatically on tag push
 ```
 
 ## CLI Reference
